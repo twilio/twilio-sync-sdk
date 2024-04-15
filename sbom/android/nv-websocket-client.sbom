@@ -1,0 +1,5 @@
+[dependency]
+name = "nv-websocket-client"
+homepage = "https://github.com/TakahikoKawasaki/nv-websocket-client"
+license = { url = "https://raw.githubusercontent.com/TakahikoKawasaki/nv-websocket-client/master/LICENSE" }
+spdx = "Apache-2.0"

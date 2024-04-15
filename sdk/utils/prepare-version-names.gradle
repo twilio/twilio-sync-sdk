@@ -1,0 +1,42 @@
+ext.generateVersionNames = { gitHash, gitTag ->
+    println "=== generateVersionName ==="
+    println "Git tag: '$gitTag'"
+    println "Git Hash: '$gitHash'"
+    println()
+
+    def shortHashStream = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', gitHash
+        standardOutput = shortHashStream
+    }
+    def gitShortHash = shortHashStream.toString().trim()
+
+    if (gitShortHash == "") {
+        throw new GradleException('Generating version name failed')
+    }
+
+    def isSyncReleaseCandidate = false
+    def syncVersion = "SNAPSHOT"
+
+    def syncReleaseTag = (gitTag =~ /^release-sync-android-((\d+\.\d+\.\d+)-rc(\d+))$/)
+    if (syncReleaseTag.find()) {
+        isSyncReleaseCandidate = true
+        syncVersion = syncReleaseTag.group(2)
+    }
+
+    def syncFullVersion = "$syncVersion-$gitShortHash"
+
+    return [isSyncReleaseCandidate, syncVersion, syncFullVersion]
+}
+
+ext.generateSyncVersionNames = { gitHash, gitTag ->
+    def (isSyncReleaseCandidate,  syncVersion,  syncFullVersion) = generateVersionNames(gitHash, gitTag)
+
+    return [syncFullVersion, syncVersion]
+}
+
+ext.generatePublishVersionNames = { gitHash, gitTag ->
+    def (isSyncReleaseCandidate,  syncVersion,  syncFullVersion) = generateVersionNames(gitHash, gitTag)
+
+    return [isSyncReleaseCandidate,  syncVersion]
+}

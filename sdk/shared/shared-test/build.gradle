@@ -1,0 +1,79 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform'
+    id 'com.android.library'
+}
+
+kotlin {
+    androidTarget()
+    iosArm64()
+    iosSimulatorArm64()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation project(':twilsock')
+                implementation project(':shared-internal')
+                implementation kotlin('test')
+
+                api "org.jetbrains.kotlinx:kotlinx-datetime:$kotlinDateTimeVersion"
+                implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+                implementation "io.ktor:ktor-client-core:$ktorVersion"
+            }
+        }
+        androidMain {
+            dependencies {
+                implementation "androidx.test:runner:$androidXTestRunnerVersion"
+                implementation "io.mockk:mockk:$mockkVersion"
+                implementation 'org.objenesis:objenesis:3.3'
+                implementation "io.ktor:ktor-client-android:$ktorVersion" // for requestToken()
+            }
+        }
+        iosMain {
+            dependencies {
+                implementation "com.squareup.sqldelight:native-driver:$sqldelightVersion"
+            }
+        }
+    }
+}
+
+android {
+    namespace "com.twilio.shared_test"
+    compileSdk androidCompileSdkVersion
+
+    defaultConfig {
+        minSdk androidMinSdkVersion
+        targetSdk androidCompileSdkVersion
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        // required by kotlinx-datetime:0.4.0 on API below 26
+        // https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
+        coreLibraryDesugaringEnabled true
+
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // required by kotlinx-datetime:0.4.0 on API below 26
+    // https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugarJdkLibsVersion"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}

@@ -1,0 +1,103 @@
+// Set dependency constraints on transitive dependencies (twilsock, shared-public, shared-internal)
+// From current version until next major version.
+// We bump major version each time when a library binary incompatible with previous version.
+// So if convoSDK and syncSDK in the same app have binary incompatible transitive dependencies -
+// gradle will notify customer at compile time.
+
+def (_, syncVersion) = generateSyncVersionNames(gitHash, gitTag)
+
+subprojects {
+    afterEvaluate {
+        def allDependencies =
+                configurations.implementation.allDependencies +
+                configurations.api.allDependencies +
+                configurations.findByName("commonMainImplementation")?.allDependencies +
+                configurations.findByName("commonMainApi")?.allDependencies
+
+        def dependencyProjects = allDependencies
+                .collect { it.hasProperty("dependencyProject") ? it.dependencyProject : null }
+
+        dependencies {
+            if (project(":shared-public") in dependencyProjects) {
+                // fix generating pom.xml/gradleMetadata.module.
+                // Otherwise dependency will be there as `runtime`
+                // This is because dependency is in the `commonMainApi` configuration,
+                // but maven plugin works good with the `api` configuration only.
+                api project(":shared-public")
+            }
+            if (project(":sync-android-shared") in dependencyProjects) {
+                // fix generating pom.xml/gradleMetadata.module.
+                // Otherwise dependency will be there as `runtime`
+                // This is because dependency is in the `commonMainApi` configuration,
+                // but maven plugin works good with the `api` configuration only.
+                api project(":sync-android-shared")
+            }
+
+            constraints {
+
+                if (project(":sync-android-kt") in dependencyProjects) {
+                    println("Adding dependency constraints for sync-android-kt")
+                    implementation("com.twilio:sync-android-kt") {
+                        version {
+                            strictly untilNextMajorVersion(syncVersion)
+                            prefer syncVersion
+                        }
+                    }
+                }
+
+                if (project(":sync-android-shared") in dependencyProjects) {
+                    println("Adding dependency constraints for sync-android-shared")
+                    implementation("com.twilio:sync-android-shared") {
+                        version {
+                            strictly untilNextMajorVersion(syncVersion)
+                            prefer syncVersion
+                        }
+                    }
+                }
+
+                if (project(":twilsock") in dependencyProjects) {
+                    println("Adding dependency constraints for twilsock")
+                    implementation("com.twilio:twilsock") {
+                        version {
+                            strictly untilNextMajorVersion(twilsockVersion)
+                            prefer twilsockVersion
+                        }
+                    }
+                }
+
+                if (project(":shared-internal") in dependencyProjects) {
+                    println("Adding dependency constraints for shared-internal")
+                    implementation("com.twilio:shared-internal") {
+                        version {
+                            strictly untilNextMajorVersion(sharedInternalVersion)
+                            prefer sharedInternalVersion
+                        }
+                    }
+                }
+
+                if (project(":shared-public") in dependencyProjects) {
+                    println("Adding dependency constraints for shared-public")
+                    implementation("com.twilio:shared-public") {
+                        version {
+                            strictly untilNextMajorVersion(sharedPublicVersion)
+                            prefer sharedPublicVersion
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+def untilNextMajorVersion(version) {
+    def matcher = (version =~ /^(\d)\.(\d)\.(\d)$/)
+
+    if (!matcher) {
+        println("Cannot generate next major version for: $version [this should never happen on CI]")
+        return version
+    }
+
+    def (_,major) = matcher[0]
+    def nextMajorVersion = "${major.toInteger() + 1}.0.0"
+    return "[$version, $nextMajorVersion["
+}

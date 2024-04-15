@@ -1,0 +1,24 @@
+*.iml
+.gradle
+.idea
+.DS_Store
+build
+local.properties
+
+# Matchfile (comes from circleci context)
+BuildScripts/Matchfile
+
+# xCode local files
+xcuserdata
+DerivedData
+*.xccheckout
+!*.xcworkspacedata
+
+# Auto-generated files
+sdk/twilsock/src/commonTest/kotlin/com/twilio/twilsock/client/test/util/testConstants.kt
+sdk/shared/shared-test/src/commonMain/kotlin/com/twilio/test/util/testConstants.kt
+sdk/**/package-info.md
+sdk/sync/sync-android-kt/src/commonMain/kotlin/com/twilio/sync/utils/Versions.kt
+ios/TwilioSync/TwilioSyncTests/utils/TestConstants.swift
+ios/TwilioSync/output/
+tools/sbom/target/

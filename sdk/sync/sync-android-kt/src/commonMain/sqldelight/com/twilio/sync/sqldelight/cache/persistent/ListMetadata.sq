@@ -1,0 +1,72 @@
+import kotlin.Boolean;
+import kotlinx.datetime.Instant;
+
+CREATE TABLE listCacheMetadata (
+  sid TEXT PRIMARY KEY,
+  uniqueName TEXT,
+  dateCreated INTEGER AS Instant NOT NULL,
+  dateUpdated INTEGER AS Instant NOT NULL,
+  dateExpires INTEGER AS Instant,
+  revision TEXT NOT NULL,
+  lastEventId INTEGER NOT NULL,
+  isEmpty INTEGER AS Boolean DEFAULT NULL, -- null means 'unknown'
+  beginIndex INTEGER DEFAULT NULL, -- null means 'unknown'
+  endIndex INTEGER DEFAULT NULL -- null means 'unknown'
+);
+
+CREATE UNIQUE INDEX listUniqueName ON listCacheMetadata(uniqueName);
+
+selectCount:
+SELECT COUNT(*) FROM listCacheMetadata;
+
+selectBySid:
+SELECT * FROM listCacheMetadata WHERE sid = ?;
+
+selectByUniqueName:
+SELECT * FROM listCacheMetadata WHERE uniqueName = ?;
+
+selectBySidOrUniqueName:
+SELECT * FROM listCacheMetadata WHERE sid = :sidOrUniqueName OR uniqueName = :sidOrUniqueName;
+
+upsert:
+INSERT OR REPLACE INTO listCacheMetadata VALUES ?;
+
+resetBeginIndexIfGreater:
+UPDATE listCacheMetadata SET beginIndex = NULL WHERE sid = :sid AND beginIndex > :itemIndex;
+
+resetEndIndexIfLess:
+UPDATE listCacheMetadata SET endIndex = NULL WHERE sid = :sid AND endIndex < :itemIndex;
+
+resetBeginIndexIfEquals:
+UPDATE listCacheMetadata SET beginIndex = NULL WHERE sid = :sid AND beginIndex = :itemIndex;
+
+resetEndIndexIfEquals:
+UPDATE listCacheMetadata SET endIndex = NULL WHERE sid = :sid AND endIndex = :itemIndex;
+
+updateLastEventIdIfNewer:
+UPDATE listCacheMetadata SET lastEventId = :lastEventId WHERE sid = :sid AND lastEventId < :lastEventId;
+
+updateDateUpdatedIfLater:
+UPDATE listCacheMetadata SET dateUpdated = :dateUpdated WHERE sid = :sid AND dateUpdated < :dateUpdated;
+
+updateIsEmpty:
+UPDATE listCacheMetadata SET isEmpty = ? WHERE sid = ?;
+
+updateBeginIndex:
+UPDATE listCacheMetadata SET beginIndex = ? WHERE sid = ?;
+
+updateEndIndex:
+UPDATE listCacheMetadata SET endIndex = ? WHERE sid = ?;
+
+deleteBySid:
+DELETE FROM listCacheMetadata WHERE sid = ?;
+
+cleanupWithLimit {
+    DELETE FROM listItemCacheData WHERE listSid IN (
+      SELECT sid FROM listCacheMetadata ORDER BY rowid LIMIT :limit
+    );
+
+    DELETE FROM listCacheMetadata WHERE rowid IN (
+      SELECT rowid FROM listCacheMetadata ORDER BY rowid LIMIT :limit
+    );
+}

@@ -1,0 +1,99 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform'
+    id 'com.android.library'
+    id 'org.jetbrains.dokka'
+}
+
+apply plugin: 'signing'
+apply from: "${project(":utils").projectDir}/prepare-version-names.gradle"
+apply from: "${project(":utils").projectDir}/add-file-to-aar.gradle"
+
+kotlin {
+    androidTarget()
+    iosArm64()
+    iosSimulatorArm64()
+
+    sourceSets {
+        configureEach {
+            languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
+        }
+        commonMain {
+            dependencies {
+                api project(":shared-public")
+                implementation project(":shared-internal")
+            }
+        }
+    }
+}
+
+def (fullVersionName, shortVersionName) = generateSyncVersionNames(gitHash, gitTag)
+println "sync-android-shared fullVersionName: $fullVersionName"
+println "sync-android-shared shortVersionName: $shortVersionName"
+
+group = 'com.twilio'
+version = shortVersionName
+
+android {
+    namespace "com.twilio.sync_android_shared"
+    compileSdk androidCompileSdkVersion
+
+    defaultConfig {
+        minSdk androidMinSdkVersion
+        targetSdk androidCompileSdkVersion
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dokkaHtmlPartial {
+    moduleName = "Sync Utils"
+    suppressInheritedMembers = true
+
+    dependencies {
+        dokkaHtmlPlugin("org.jetbrains.dokka:android-documentation-plugin:$dokkaVersion")
+    }
+
+    dokkaSourceSets {
+        configureEach {
+            // suppress all default source sets in order to hide tags ("android", "common" etc)
+            suppress.set(true)
+        }
+
+        custom {
+            suppress.set(false)
+            noAndroidSdkLink.set(false)
+            platform.set(org.jetbrains.dokka.Platform.jvm)
+            sourceRoots.from("$projectDir/src/commonMain/kotlin/")
+        }
+    }
+}
+
+task packageSources(type: Jar) {
+    archiveClassifier.set("sources")
+    from(kotlin.sourceSets.commonMain.kotlin.srcDirs)
+}
+
+task packageDocs() {
+    dependsOn 'packageSources'
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
+    }
+}
+
+def noticesFile = file("${rootProject.projectDir}/sbom/generated/shared-sync.NOTICES.txt")
+addFileToAar("release", noticesFile)

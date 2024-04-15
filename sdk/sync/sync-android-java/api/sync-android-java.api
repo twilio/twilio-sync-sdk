@@ -1,0 +1,346 @@
+public final class com/twilio/sync/client/java/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public static final field VERSION_NAME Ljava/lang/String;
+	public fun <init> ()V
+}
+
+public abstract interface class com/twilio/sync/client/java/DocumentsJava {
+	public fun create (Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun create (Ljava/lang/String;JLcom/twilio/sync/client/java/SyncDocumentJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun create (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun create (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun mutateDocument (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SyncMutator;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun mutateDocumentWithTtl (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SyncMutator;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun openExisting (Ljava/lang/String;Lcom/twilio/sync/client/java/SyncDocumentJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun openExisting (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun openOrCreate (Ljava/lang/String;JLcom/twilio/sync/client/java/SyncDocumentJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun openOrCreate (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun openOrCreate (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun remove (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setTtl (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun updateDocument (Ljava/lang/String;Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun updateDocumentWithTtl (Ljava/lang/String;Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+}
+
+public abstract interface class com/twilio/sync/client/java/ListsJava {
+	public abstract fun addListItem (Ljava/lang/String;Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun addListItemWithTtl (Ljava/lang/String;Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun create (Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun create (Ljava/lang/String;JLcom/twilio/sync/client/java/SyncListJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun create (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun create (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun getListItem (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun mutateListItem (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SyncMutator;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun mutateListItemWithTtl (Ljava/lang/String;JJLcom/twilio/sync/client/java/utils/SyncMutator;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun openExisting (Ljava/lang/String;Lcom/twilio/sync/client/java/SyncListJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun openExisting (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun openOrCreate (Ljava/lang/String;JLcom/twilio/sync/client/java/SyncListJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun openOrCreate (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun openOrCreate (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun queryListItems (Ljava/lang/String;)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryListItems (Ljava/lang/String;J)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryListItems (Ljava/lang/String;JZ)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryListItems (Ljava/lang/String;Ljava/lang/Long;ZLcom/twilio/sync/utils/QueryOrder;)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryListItems (Ljava/lang/String;Ljava/lang/Long;ZLcom/twilio/sync/utils/QueryOrder;I)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public abstract fun queryListItems (Ljava/lang/String;Ljava/lang/Long;ZLcom/twilio/sync/utils/QueryOrder;IZ)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public abstract fun remove (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun removeListItem (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setListItem (Ljava/lang/String;JLjava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setListItemWithTtl (Ljava/lang/String;JLjava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setTtl (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+}
+
+public abstract interface class com/twilio/sync/client/java/MapsJava {
+	public fun create (Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun create (Ljava/lang/String;JLcom/twilio/sync/client/java/SyncMapJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun create (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun create (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun getMapItem (Ljava/lang/String;Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun mutateMapItem (Ljava/lang/String;Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SyncMutator;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun mutateMapItemWithTtl (Ljava/lang/String;Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SyncMutator;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun openExisting (Ljava/lang/String;Lcom/twilio/sync/client/java/SyncMapJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun openExisting (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun openOrCreate (Ljava/lang/String;JLcom/twilio/sync/client/java/SyncMapJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun openOrCreate (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun openOrCreate (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun queryMapItems (Ljava/lang/String;)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryMapItems (Ljava/lang/String;Ljava/lang/String;)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryMapItems (Ljava/lang/String;Ljava/lang/String;Z)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryMapItems (Ljava/lang/String;Ljava/lang/String;ZLcom/twilio/sync/utils/QueryOrder;)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryMapItems (Ljava/lang/String;Ljava/lang/String;ZLcom/twilio/sync/utils/QueryOrder;I)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public abstract fun queryMapItems (Ljava/lang/String;Ljava/lang/String;ZLcom/twilio/sync/utils/QueryOrder;IZ)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public abstract fun remove (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun removeMapItem (Ljava/lang/String;Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setMapItem (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setMapItemWithTtl (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setTtl (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+}
+
+public abstract interface class com/twilio/sync/client/java/StreamsJava {
+	public fun create (Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun create (Ljava/lang/String;JLcom/twilio/sync/client/java/SyncStreamJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun create (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun create (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun openExisting (Ljava/lang/String;Lcom/twilio/sync/client/java/SyncStreamJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun openExisting (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public static synthetic fun openExisting$default (Lcom/twilio/sync/client/java/StreamsJava;Ljava/lang/String;Lcom/twilio/sync/client/java/SyncStreamJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;ILjava/lang/Object;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun openOrCreate (Ljava/lang/String;JLcom/twilio/sync/client/java/SyncStreamJava$Listener;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun openOrCreate (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun openOrCreate (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun publishMessage (Ljava/lang/String;Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun remove (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setTtl (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+}
+
+public final class com/twilio/sync/client/java/SyncClientFactory {
+	public static final field INSTANCE Lcom/twilio/sync/client/java/SyncClientFactory;
+	public static final fun clearAllCaches (Landroid/content/Context;)V
+	public static final fun clearCacheForAccount (Landroid/content/Context;Lcom/twilio/util/AccountDescriptor;)V
+	public static final fun clearCacheForOtherAccounts (Landroid/content/Context;Lcom/twilio/util/AccountDescriptor;)V
+	public static final fun create (Landroid/content/Context;Lcom/twilio/sync/client/java/utils/TokenProvider;Lcom/twilio/sync/client/java/utils/SuccessListener;)V
+	public static final fun create (Landroid/content/Context;Lcom/twilio/sync/client/java/utils/TokenProvider;ZLcom/twilio/sync/client/java/utils/SuccessListener;)V
+	public static final fun create (Landroid/content/Context;Lcom/twilio/sync/client/java/utils/TokenProvider;ZLcom/twilio/sync/utils/SyncConfig;Lcom/twilio/sync/client/java/utils/SuccessListener;)V
+	public static synthetic fun create$default (Landroid/content/Context;Lcom/twilio/sync/client/java/utils/TokenProvider;ZLcom/twilio/sync/utils/SyncConfig;Lcom/twilio/sync/client/java/utils/SuccessListener;ILjava/lang/Object;)V
+}
+
+public abstract interface class com/twilio/sync/client/java/SyncClientJava : com/twilio/sync/client/java/utils/Listenable {
+	public static final field Companion Lcom/twilio/sync/client/java/SyncClientJava$Companion;
+	public abstract fun addListener (Lcom/twilio/sync/client/java/SyncClientJava$Listener;)V
+	public abstract fun getConnectionState ()Lcom/twilio/sync/utils/ConnectionState;
+	public abstract fun getDocuments ()Lcom/twilio/sync/client/java/DocumentsJava;
+	public abstract fun getLists ()Lcom/twilio/sync/client/java/ListsJava;
+	public abstract fun getMaps ()Lcom/twilio/sync/client/java/MapsJava;
+	public abstract fun getStreams ()Lcom/twilio/sync/client/java/StreamsJava;
+	public abstract fun removeAllListeners ()V
+	public abstract fun removeListener (Lcom/twilio/sync/client/java/SyncClientJava$Listener;)V
+	public static fun setLogLevel (Lcom/twilio/sync/utils/LogLevel;)V
+	public abstract fun shutdown ()V
+}
+
+public final class com/twilio/sync/client/java/SyncClientJava$Companion {
+	public final fun setLogLevel (Lcom/twilio/sync/utils/LogLevel;)V
+}
+
+public abstract interface class com/twilio/sync/client/java/SyncClientJava$Listener {
+	public fun onConnectionStateChanged (Lcom/twilio/sync/client/java/SyncClientJava;Lcom/twilio/sync/utils/ConnectionState;)V
+	public fun onError (Lcom/twilio/sync/client/java/SyncClientJava;Lcom/twilio/util/ErrorInfo;)V
+}
+
+public abstract interface class com/twilio/sync/client/java/SyncDocumentJava : com/twilio/sync/client/java/utils/Listenable {
+	public abstract fun addListener (Lcom/twilio/sync/client/java/SyncDocumentJava$Listener;)V
+	public abstract fun close ()V
+	public abstract fun getDateCreated ()J
+	public abstract fun getDateExpires ()Ljava/lang/Long;
+	public abstract fun getDateUpdated ()J
+	public abstract fun getJsonData ()Ljava/lang/String;
+	public abstract fun getSid ()Ljava/lang/String;
+	public abstract fun getSubscriptionState ()Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;
+	public abstract fun getUniqueName ()Ljava/lang/String;
+	public abstract fun isFromCache ()Z
+	public abstract fun isRemoved ()Z
+	public abstract fun mutateData (Lcom/twilio/sync/client/java/utils/SyncMutator;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun mutateDataWithTtl (JLcom/twilio/sync/client/java/utils/SyncMutator;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun removeAllListeners ()V
+	public abstract fun removeDocument (Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun removeListener (Lcom/twilio/sync/client/java/SyncDocumentJava$Listener;)V
+	public abstract fun setData (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setDataWithTtl (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setTtl (JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+}
+
+public abstract interface class com/twilio/sync/client/java/SyncDocumentJava$Listener {
+	public fun onRemoved (Lcom/twilio/sync/client/java/SyncDocumentJava;)V
+	public fun onSubscriptionStateChanged (Lcom/twilio/sync/client/java/SyncDocumentJava;Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;)V
+	public fun onUpdated (Lcom/twilio/sync/client/java/SyncDocumentJava;)V
+}
+
+public abstract interface class com/twilio/sync/client/java/SyncIteratorJava : com/twilio/sync/utils/Closeable {
+	public abstract fun hasNext (Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun next ()Ljava/lang/Object;
+}
+
+public abstract interface class com/twilio/sync/client/java/SyncListJava : com/twilio/sync/client/java/utils/Listenable {
+	public abstract fun addItem (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun addItemWithTtl (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun addListener (Lcom/twilio/sync/client/java/SyncListJava$Listener;)V
+	public abstract fun close ()V
+	public abstract fun getDateCreated ()J
+	public abstract fun getDateExpires ()Ljava/lang/Long;
+	public abstract fun getDateUpdated ()J
+	public abstract fun getItem (JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun getSid ()Ljava/lang/String;
+	public abstract fun getSubscriptionState ()Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;
+	public abstract fun getUniqueName ()Ljava/lang/String;
+	public abstract fun isFromCache ()Z
+	public abstract fun isRemoved ()Z
+	public abstract fun mutateItem (JLcom/twilio/sync/client/java/utils/SyncMutator;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun mutateItemWithTtl (JJLcom/twilio/sync/client/java/utils/SyncMutator;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun queryItems ()Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryItems (J)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryItems (JZ)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryItems (Ljava/lang/Long;ZLcom/twilio/sync/utils/QueryOrder;)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryItems (Ljava/lang/Long;ZLcom/twilio/sync/utils/QueryOrder;I)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public abstract fun queryItems (Ljava/lang/Long;ZLcom/twilio/sync/utils/QueryOrder;IZ)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public abstract fun removeAllListeners ()V
+	public abstract fun removeItem (JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun removeList (Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun removeListener (Lcom/twilio/sync/client/java/SyncListJava$Listener;)V
+	public abstract fun setItem (JLjava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setItemWithTtl (JLjava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setTtl (JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+}
+
+public final class com/twilio/sync/client/java/SyncListJava$Item {
+	public fun <init> (JLjava/lang/String;JJLjava/lang/Long;)V
+	public final fun component1 ()J
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()J
+	public final fun component4 ()J
+	public final fun component5 ()Ljava/lang/Long;
+	public final fun copy (JLjava/lang/String;JJLjava/lang/Long;)Lcom/twilio/sync/client/java/SyncListJava$Item;
+	public static synthetic fun copy$default (Lcom/twilio/sync/client/java/SyncListJava$Item;JLjava/lang/String;JJLjava/lang/Long;ILjava/lang/Object;)Lcom/twilio/sync/client/java/SyncListJava$Item;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDateCreated ()J
+	public final fun getDateExpires ()Ljava/lang/Long;
+	public final fun getDateUpdated ()J
+	public final fun getIndex ()J
+	public final fun getJsonData ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/twilio/sync/client/java/SyncListJava$Listener {
+	public fun onItemAdded (Lcom/twilio/sync/client/java/SyncListJava;Lcom/twilio/sync/client/java/SyncListJava$Item;)V
+	public fun onItemRemoved (Lcom/twilio/sync/client/java/SyncListJava;Lcom/twilio/sync/client/java/SyncListJava$Item;)V
+	public fun onItemUpdated (Lcom/twilio/sync/client/java/SyncListJava;Lcom/twilio/sync/client/java/SyncListJava$Item;)V
+	public fun onRemoved (Lcom/twilio/sync/client/java/SyncListJava;)V
+	public fun onSubscriptionStateChanged (Lcom/twilio/sync/client/java/SyncListJava;Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;)V
+}
+
+public abstract interface class com/twilio/sync/client/java/SyncMapJava : com/twilio/sync/client/java/utils/Listenable {
+	public abstract fun addListener (Lcom/twilio/sync/client/java/SyncMapJava$Listener;)V
+	public abstract fun close ()V
+	public abstract fun getDateCreated ()J
+	public abstract fun getDateExpires ()Ljava/lang/Long;
+	public abstract fun getDateUpdated ()J
+	public abstract fun getItem (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun getSid ()Ljava/lang/String;
+	public abstract fun getSubscriptionState ()Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;
+	public abstract fun getUniqueName ()Ljava/lang/String;
+	public abstract fun isFromCache ()Z
+	public abstract fun isRemoved ()Z
+	public abstract fun mutateItem (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SyncMutator;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun mutateItemWithTtl (Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SyncMutator;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public fun queryItems ()Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryItems (Ljava/lang/String;)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryItems (Ljava/lang/String;Z)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryItems (Ljava/lang/String;ZLcom/twilio/sync/utils/QueryOrder;)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public fun queryItems (Ljava/lang/String;ZLcom/twilio/sync/utils/QueryOrder;I)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public abstract fun queryItems (Ljava/lang/String;ZLcom/twilio/sync/utils/QueryOrder;IZ)Lcom/twilio/sync/client/java/SyncIteratorJava;
+	public abstract fun removeAllListeners ()V
+	public abstract fun removeItem (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun removeListener (Lcom/twilio/sync/client/java/SyncMapJava$Listener;)V
+	public abstract fun removeMap (Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setItem (Ljava/lang/String;Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setItemWithTtl (Ljava/lang/String;Ljava/lang/String;JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setTtl (JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+}
+
+public final class com/twilio/sync/client/java/SyncMapJava$Item {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;JJLjava/lang/Long;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()J
+	public final fun component4 ()J
+	public final fun component5 ()Ljava/lang/Long;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;JJLjava/lang/Long;)Lcom/twilio/sync/client/java/SyncMapJava$Item;
+	public static synthetic fun copy$default (Lcom/twilio/sync/client/java/SyncMapJava$Item;Ljava/lang/String;Ljava/lang/String;JJLjava/lang/Long;ILjava/lang/Object;)Lcom/twilio/sync/client/java/SyncMapJava$Item;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDateCreated ()J
+	public final fun getDateExpires ()Ljava/lang/Long;
+	public final fun getDateUpdated ()J
+	public final fun getJsonData ()Ljava/lang/String;
+	public final fun getKey ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/twilio/sync/client/java/SyncMapJava$Listener {
+	public fun onItemAdded (Lcom/twilio/sync/client/java/SyncMapJava;Lcom/twilio/sync/client/java/SyncMapJava$Item;)V
+	public fun onItemRemoved (Lcom/twilio/sync/client/java/SyncMapJava;Lcom/twilio/sync/client/java/SyncMapJava$Item;)V
+	public fun onItemUpdated (Lcom/twilio/sync/client/java/SyncMapJava;Lcom/twilio/sync/client/java/SyncMapJava$Item;)V
+	public fun onRemoved (Lcom/twilio/sync/client/java/SyncMapJava;)V
+	public fun onSubscriptionStateChanged (Lcom/twilio/sync/client/java/SyncMapJava;Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;)V
+}
+
+public abstract interface class com/twilio/sync/client/java/SyncStreamJava : com/twilio/sync/client/java/utils/Listenable {
+	public abstract fun addListener (Lcom/twilio/sync/client/java/SyncStreamJava$Listener;)V
+	public abstract fun close ()V
+	public abstract fun getDateExpires ()Ljava/lang/Long;
+	public abstract fun getSid ()Ljava/lang/String;
+	public abstract fun getSubscriptionState ()Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;
+	public abstract fun getUniqueName ()Ljava/lang/String;
+	public abstract fun isFromCache ()Z
+	public abstract fun isRemoved ()Z
+	public abstract fun publishMessage (Ljava/lang/String;Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun removeAllListeners ()V
+	public abstract fun removeListener (Lcom/twilio/sync/client/java/SyncStreamJava$Listener;)V
+	public abstract fun removeStream (Lcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+	public abstract fun setTtl (JLcom/twilio/sync/client/java/utils/SuccessListener;)Lcom/twilio/sync/client/java/utils/CancellationToken;
+}
+
+public abstract interface class com/twilio/sync/client/java/SyncStreamJava$Listener {
+	public fun onMessagePublished (Lcom/twilio/sync/client/java/SyncStreamJava;Lcom/twilio/sync/client/java/SyncStreamJava$Message;)V
+	public fun onRemoved (Lcom/twilio/sync/client/java/SyncStreamJava;)V
+	public fun onSubscriptionStateChanged (Lcom/twilio/sync/client/java/SyncStreamJava;Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;)V
+}
+
+public final class com/twilio/sync/client/java/SyncStreamJava$Message {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/twilio/sync/client/java/SyncStreamJava$Message;
+	public static synthetic fun copy$default (Lcom/twilio/sync/client/java/SyncStreamJava$Message;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/twilio/sync/client/java/SyncStreamJava$Message;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getJsonData ()Ljava/lang/String;
+	public final fun getSid ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/twilio/sync/client/java/utils/CancellationToken {
+	public abstract fun cancel ()V
+}
+
+public abstract interface class com/twilio/sync/client/java/utils/Listenable {
+	public abstract fun addListener (Ljava/lang/Object;)V
+	public abstract fun removeAllListeners ()V
+	public abstract fun removeListener (Ljava/lang/Object;)V
+}
+
+public final class com/twilio/sync/client/java/utils/SubscriptionStateJava : java/lang/Enum {
+	public static final field Established Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;
+	public static final field Failed Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;
+	public static final field Pending Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;
+	public static final field Subscribing Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;
+	public static final field Unsubscribed Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;
+	public static fun values ()[Lcom/twilio/sync/client/java/utils/SubscriptionStateJava;
+}
+
+public abstract interface class com/twilio/sync/client/java/utils/SuccessListener {
+	public fun onFailure (Lcom/twilio/util/ErrorInfo;)V
+	public abstract fun onSuccess (Ljava/lang/Object;)V
+}
+
+public abstract interface class com/twilio/sync/client/java/utils/SyncMutator {
+	public abstract fun mutate (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public abstract interface class com/twilio/sync/client/java/utils/TokenProvider {
+	public abstract fun getToken ()Ljava/lang/String;
+}
+

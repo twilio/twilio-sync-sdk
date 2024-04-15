@@ -1,0 +1,32 @@
+import kotlinx.datetime.Instant;
+
+CREATE TABLE streamCacheMetadata (
+  sid TEXT PRIMARY KEY,
+  uniqueName TEXT,
+  dateExpires INTEGER AS Instant
+);
+
+CREATE UNIQUE INDEX streamMetadataUniqueName ON streamCacheMetadata(uniqueName);
+
+selectCount:
+SELECT COUNT(*) FROM streamCacheMetadata;
+
+selectBySid:
+SELECT * FROM streamCacheMetadata WHERE sid = ?;
+
+selectByUniqueName:
+SELECT * FROM streamCacheMetadata WHERE uniqueName = ?;
+
+upsert:
+INSERT OR REPLACE INTO streamCacheMetadata VALUES ?;
+
+deleteBySid:
+DELETE FROM streamCacheMetadata WHERE sid = ?;
+
+deleteBySidOrUniqueName:
+DELETE FROM streamCacheMetadata WHERE sid = :sidOrUniqueName OR uniqueName = :sidOrUniqueName;
+
+cleanupWithLimit:
+DELETE FROM streamCacheMetadata WHERE rowid IN (
+  SELECT rowid FROM streamCacheMetadata ORDER BY rowid LIMIT ?
+);

@@ -1,0 +1,725 @@
+public final class com/twilio/sync/cache/SyncCacheCleaner {
+	public static final field INSTANCE Lcom/twilio/sync/cache/SyncCacheCleaner;
+	public final fun cleanupOnLogin (Lcom/twilio/util/AccountDescriptor;Lcom/twilio/sync/utils/CacheConfig;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun clearAllCaches ()V
+	public final fun clearCacheForAccount (Lcom/twilio/util/AccountDescriptor;)V
+	public final fun clearCacheForOtherAccounts (Lcom/twilio/util/AccountDescriptor;)V
+}
+
+public abstract interface class com/twilio/sync/cache/persistent/SyncDatabase : com/squareup/sqldelight/Transacter {
+	public static final field Companion Lcom/twilio/sync/cache/persistent/SyncDatabase$Companion;
+	public abstract fun getDocumentMetadataQueries ()Lcom/twilio/sync/sqldelight/cache/persistent/DocumentMetadataQueries;
+	public abstract fun getLinksQueries ()Lcom/twilio/sync/sqldelight/cache/persistent/LinksQueries;
+	public abstract fun getListItemDataQueries ()Lcom/twilio/sync/sqldelight/cache/persistent/ListItemDataQueries;
+	public abstract fun getListMetadataQueries ()Lcom/twilio/sync/sqldelight/cache/persistent/ListMetadataQueries;
+	public abstract fun getMapItemDataQueries ()Lcom/twilio/sync/sqldelight/cache/persistent/MapItemDataQueries;
+	public abstract fun getMapMetadataQueries ()Lcom/twilio/sync/sqldelight/cache/persistent/MapMetadataQueries;
+	public abstract fun getStreamMetadataQueries ()Lcom/twilio/sync/sqldelight/cache/persistent/StreamMetadataQueries;
+	public abstract fun getVacuumQueries ()Lcom/twilio/sync/sqldelight/cache/persistent/VacuumQueries;
+}
+
+public final class com/twilio/sync/cache/persistent/SyncDatabase$Companion {
+	public final fun getSchema ()Lcom/squareup/sqldelight/db/SqlDriver$Schema;
+	public final fun invoke (Lcom/squareup/sqldelight/db/SqlDriver;Lcom/twilio/sync/sqldelight/cache/persistent/DocumentCacheMetadata$Adapter;Lcom/twilio/sync/sqldelight/cache/persistent/ListCacheMetadata$Adapter;Lcom/twilio/sync/sqldelight/cache/persistent/ListItemCacheData$Adapter;Lcom/twilio/sync/sqldelight/cache/persistent/MapCacheMetadata$Adapter;Lcom/twilio/sync/sqldelight/cache/persistent/MapItemCacheData$Adapter;Lcom/twilio/sync/sqldelight/cache/persistent/StreamCacheMetadata$Adapter;)Lcom/twilio/sync/cache/persistent/SyncDatabase;
+}
+
+public final class com/twilio/sync/client/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public static final field VERSION_NAME Ljava/lang/String;
+	public fun <init> ()V
+}
+
+public abstract interface class com/twilio/sync/client/Documents {
+	public abstract fun create-8Mi8wO0 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun mutateDocument (Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun mutateDocumentWithTtl-dWUq8MI (Ljava/lang/String;JLkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun openExisting (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun openOrCreate-8Mi8wO0 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun remove (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setTtl-8Mi8wO0 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun updateDocument (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun updateDocumentWithTtl-exY8QGI (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/twilio/sync/client/Documents$DefaultImpls {
+	public static synthetic fun create-8Mi8wO0$default (Lcom/twilio/sync/client/Documents;Ljava/lang/String;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun openOrCreate-8Mi8wO0$default (Lcom/twilio/sync/client/Documents;Ljava/lang/String;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class com/twilio/sync/client/Lists {
+	public abstract fun addListItem (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun addListItemWithTtl-exY8QGI (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun create-8Mi8wO0 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun getListItem (Ljava/lang/String;JZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun mutateListItem (Ljava/lang/String;JLkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun mutateListItemWithTtl-1Y68eR8 (Ljava/lang/String;JJLkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun openExisting (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun openOrCreate-8Mi8wO0 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun queryItems (Ljava/lang/String;Ljava/lang/Long;ZLcom/twilio/sync/utils/QueryOrder;IZ)Lcom/twilio/sync/utils/SyncIterator;
+	public abstract fun remove (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun removeListItem (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setListItem (Ljava/lang/String;JLkotlinx/serialization/json/JsonObject;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setListItemWithTtl-zkXUZaI (Ljava/lang/String;JLkotlinx/serialization/json/JsonObject;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setTtl-8Mi8wO0 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/twilio/sync/client/Lists$DefaultImpls {
+	public static synthetic fun create-8Mi8wO0$default (Lcom/twilio/sync/client/Lists;Ljava/lang/String;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun getListItem$default (Lcom/twilio/sync/client/Lists;Ljava/lang/String;JZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun openOrCreate-8Mi8wO0$default (Lcom/twilio/sync/client/Lists;Ljava/lang/String;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun queryItems$default (Lcom/twilio/sync/client/Lists;Ljava/lang/String;Ljava/lang/Long;ZLcom/twilio/sync/utils/QueryOrder;IZILjava/lang/Object;)Lcom/twilio/sync/utils/SyncIterator;
+}
+
+public abstract interface class com/twilio/sync/client/Maps {
+	public abstract fun create-8Mi8wO0 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun getMapItem (Ljava/lang/String;Ljava/lang/String;ZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun mutateMapItem (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun mutateMapItemWithTtl-1Y68eR8 (Ljava/lang/String;Ljava/lang/String;JLkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun openExisting (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun openOrCreate-8Mi8wO0 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun queryItems (Ljava/lang/String;Ljava/lang/String;ZLcom/twilio/sync/utils/QueryOrder;IZ)Lcom/twilio/sync/utils/SyncIterator;
+	public abstract fun remove (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun removeMapItem (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setMapItem (Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setMapItemWithTtl-zkXUZaI (Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setTtl-8Mi8wO0 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/twilio/sync/client/Maps$DefaultImpls {
+	public static synthetic fun create-8Mi8wO0$default (Lcom/twilio/sync/client/Maps;Ljava/lang/String;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun getMapItem$default (Lcom/twilio/sync/client/Maps;Ljava/lang/String;Ljava/lang/String;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun openOrCreate-8Mi8wO0$default (Lcom/twilio/sync/client/Maps;Ljava/lang/String;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun queryItems$default (Lcom/twilio/sync/client/Maps;Ljava/lang/String;Ljava/lang/String;ZLcom/twilio/sync/utils/QueryOrder;IZILjava/lang/Object;)Lcom/twilio/sync/utils/SyncIterator;
+}
+
+public abstract interface class com/twilio/sync/client/Streams {
+	public abstract fun create-8Mi8wO0 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun openExisting (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun openOrCreate-8Mi8wO0 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun publishMessage (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun remove (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setTtl-8Mi8wO0 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/twilio/sync/client/Streams$DefaultImpls {
+	public static synthetic fun create-8Mi8wO0$default (Lcom/twilio/sync/client/Streams;Ljava/lang/String;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun openOrCreate-8Mi8wO0$default (Lcom/twilio/sync/client/Streams;Ljava/lang/String;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class com/twilio/sync/client/SyncClient {
+	public static final field Companion Lcom/twilio/sync/client/SyncClient$Companion;
+	public abstract fun getConnectionState ()Lcom/twilio/sync/utils/ConnectionState;
+	public abstract fun getDocuments ()Lcom/twilio/sync/client/Documents;
+	public abstract fun getEvents ()Lcom/twilio/sync/client/SyncClient$Events;
+	public abstract fun getLists ()Lcom/twilio/sync/client/Lists;
+	public abstract fun getMaps ()Lcom/twilio/sync/client/Maps;
+	public abstract fun getStreams ()Lcom/twilio/sync/client/Streams;
+	public abstract fun shutdown (Z)V
+}
+
+public final class com/twilio/sync/client/SyncClient$Companion {
+	public final fun setLogLevel (Lcom/twilio/sync/utils/LogLevel;)V
+}
+
+public final class com/twilio/sync/client/SyncClient$DefaultImpls {
+	public static synthetic fun shutdown$default (Lcom/twilio/sync/client/SyncClient;ZILjava/lang/Object;)V
+}
+
+public abstract interface class com/twilio/sync/client/SyncClient$Events {
+	public abstract fun getOnConnectionStateChanged ()Lkotlinx/coroutines/flow/StateFlow;
+	public abstract fun getOnError ()Lkotlinx/coroutines/flow/SharedFlow;
+}
+
+public final class com/twilio/sync/client/SyncClientExtensionsAndroidKt {
+	public static final fun clearAllCaches (Lcom/twilio/sync/client/SyncClient$Companion;Landroid/content/Context;)V
+	public static final fun clearCacheForAccount (Lcom/twilio/sync/client/SyncClient$Companion;Landroid/content/Context;Lcom/twilio/util/AccountDescriptor;)V
+	public static final fun clearCacheForOtherAccounts (Lcom/twilio/sync/client/SyncClient$Companion;Landroid/content/Context;Lcom/twilio/util/AccountDescriptor;)V
+}
+
+public final class com/twilio/sync/client/SyncClientFactoryAndroidKt {
+	public static final fun SyncClient (Landroid/content/Context;ZLcom/twilio/sync/utils/SyncConfig;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun SyncClient$default (Landroid/content/Context;ZLcom/twilio/sync/utils/SyncConfig;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/twilio/sync/client/SyncClientFactoryKt {
+	public static final fun createInternal (Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineScope;ZLcom/twilio/sync/utils/SyncConfig;Lcom/twilio/twilsock/client/ClientMetadata;Lcom/twilio/twilsock/util/ConnectivityMonitor;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun createInternal$default (Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineScope;ZLcom/twilio/sync/utils/SyncConfig;Lcom/twilio/twilsock/client/ClientMetadata;Lcom/twilio/twilsock/util/ConnectivityMonitor;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class com/twilio/sync/entities/SyncDocument {
+	public abstract fun close ()V
+	public abstract fun getData ()Lkotlinx/serialization/json/JsonObject;
+	public abstract fun getDateCreated ()Lkotlinx/datetime/Instant;
+	public abstract fun getDateExpires ()Lkotlinx/datetime/Instant;
+	public abstract fun getDateUpdated ()Lkotlinx/datetime/Instant;
+	public abstract fun getEvents ()Lcom/twilio/sync/entities/SyncDocument$Events;
+	public abstract fun getSid ()Ljava/lang/String;
+	public abstract fun getSubscriptionState ()Lcom/twilio/sync/subscriptions/SubscriptionState;
+	public abstract fun getUniqueName ()Ljava/lang/String;
+	public abstract fun isFromCache ()Z
+	public abstract fun isRemoved ()Z
+	public abstract fun mutateData (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun mutateDataWithTtl-KLykuaI (JLkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun removeDocument (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setData (Lkotlinx/serialization/json/JsonObject;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setDataWithTtl-8Mi8wO0 (Lkotlinx/serialization/json/JsonObject;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setTtl-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/twilio/sync/entities/SyncDocument$DefaultImpls {
+	public static fun isFromCache (Lcom/twilio/sync/entities/SyncDocument;)Z
+}
+
+public abstract interface class com/twilio/sync/entities/SyncDocument$Events {
+	public abstract fun getOnRemoved ()Lkotlinx/coroutines/flow/SharedFlow;
+	public abstract fun getOnSubscriptionStateChanged ()Lkotlinx/coroutines/flow/StateFlow;
+	public abstract fun getOnUpdated ()Lkotlinx/coroutines/flow/SharedFlow;
+}
+
+public abstract interface class com/twilio/sync/entities/SyncList {
+	public abstract fun addItem (Lkotlinx/serialization/json/JsonObject;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun addItemWithTtl-8Mi8wO0 (Lkotlinx/serialization/json/JsonObject;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun close ()V
+	public abstract fun getDateCreated ()Lkotlinx/datetime/Instant;
+	public abstract fun getDateExpires ()Lkotlinx/datetime/Instant;
+	public abstract fun getDateUpdated ()Lkotlinx/datetime/Instant;
+	public abstract fun getEvents ()Lcom/twilio/sync/entities/SyncList$Events;
+	public abstract fun getItem (JZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun getSid ()Ljava/lang/String;
+	public abstract fun getSubscriptionState ()Lcom/twilio/sync/subscriptions/SubscriptionState;
+	public abstract fun getUniqueName ()Ljava/lang/String;
+	public abstract fun isFromCache ()Z
+	public abstract fun isRemoved ()Z
+	public abstract fun iterator ()Lcom/twilio/sync/utils/SyncIterator;
+	public abstract fun mutateItem (JLkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun mutateItemWithTtl-dWUq8MI (JJLkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun queryItems (Ljava/lang/Long;ZLcom/twilio/sync/utils/QueryOrder;IZ)Lcom/twilio/sync/utils/SyncIterator;
+	public abstract fun removeItem (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun removeList (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setItem (JLkotlinx/serialization/json/JsonObject;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setItemWithTtl-exY8QGI (JLkotlinx/serialization/json/JsonObject;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setTtl-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/twilio/sync/entities/SyncList$DefaultImpls {
+	public static synthetic fun getItem$default (Lcom/twilio/sync/entities/SyncList;JZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static fun isFromCache (Lcom/twilio/sync/entities/SyncList;)Z
+	public static fun iterator (Lcom/twilio/sync/entities/SyncList;)Lcom/twilio/sync/utils/SyncIterator;
+	public static synthetic fun queryItems$default (Lcom/twilio/sync/entities/SyncList;Ljava/lang/Long;ZLcom/twilio/sync/utils/QueryOrder;IZILjava/lang/Object;)Lcom/twilio/sync/utils/SyncIterator;
+}
+
+public abstract interface class com/twilio/sync/entities/SyncList$Events {
+	public abstract fun getOnItemAdded ()Lkotlinx/coroutines/flow/SharedFlow;
+	public abstract fun getOnItemRemoved ()Lkotlinx/coroutines/flow/SharedFlow;
+	public abstract fun getOnItemUpdated ()Lkotlinx/coroutines/flow/SharedFlow;
+	public abstract fun getOnRemoved ()Lkotlinx/coroutines/flow/SharedFlow;
+	public abstract fun getOnSubscriptionStateChanged ()Lkotlinx/coroutines/flow/StateFlow;
+}
+
+public final class com/twilio/sync/entities/SyncList$Item {
+	public fun <init> (JLkotlinx/serialization/json/JsonObject;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;)V
+	public final fun component1 ()J
+	public final fun component2 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun component3 ()Lkotlinx/datetime/Instant;
+	public final fun component4 ()Lkotlinx/datetime/Instant;
+	public final fun component5 ()Lkotlinx/datetime/Instant;
+	public final fun copy (JLkotlinx/serialization/json/JsonObject;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;)Lcom/twilio/sync/entities/SyncList$Item;
+	public static synthetic fun copy$default (Lcom/twilio/sync/entities/SyncList$Item;JLkotlinx/serialization/json/JsonObject;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;ILjava/lang/Object;)Lcom/twilio/sync/entities/SyncList$Item;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getData ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getDateCreated ()Lkotlinx/datetime/Instant;
+	public final fun getDateExpires ()Lkotlinx/datetime/Instant;
+	public final fun getDateUpdated ()Lkotlinx/datetime/Instant;
+	public final fun getIndex ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/twilio/sync/entities/SyncMap {
+	public abstract fun close ()V
+	public abstract fun getDateCreated ()Lkotlinx/datetime/Instant;
+	public abstract fun getDateExpires ()Lkotlinx/datetime/Instant;
+	public abstract fun getDateUpdated ()Lkotlinx/datetime/Instant;
+	public abstract fun getEvents ()Lcom/twilio/sync/entities/SyncMap$Events;
+	public abstract fun getItem (Ljava/lang/String;ZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun getSid ()Ljava/lang/String;
+	public abstract fun getSubscriptionState ()Lcom/twilio/sync/subscriptions/SubscriptionState;
+	public abstract fun getUniqueName ()Ljava/lang/String;
+	public abstract fun isFromCache ()Z
+	public abstract fun isRemoved ()Z
+	public abstract fun iterator ()Lcom/twilio/sync/utils/SyncIterator;
+	public abstract fun mutateItem (Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun mutateItemWithTtl-dWUq8MI (Ljava/lang/String;JLkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun queryItems (Ljava/lang/String;ZLcom/twilio/sync/utils/QueryOrder;IZ)Lcom/twilio/sync/utils/SyncIterator;
+	public abstract fun removeItem (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun removeMap (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setItem (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setItemWithTtl-exY8QGI (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setTtl-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/twilio/sync/entities/SyncMap$DefaultImpls {
+	public static synthetic fun getItem$default (Lcom/twilio/sync/entities/SyncMap;Ljava/lang/String;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static fun isFromCache (Lcom/twilio/sync/entities/SyncMap;)Z
+	public static fun iterator (Lcom/twilio/sync/entities/SyncMap;)Lcom/twilio/sync/utils/SyncIterator;
+	public static synthetic fun queryItems$default (Lcom/twilio/sync/entities/SyncMap;Ljava/lang/String;ZLcom/twilio/sync/utils/QueryOrder;IZILjava/lang/Object;)Lcom/twilio/sync/utils/SyncIterator;
+}
+
+public abstract interface class com/twilio/sync/entities/SyncMap$Events {
+	public abstract fun getOnItemAdded ()Lkotlinx/coroutines/flow/SharedFlow;
+	public abstract fun getOnItemRemoved ()Lkotlinx/coroutines/flow/SharedFlow;
+	public abstract fun getOnItemUpdated ()Lkotlinx/coroutines/flow/SharedFlow;
+	public abstract fun getOnRemoved ()Lkotlinx/coroutines/flow/SharedFlow;
+	public abstract fun getOnSubscriptionStateChanged ()Lkotlinx/coroutines/flow/StateFlow;
+}
+
+public final class com/twilio/sync/entities/SyncMap$Item {
+	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun component3 ()Lkotlinx/datetime/Instant;
+	public final fun component4 ()Lkotlinx/datetime/Instant;
+	public final fun component5 ()Lkotlinx/datetime/Instant;
+	public final fun copy (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;)Lcom/twilio/sync/entities/SyncMap$Item;
+	public static synthetic fun copy$default (Lcom/twilio/sync/entities/SyncMap$Item;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;ILjava/lang/Object;)Lcom/twilio/sync/entities/SyncMap$Item;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getData ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getDateCreated ()Lkotlinx/datetime/Instant;
+	public final fun getDateExpires ()Lkotlinx/datetime/Instant;
+	public final fun getDateUpdated ()Lkotlinx/datetime/Instant;
+	public final fun getKey ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/twilio/sync/entities/SyncStream {
+	public abstract fun close ()V
+	public abstract fun getDateExpires ()Lkotlinx/datetime/Instant;
+	public abstract fun getEvents ()Lcom/twilio/sync/entities/SyncStream$Events;
+	public abstract fun getSid ()Ljava/lang/String;
+	public abstract fun getSubscriptionState ()Lcom/twilio/sync/subscriptions/SubscriptionState;
+	public abstract fun getUniqueName ()Ljava/lang/String;
+	public abstract fun isFromCache ()Z
+	public abstract fun isRemoved ()Z
+	public abstract fun publishMessage (Lkotlinx/serialization/json/JsonObject;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun removeStream (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun setTtl-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/twilio/sync/entities/SyncStream$DefaultImpls {
+	public static fun isFromCache (Lcom/twilio/sync/entities/SyncStream;)Z
+}
+
+public abstract interface class com/twilio/sync/entities/SyncStream$Events {
+	public abstract fun getOnMessagePublished ()Lkotlinx/coroutines/flow/SharedFlow;
+	public abstract fun getOnRemoved ()Lkotlinx/coroutines/flow/SharedFlow;
+	public abstract fun getOnSubscriptionStateChanged ()Lkotlinx/coroutines/flow/StateFlow;
+}
+
+public final class com/twilio/sync/entities/SyncStream$Message {
+	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun copy (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;)Lcom/twilio/sync/entities/SyncStream$Message;
+	public static synthetic fun copy$default (Lcom/twilio/sync/entities/SyncStream$Message;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lcom/twilio/sync/entities/SyncStream$Message;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getData ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getSid ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/DocumentCacheMetadata {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLkotlinx/serialization/json/JsonObject;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lkotlinx/datetime/Instant;
+	public final fun component4 ()Lkotlinx/datetime/Instant;
+	public final fun component5 ()Lkotlinx/datetime/Instant;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()J
+	public final fun component8 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLkotlinx/serialization/json/JsonObject;)Lcom/twilio/sync/sqldelight/cache/persistent/DocumentCacheMetadata;
+	public static synthetic fun copy$default (Lcom/twilio/sync/sqldelight/cache/persistent/DocumentCacheMetadata;Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lcom/twilio/sync/sqldelight/cache/persistent/DocumentCacheMetadata;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDateCreated ()Lkotlinx/datetime/Instant;
+	public final fun getDateExpires ()Lkotlinx/datetime/Instant;
+	public final fun getDateUpdated ()Lkotlinx/datetime/Instant;
+	public final fun getDocumentData ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getLastEventId ()J
+	public final fun getRevision ()Ljava/lang/String;
+	public final fun getSid ()Ljava/lang/String;
+	public final fun getUniqueName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/DocumentCacheMetadata$Adapter {
+	public fun <init> (Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;)V
+	public final fun getDateCreatedAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getDateExpiresAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getDateUpdatedAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getDocumentDataAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+}
+
+public abstract interface class com/twilio/sync/sqldelight/cache/persistent/DocumentMetadataQueries : com/squareup/sqldelight/Transacter {
+	public abstract fun cleanupWithLimit (J)V
+	public abstract fun deleteBySid (Ljava/lang/String;)V
+	public abstract fun deleteBySidOrUniqueName (Ljava/lang/String;)V
+	public abstract fun selectBySid (Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectBySid (Ljava/lang/String;Lkotlin/jvm/functions/Function8;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectByUniqueName (Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectByUniqueName (Ljava/lang/String;Lkotlin/jvm/functions/Function8;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectCount ()Lcom/squareup/sqldelight/Query;
+	public abstract fun upsert (Lcom/twilio/sync/sqldelight/cache/persistent/DocumentCacheMetadata;)V
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/Links {
+	public fun <init> (JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()J
+	public final fun component10 ()Ljava/lang/String;
+	public final fun component11 ()Ljava/lang/String;
+	public final fun component12 ()Ljava/lang/String;
+	public final fun component13 ()Ljava/lang/String;
+	public final fun component14 ()Ljava/lang/String;
+	public final fun component15 ()Ljava/lang/String;
+	public final fun component16 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy (JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/twilio/sync/sqldelight/cache/persistent/Links;
+	public static synthetic fun copy$default (Lcom/twilio/sync/sqldelight/cache/persistent/Links;JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/twilio/sync/sqldelight/cache/persistent/Links;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDocument ()Ljava/lang/String;
+	public final fun getDocuments ()Ljava/lang/String;
+	public final fun getId ()J
+	public final fun getInsightsItems ()Ljava/lang/String;
+	public final fun getList ()Ljava/lang/String;
+	public final fun getListItem ()Ljava/lang/String;
+	public final fun getListItems ()Ljava/lang/String;
+	public final fun getLists ()Ljava/lang/String;
+	public final fun getMap ()Ljava/lang/String;
+	public final fun getMapItem ()Ljava/lang/String;
+	public final fun getMapItems ()Ljava/lang/String;
+	public final fun getMaps ()Ljava/lang/String;
+	public final fun getStream ()Ljava/lang/String;
+	public final fun getStreamMessages ()Ljava/lang/String;
+	public final fun getStreams ()Ljava/lang/String;
+	public final fun getSubscriptions ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/twilio/sync/sqldelight/cache/persistent/LinksQueries : com/squareup/sqldelight/Transacter {
+	public abstract fun get ()Lcom/squareup/sqldelight/Query;
+	public abstract fun get (Lkotlin/jvm/functions/Function16;)Lcom/squareup/sqldelight/Query;
+	public abstract fun upsert (Lcom/twilio/sync/sqldelight/cache/persistent/Links;)V
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/ListCacheMetadata {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLjava/lang/Boolean;Ljava/lang/Long;Ljava/lang/Long;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component10 ()Ljava/lang/Long;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lkotlinx/datetime/Instant;
+	public final fun component4 ()Lkotlinx/datetime/Instant;
+	public final fun component5 ()Lkotlinx/datetime/Instant;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()J
+	public final fun component8 ()Ljava/lang/Boolean;
+	public final fun component9 ()Ljava/lang/Long;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLjava/lang/Boolean;Ljava/lang/Long;Ljava/lang/Long;)Lcom/twilio/sync/sqldelight/cache/persistent/ListCacheMetadata;
+	public static synthetic fun copy$default (Lcom/twilio/sync/sqldelight/cache/persistent/ListCacheMetadata;Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLjava/lang/Boolean;Ljava/lang/Long;Ljava/lang/Long;ILjava/lang/Object;)Lcom/twilio/sync/sqldelight/cache/persistent/ListCacheMetadata;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBeginIndex ()Ljava/lang/Long;
+	public final fun getDateCreated ()Lkotlinx/datetime/Instant;
+	public final fun getDateExpires ()Lkotlinx/datetime/Instant;
+	public final fun getDateUpdated ()Lkotlinx/datetime/Instant;
+	public final fun getEndIndex ()Ljava/lang/Long;
+	public final fun getLastEventId ()J
+	public final fun getRevision ()Ljava/lang/String;
+	public final fun getSid ()Ljava/lang/String;
+	public final fun getUniqueName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun isEmpty ()Ljava/lang/Boolean;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/ListCacheMetadata$Adapter {
+	public fun <init> (Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;)V
+	public final fun getDateCreatedAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getDateExpiresAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getDateUpdatedAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/ListItemCacheData {
+	public fun <init> (Ljava/lang/String;JLkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLkotlinx/serialization/json/JsonObject;ZZZ)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component10 ()Z
+	public final fun component11 ()Z
+	public final fun component2 ()J
+	public final fun component3 ()Lkotlinx/datetime/Instant;
+	public final fun component4 ()Lkotlinx/datetime/Instant;
+	public final fun component5 ()Lkotlinx/datetime/Instant;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()J
+	public final fun component8 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun component9 ()Z
+	public final fun copy (Ljava/lang/String;JLkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLkotlinx/serialization/json/JsonObject;ZZZ)Lcom/twilio/sync/sqldelight/cache/persistent/ListItemCacheData;
+	public static synthetic fun copy$default (Lcom/twilio/sync/sqldelight/cache/persistent/ListItemCacheData;Ljava/lang/String;JLkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLkotlinx/serialization/json/JsonObject;ZZZILjava/lang/Object;)Lcom/twilio/sync/sqldelight/cache/persistent/ListItemCacheData;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDateCreated ()Lkotlinx/datetime/Instant;
+	public final fun getDateExpires ()Lkotlinx/datetime/Instant;
+	public final fun getDateUpdated ()Lkotlinx/datetime/Instant;
+	public final fun getItemData ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getItemIndex ()J
+	public final fun getLastEventId ()J
+	public final fun getListSid ()Ljava/lang/String;
+	public final fun getRevision ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun isLeftBound ()Z
+	public final fun isRemoved ()Z
+	public final fun isRightBound ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/ListItemCacheData$Adapter {
+	public fun <init> (Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;)V
+	public final fun getDateCreatedAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getDateExpiresAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getDateUpdatedAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getItemDataAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+}
+
+public abstract interface class com/twilio/sync/sqldelight/cache/persistent/ListItemDataQueries : com/squareup/sqldelight/Transacter {
+	public abstract fun deleteAllByListSid (Ljava/lang/String;)V
+	public abstract fun selectNext (Ljava/lang/String;J)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectNext (Ljava/lang/String;JLkotlin/jvm/functions/Function11;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectOne (Ljava/lang/String;J)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectOne (Ljava/lang/String;JLkotlin/jvm/functions/Function11;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectPrev (Ljava/lang/String;J)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectPrev (Ljava/lang/String;JLkotlin/jvm/functions/Function11;)Lcom/squareup/sqldelight/Query;
+	public abstract fun upsert (Lcom/twilio/sync/sqldelight/cache/persistent/ListItemCacheData;)V
+}
+
+public abstract interface class com/twilio/sync/sqldelight/cache/persistent/ListMetadataQueries : com/squareup/sqldelight/Transacter {
+	public abstract fun cleanupWithLimit (J)V
+	public abstract fun deleteBySid (Ljava/lang/String;)V
+	public abstract fun resetBeginIndexIfEquals (Ljava/lang/String;Ljava/lang/Long;)V
+	public abstract fun resetBeginIndexIfGreater (Ljava/lang/String;Ljava/lang/Long;)V
+	public abstract fun resetEndIndexIfEquals (Ljava/lang/String;Ljava/lang/Long;)V
+	public abstract fun resetEndIndexIfLess (Ljava/lang/String;Ljava/lang/Long;)V
+	public abstract fun selectBySid (Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectBySid (Ljava/lang/String;Lkotlin/jvm/functions/Function10;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectBySidOrUniqueName (Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectBySidOrUniqueName (Ljava/lang/String;Lkotlin/jvm/functions/Function10;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectByUniqueName (Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectByUniqueName (Ljava/lang/String;Lkotlin/jvm/functions/Function10;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectCount ()Lcom/squareup/sqldelight/Query;
+	public abstract fun updateBeginIndex (Ljava/lang/Long;Ljava/lang/String;)V
+	public abstract fun updateDateUpdatedIfLater (Lkotlinx/datetime/Instant;Ljava/lang/String;)V
+	public abstract fun updateEndIndex (Ljava/lang/Long;Ljava/lang/String;)V
+	public abstract fun updateIsEmpty (Ljava/lang/Boolean;Ljava/lang/String;)V
+	public abstract fun updateLastEventIdIfNewer (JLjava/lang/String;)V
+	public abstract fun upsert (Lcom/twilio/sync/sqldelight/cache/persistent/ListCacheMetadata;)V
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/MapCacheMetadata {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLjava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component10 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lkotlinx/datetime/Instant;
+	public final fun component4 ()Lkotlinx/datetime/Instant;
+	public final fun component5 ()Lkotlinx/datetime/Instant;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()J
+	public final fun component8 ()Ljava/lang/Boolean;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLjava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;)Lcom/twilio/sync/sqldelight/cache/persistent/MapCacheMetadata;
+	public static synthetic fun copy$default (Lcom/twilio/sync/sqldelight/cache/persistent/MapCacheMetadata;Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLjava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/twilio/sync/sqldelight/cache/persistent/MapCacheMetadata;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBeginKey ()Ljava/lang/String;
+	public final fun getDateCreated ()Lkotlinx/datetime/Instant;
+	public final fun getDateExpires ()Lkotlinx/datetime/Instant;
+	public final fun getDateUpdated ()Lkotlinx/datetime/Instant;
+	public final fun getEndKey ()Ljava/lang/String;
+	public final fun getLastEventId ()J
+	public final fun getRevision ()Ljava/lang/String;
+	public final fun getSid ()Ljava/lang/String;
+	public final fun getUniqueName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun isEmpty ()Ljava/lang/Boolean;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/MapCacheMetadata$Adapter {
+	public fun <init> (Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;)V
+	public final fun getDateCreatedAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getDateExpiresAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getDateUpdatedAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/MapItemCacheData {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLkotlinx/serialization/json/JsonObject;ZZZ)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component10 ()Z
+	public final fun component11 ()Z
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lkotlinx/datetime/Instant;
+	public final fun component4 ()Lkotlinx/datetime/Instant;
+	public final fun component5 ()Lkotlinx/datetime/Instant;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()J
+	public final fun component8 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun component9 ()Z
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLkotlinx/serialization/json/JsonObject;ZZZ)Lcom/twilio/sync/sqldelight/cache/persistent/MapItemCacheData;
+	public static synthetic fun copy$default (Lcom/twilio/sync/sqldelight/cache/persistent/MapItemCacheData;Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Ljava/lang/String;JLkotlinx/serialization/json/JsonObject;ZZZILjava/lang/Object;)Lcom/twilio/sync/sqldelight/cache/persistent/MapItemCacheData;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDateCreated ()Lkotlinx/datetime/Instant;
+	public final fun getDateExpires ()Lkotlinx/datetime/Instant;
+	public final fun getDateUpdated ()Lkotlinx/datetime/Instant;
+	public final fun getItemData ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getKey ()Ljava/lang/String;
+	public final fun getLastEventId ()J
+	public final fun getMapSid ()Ljava/lang/String;
+	public final fun getRevision ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun isLeftBound ()Z
+	public final fun isRemoved ()Z
+	public final fun isRightBound ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/MapItemCacheData$Adapter {
+	public fun <init> (Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;Lcom/squareup/sqldelight/ColumnAdapter;)V
+	public final fun getDateCreatedAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getDateExpiresAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getDateUpdatedAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+	public final fun getItemDataAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+}
+
+public abstract interface class com/twilio/sync/sqldelight/cache/persistent/MapItemDataQueries : com/squareup/sqldelight/Transacter {
+	public abstract fun deleteAllByMapSid (Ljava/lang/String;)V
+	public abstract fun selectNext (Ljava/lang/String;Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectNext (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function11;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectOne (Ljava/lang/String;Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectOne (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function11;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectPrev (Ljava/lang/String;Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectPrev (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function11;)Lcom/squareup/sqldelight/Query;
+	public abstract fun upsert (Lcom/twilio/sync/sqldelight/cache/persistent/MapItemCacheData;)V
+}
+
+public abstract interface class com/twilio/sync/sqldelight/cache/persistent/MapMetadataQueries : com/squareup/sqldelight/Transacter {
+	public abstract fun cleanupWithLimit (J)V
+	public abstract fun deleteBySid (Ljava/lang/String;)V
+	public abstract fun resetBeginKeyIfEquals (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun resetBeginKeyIfGreater (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun resetEndKeyIfEquals (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun resetEndKeyIfLess (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun selectBySid (Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectBySid (Ljava/lang/String;Lkotlin/jvm/functions/Function10;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectBySidOrUniqueName (Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectBySidOrUniqueName (Ljava/lang/String;Lkotlin/jvm/functions/Function10;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectByUniqueName (Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectByUniqueName (Ljava/lang/String;Lkotlin/jvm/functions/Function10;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectCount ()Lcom/squareup/sqldelight/Query;
+	public abstract fun updateBeginKey (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun updateDateUpdatedIfLater (Lkotlinx/datetime/Instant;Ljava/lang/String;)V
+	public abstract fun updateEndKey (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun updateIsEmpty (Ljava/lang/Boolean;Ljava/lang/String;)V
+	public abstract fun updateLastEventIdIfNewer (JLjava/lang/String;)V
+	public abstract fun upsert (Lcom/twilio/sync/sqldelight/cache/persistent/MapCacheMetadata;)V
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/StreamCacheMetadata {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lkotlinx/datetime/Instant;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;)Lcom/twilio/sync/sqldelight/cache/persistent/StreamCacheMetadata;
+	public static synthetic fun copy$default (Lcom/twilio/sync/sqldelight/cache/persistent/StreamCacheMetadata;Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;ILjava/lang/Object;)Lcom/twilio/sync/sqldelight/cache/persistent/StreamCacheMetadata;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDateExpires ()Lkotlinx/datetime/Instant;
+	public final fun getSid ()Ljava/lang/String;
+	public final fun getUniqueName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/sync/sqldelight/cache/persistent/StreamCacheMetadata$Adapter {
+	public fun <init> (Lcom/squareup/sqldelight/ColumnAdapter;)V
+	public final fun getDateExpiresAdapter ()Lcom/squareup/sqldelight/ColumnAdapter;
+}
+
+public abstract interface class com/twilio/sync/sqldelight/cache/persistent/StreamMetadataQueries : com/squareup/sqldelight/Transacter {
+	public abstract fun cleanupWithLimit (J)V
+	public abstract fun deleteBySid (Ljava/lang/String;)V
+	public abstract fun deleteBySidOrUniqueName (Ljava/lang/String;)V
+	public abstract fun selectBySid (Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectBySid (Ljava/lang/String;Lkotlin/jvm/functions/Function3;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectByUniqueName (Ljava/lang/String;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectByUniqueName (Ljava/lang/String;Lkotlin/jvm/functions/Function3;)Lcom/squareup/sqldelight/Query;
+	public abstract fun selectCount ()Lcom/squareup/sqldelight/Query;
+	public abstract fun upsert (Lcom/twilio/sync/sqldelight/cache/persistent/StreamCacheMetadata;)V
+}
+
+public abstract interface class com/twilio/sync/sqldelight/cache/persistent/VacuumQueries : com/squareup/sqldelight/Transacter {
+	public abstract fun vacuum ()V
+}
+
+public abstract class com/twilio/sync/subscriptions/SubscriptionState {
+}
+
+public final class com/twilio/sync/subscriptions/SubscriptionState$Established : com/twilio/sync/subscriptions/SubscriptionState {
+	public static final field INSTANCE Lcom/twilio/sync/subscriptions/SubscriptionState$Established;
+}
+
+public final class com/twilio/sync/subscriptions/SubscriptionState$Failed : com/twilio/sync/subscriptions/SubscriptionState {
+	public fun <init> (Lcom/twilio/util/ErrorInfo;)V
+	public final fun component1 ()Lcom/twilio/util/ErrorInfo;
+	public final fun copy (Lcom/twilio/util/ErrorInfo;)Lcom/twilio/sync/subscriptions/SubscriptionState$Failed;
+	public static synthetic fun copy$default (Lcom/twilio/sync/subscriptions/SubscriptionState$Failed;Lcom/twilio/util/ErrorInfo;ILjava/lang/Object;)Lcom/twilio/sync/subscriptions/SubscriptionState$Failed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getErrorInfo ()Lcom/twilio/util/ErrorInfo;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/sync/subscriptions/SubscriptionState$Pending : com/twilio/sync/subscriptions/SubscriptionState {
+	public static final field INSTANCE Lcom/twilio/sync/subscriptions/SubscriptionState$Pending;
+}
+
+public final class com/twilio/sync/subscriptions/SubscriptionState$Subscribing : com/twilio/sync/subscriptions/SubscriptionState {
+	public static final field INSTANCE Lcom/twilio/sync/subscriptions/SubscriptionState$Subscribing;
+}
+
+public final class com/twilio/sync/subscriptions/SubscriptionState$Unsubscribed : com/twilio/sync/subscriptions/SubscriptionState {
+	public static final field INSTANCE Lcom/twilio/sync/subscriptions/SubscriptionState$Unsubscribed;
+}
+
+public final class com/twilio/sync/utils/SyncExtensionsKt {
+	public static final fun use (Lcom/twilio/sync/client/SyncClient;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun use (Lcom/twilio/sync/entities/SyncDocument;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun use (Lcom/twilio/sync/entities/SyncList;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun use (Lcom/twilio/sync/entities/SyncMap;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun use (Lcom/twilio/sync/entities/SyncStream;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public abstract interface class com/twilio/sync/utils/SyncIterator : com/twilio/sync/utils/Closeable {
+	public abstract fun hasNext (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun next ()Ljava/lang/Object;
+}
+
+public final class com/twilio/sync/utils/SyncIteratorKt {
+	public static final fun asFlow (Lcom/twilio/sync/utils/SyncIterator;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun forEach (Lcom/twilio/sync/utils/SyncIterator;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+

@@ -1,0 +1,35 @@
+# Module Sync Android SDK
+
+This package provides the classes necessary to create a Twilio Sync client application.
+
+**Min SDK**: $ANDROID_MIN_SDK_VERSION
+
+Twilio Sync is Twilio's state synchronization service, offering two-way real-time communication 
+between browsers, mobiles, and the cloud.
+
+Sync relies on the concept of state synchronization. In this model, the authoritative state of 
+your application exists in the cloud and is actively replicated – whether in whole or in part – 
+to all of your users across all of your devices. The code you write is responsible for 
+manipulating and representing this state: telling Sync when a customer is online/offline, their 
+position on a website, or any other thing. Doing that, the Sync service does the rest, and 
+makes sure that your devices are always kept up to date in real-time, surviving connection 
+failures and other network aberrations.
+
+Sync Objects are the primitives you use to make your application's state discoverable and 
+accessible at the right granularity. Sync provides four different object primitives to help.
+
+**Documents**: A SyncDocument is a single JSON object, up to 16kb in size. It is best suited to
+simple use cases, such as basic publish/subscribe or where history synchronization is not a 
+requirement.
+
+**Lists**: A SyncList maintains an ordered list of individual JSON objects, each up to 16kb in size.
+Use this object for more advanced use cases, such as synchronizing location data with the 
+ability to replay old location states. Individual items are accessible through a system 
+generated index.
+
+**Maps**: A SyncMap maintains an unordered collection of developer specified keys and values.
+Use this object for synchronization cases where clients are interested in updates to individual 
+keys, such as in presence use cases.
+
+**Message Streams**: A SyncStream lets you broadcast ephemeral JSON messages at a high rate to a group
+of subscribers.

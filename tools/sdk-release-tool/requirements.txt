@@ -1,0 +1,4 @@
+boto
+clint
+nose
+repositorytools

@@ -1,0 +1,5 @@
+[product]
+name = "Twilio iOS Sync SDK"
+
+[links]
+sync = "android-sync.sbom"

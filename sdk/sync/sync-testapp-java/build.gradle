@@ -1,0 +1,72 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+
+android {
+    namespace "com.twilio.sync.testapp"
+    compileSdk androidCompileSdkVersion
+
+    defaultConfig {
+        applicationId "com.twilio.sync.testapp"
+
+        minSdk androidMinSdkVersion
+        targetSdk androidCompileSdkVersion
+
+        buildConfigField "String", "ACCESS_TOKEN_SERVICE_URL", "\"${findProperty("ACCESS_TOKEN_SERVICE_URL") ?: ""}\""
+
+        testBuildType "release"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+            testCoverageEnabled true
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+        }
+    }
+
+    compileOptions {
+        // required by kotlinx-datetime:0.4.0 on API below 26
+        // https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
+        coreLibraryDesugaringEnabled true
+
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation project(":shared-internal")
+    implementation project(":shared-public")
+    implementation project(":sync-android-java")
+    implementation project(':shared-test')
+
+    implementation "androidx.concurrent:concurrent-futures:1.1.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+    implementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
+
+    implementation "androidx.test:runner:$androidXTestRunnerVersion"
+    implementation "com.jakewharton.timber:timber:$timberVersion"
+    implementation "com.google.truth:truth:$truthVersion"
+
+    // required by kotlinx-datetime:0.4.0 on API below 26
+    // https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugarJdkLibsVersion"
+}

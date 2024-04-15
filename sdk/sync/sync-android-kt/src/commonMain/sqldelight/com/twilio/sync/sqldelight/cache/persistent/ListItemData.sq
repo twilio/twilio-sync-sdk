@@ -1,0 +1,33 @@
+import kotlin.Boolean;
+import kotlinx.datetime.Instant;
+import kotlinx.serialization.json.JsonObject;
+
+CREATE TABLE listItemCacheData (
+  listSid TEXT NOT NULL,
+  itemIndex INTEGER NOT NULL,
+  dateCreated INTEGER AS Instant NOT NULL,
+  dateUpdated INTEGER AS Instant NOT NULL,
+  dateExpires INTEGER AS Instant,
+  revision TEXT NOT NULL,
+  lastEventId INTEGER NOT NULL,
+  itemData TEXT AS JsonObject NOT NULL,
+  isLeftBound INTEGER AS Boolean NOT NULL,
+  isRightBound INTEGER AS Boolean NOT NULL,
+  isRemoved INTEGER AS Boolean NOT NULL,
+  PRIMARY KEY (listSid, itemIndex)
+);
+
+selectOne:
+SELECT * FROM listItemCacheData WHERE listSid = ? AND itemIndex = ?;
+
+selectNext:
+SELECT * FROM listItemCacheData WHERE listSid = ? AND itemIndex > ? ORDER BY itemIndex ASC LIMIT 1;
+
+selectPrev:
+SELECT * FROM listItemCacheData WHERE listSid = ? AND itemIndex < ? ORDER BY itemIndex DESC LIMIT 1;
+
+upsert:
+INSERT OR REPLACE INTO listItemCacheData VALUES ?;
+
+deleteAllByListSid:
+DELETE FROM listItemCacheData WHERE listSid = ?;

@@ -1,0 +1,104 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'com.android.library'
+}
+
+apply plugin: 'signing'
+apply from: "${project(":utils").projectDir}/add-file-to-aar.gradle"
+
+kotlin {
+    androidTarget()
+    iosArm64()
+    iosSimulatorArm64()
+
+    applyDefaultHierarchyTemplate()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation project(':shared-public')
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerialisationVersion"
+                implementation "org.jetbrains.kotlinx:atomicfu:$kotlinAtomicfuVersion"
+                implementation "org.jetbrains.kotlinx:kotlinx-datetime:$kotlinDateTimeVersion"
+                implementation "io.ktor:ktor-client-core:$ktorVersion"
+            }
+        }
+        androidMain {
+            dependencies {
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+                implementation 'androidx.security:security-crypto:1.0.0'
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation project(':shared-test')
+                implementation kotlin('test')
+            }
+        }
+        androidUnitTest {
+            dependencies {
+                implementation kotlin('test')
+            }
+        }
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+
+            dependencies {
+                implementation kotlin('test')
+                implementation "androidx.test:runner:$androidXTestRunnerVersion"
+                implementation "junit:junit:$junitVersion"
+            }
+        }
+    }
+}
+
+group = 'com.twilio'
+version = sharedInternalVersion
+
+android {
+    namespace "com.twilio.shared_internal"
+    compileSdk androidCompileSdkVersion
+
+    defaultConfig {
+        minSdk androidMinSdkVersion
+        targetSdk androidCompileSdkVersion
+
+        testBuildType "release"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
+
+task packageSources(type: Jar) {
+    archiveClassifier.set("sources")
+    from(kotlin.sourceSets.commonMain.kotlin.srcDirs)
+    from(kotlin.sourceSets.androidMain.kotlin.srcDirs)
+}
+
+task packageDocs() {
+    dependsOn 'packageSources'
+}
+
+def noticesFile = file("${rootProject.projectDir}/sbom/generated/shared-internal.NOTICES.txt")
+addFileToAar("release", noticesFile)

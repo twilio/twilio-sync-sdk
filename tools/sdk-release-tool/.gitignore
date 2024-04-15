@@ -1,0 +1,9 @@
+*.pyc
+*.swp
+cdn-sdki.json
+cdn-sdki.dev.json
+cdn-sdki.stage.json
+cdn-sdki.prod.json
+.idea
+tmp
+venv

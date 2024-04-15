@@ -1,0 +1,5 @@
+[dependency]
+name = "A multiplatform Kotlin library for working with date and time."
+homepage = "https://github.com/Kotlin/kotlinx-datetime"
+license = { url = "https://raw.githubusercontent.com/Kotlin/kotlinx-datetime/master/LICENSE.txt" }
+spdx = "Apache-2.0"

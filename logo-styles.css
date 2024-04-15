@@ -1,0 +1,16 @@
+.library-name a {
+    position: relative;
+    margin-left: 130px;
+}
+
+.library-name a::before {
+    content: '';
+    background-image: url('../images/twilio-logo.svg');
+    background-repeat: no-repeat;
+    background-size: 115px 50px;
+    position: absolute;
+    width: 115px;
+    height: 50px;
+    top: -18px;
+    left: -130px;
+}

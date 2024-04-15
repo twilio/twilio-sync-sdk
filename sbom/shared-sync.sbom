@@ -1,0 +1,6 @@
+[product]
+name = "Twilio Shared Sync Library"
+
+[links]
+shared-public = "shared-public.sbom"
+shared-internal = "shared-internal.sbom"

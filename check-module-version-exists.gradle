@@ -1,0 +1,11 @@
+ext.checkVersionExists = { path ->
+    def mavenCentralUrl = "https://repo.maven.apache.org/maven2"
+    def url = "$mavenCentralUrl/$path"
+    println "Checking if url exists: $url"
+    try {
+        new URL(url).bytes
+        return true
+    } catch (FileNotFoundException e) {
+        return false
+    }
+}

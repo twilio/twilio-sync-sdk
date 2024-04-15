@@ -1,0 +1,8 @@
+android.testVariants.all { variant ->
+    // exclude non-android mockk from androidInstrumentedTest
+    // otherwise androidInstrumentedTest build fails with error like:
+    // Duplicate class io.mockk.ValueClassSupportKt found...
+    // See https://developer.android.com/studio/build/dependencies#exclude_dependencies_test
+
+    variant.getRuntimeConfiguration().exclude group: 'io.mockk', module: 'mockk'
+}

@@ -1,0 +1,51 @@
+// On circleci we build and test each artifact in separate job.
+// So when pipeline comes to publishing all artifacts have been built already.
+//
+// Gradle tasks generateMetadataFileForXXX depend on bundleReleaseAar task for each module,
+// which forces gradle to rebuild artifacts from scratch.
+//
+// This plugin disables all children of generateMetadataFileForXXX tasks. So we publish tested artifacts,
+// instead of building new ones from the same sources.
+//
+// When plugin is successfully applied you can see in the gradle output skipped tasks, like:
+// > Task :sync-android-kt:bundleReleaseAar SKIPPED
+// > Task :generateMetadataFileForNativeSyncReleasePublication
+
+
+gradle.taskGraph.whenReady {
+    println("Disabling child tasks of generateMetadataFileForXXX...")
+
+    // Getting a private field is possible thanks to groovy not honoring the private modifier
+    def executionPlan = gradle.taskGraph.executionPlan.contents
+    def tasksOfCurrentProject = executionPlan.entryNodes.findAll { node ->
+        node.hasProperty('task') && node.task.project == project
+    }
+
+    tasksOfCurrentProject.each { taskNode ->
+        def generateMetadataNodes = findAllRecursive(taskNode) { it.task.name.startsWith("generateMetadataFileFor") }
+        generateMetadataNodes.each { disableChildrenRecursive(it) }
+    }
+}
+
+def findAllRecursive(taskNode, predicate, result = new HashSet<Node>()) {
+    if (predicate(taskNode)) {
+        result.add(taskNode)
+    }
+
+    Set<Node> children = taskNode.dependencySuccessors.findAll { it.hasProperty('task') }
+
+    children.each { child ->
+        findAllRecursive(child, predicate, result)
+    }
+
+    return result
+}
+
+def disableChildrenRecursive(taskNode) {
+    Set<Node> children = taskNode.dependencySuccessors.findAll { it.hasProperty('task') }
+
+    children.each { child ->
+        child.task.setEnabled(false)
+        disableChildrenRecursive(child)
+    }
+}

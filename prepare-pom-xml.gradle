@@ -1,0 +1,21 @@
+ext.prepareTwilioPom = { pom, proj ->
+    pom.licenses {
+        license {
+            name = 'TWILIO-TOS'
+            url = 'https://www.twilio.com/legal/tos'
+        }
+    }
+
+    pom.developers {
+        developer {
+            id = 'Twilio'
+            name = 'Twilio'
+        }
+    }
+
+    pom.scm {
+        connection = 'scm:git:git@github.com:twilio/twilio-sync-sdk.git'
+        developerConnection = 'scm:git:ssh://github.com:twilio/twilio-sync-sdk.git'
+        url = 'https://github.com/twilio/twilio-sync-sdk'
+    }
+}

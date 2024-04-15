@@ -1,0 +1,16 @@
+[product]
+name = "Twilio Android Sync SDK"
+
+[links]
+shared-public = "shared-public.sbom"
+shared-sync = "shared-sync.sbom"
+ser = "shared/kotlinx-serialization-json.sbom"
+datetime = "shared/kotlinx-datetime.sbom"
+twilsock = "twilsock.sbom"
+shared-internal = "shared-internal.sbom"
+kotlin = "shared/kotlin-stdlib.sbom"
+coro = "shared/kotlinx-coroutines.sbom"
+atomicfu = "shared/kotlinx-atomicfu.sbom"
+sqldelight = "shared/sqldelight.sbom"
+skie = "shared/skie.sbom"
+ktor = "shared/ktor.sbom"

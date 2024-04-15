@@ -1,0 +1,372 @@
+buildscript {
+    apply from: "${project(":utils").projectDir}/versions.gradle"
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:$androidGradlePluginVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
+        classpath "com.squareup.sqldelight:gradle-plugin:$sqldelightVersion"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
+        classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$binaryCompatibilityValidatorVersion"
+    }
+}
+
+plugins {
+    id "com.dorongold.task-tree" version "2.1.1"
+    id "maven-publish"
+    id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
+}
+
+apply plugin: "org.jetbrains.dokka"
+apply plugin: "signing"
+apply from: "${project(":utils").projectDir}/binary-compatibility-validator.gradle"
+apply from: "${project(":utils").projectDir}/prepare-version-names.gradle"
+apply from: "./need-publish-module.gradle"
+apply from: "./prepare-pom-xml.gradle"
+apply from: "./dependency-constraints.gradle"
+
+if (project.hasProperty('disable-metadata-subtasks')) {
+    // Disable only from publish-sdk-android circleci job
+    apply from: "./disable-metadata-subtasks.gradle"
+}
+
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            username = project.getProperty('sonatype.username')
+            password = project.getProperty('sonatype.password')
+            packageGroup = "com.twilio"
+        }
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+subprojects {
+    afterEvaluate {
+        android {
+            publishing.singleVariant('release')
+
+            packagingOptions.resources.excludes.addAll([
+                    // mockk 1.13.7 is not compilable without these excludes
+                    "META-INF/LICENSE.md",
+                    "META-INF/LICENSE-notice.md",
+
+                    // This one came with bumping kotlin to 1.9.20
+                    "META-INF/versions/9/previous-compilation-data.bin"
+            ])
+        }
+    }
+}
+
+tasks.named("dokkaHtmlMultiModule") {
+    moduleName = "Sync Android SDK"
+
+    pluginsMapConfiguration.set(
+            ["org.jetbrains.dokka.base.DokkaBase": """{
+                "customStyleSheets" : ["${file("logo-styles.css")}"],
+                "customAssets" : ["${file("twilio-logo.svg")}"],
+                "footerMessage" : "COPYRIGHT © TWILIO INC."
+                }"""
+            ]
+    )
+
+    // Split docs for kotlin and java
+    if (project.hasProperty("docsSyncKotlin")) {
+        println("Generating docs for kotlin sync")
+        removeChildTasks([project(":sync-android-java")])
+    } else if (project.hasProperty("docsSyncJava")) {
+        println("Generating docs for java sync")
+        removeChildTasks([project(":sync-android-kt")])
+    }
+}
+
+task packageDokka(type: Jar, dependsOn: 'dokkaHtmlMultiModule') {
+    archiveClassifier.set('dokka')
+    from "${buildDir}/dokka/htmlMultiModule/"
+
+    if (project.hasProperty("docsSyncKotlin")) {
+        archiveFileName = "sync-sdk-kotlin-dokka.jar"
+    } else if (project.hasProperty("docsSyncJava")) {
+        archiveFileName = "sync-sdk-java-dokka.jar"
+    }
+
+    doLast {
+        println "Dokka docs generated"
+    }
+}
+
+task packageDocs {
+    dependsOn 'packageDokka'
+}
+
+def needPublishTwilsock = needPublishTwilsock(twilsockVersion)
+println "needPublishTwilsock: $needPublishTwilsock"
+
+def needPublishSharedInternal = needPublishSharedInternal(sharedInternalVersion)
+println "need to publish shared-internal: $needPublishSharedInternal"
+
+def needPublishSharedPublic = needPublishSharedPublic(sharedPublicVersion)
+println "need to publish shared-public: $needPublishSharedPublic"
+
+def gitHash = findProperty("gitHash") ?: "HEAD"
+def gitTag = findProperty("gitTag") ?: ""
+def (isSyncReleaseCandidate, syncVersion) = generatePublishVersionNames(gitHash, gitTag)
+
+println "publishing isSyncReleaseCandidate?: $isSyncReleaseCandidate"
+println "publishing syncVersion: $syncVersion"
+println()
+
+signing {
+    sign publishing.publications
+}
+
+gradle.projectsEvaluated {
+
+if (needPublishTwilsock) {
+    // this line is parsed on circleci. don't touch it!
+    // see: $MONOREPO/BuildScripts/push-sonatype-git-tag.sh
+    println "Publishing twilsock v$twilsockVersion"
+
+    publishing {
+        publications {
+            twilsockRelease(MavenPublication) {
+                from project(":twilsock").components.release
+
+                artifact("${project(":twilsock").buildDir}/libs/twilsock-$twilsockVersion-sources.jar") {
+                    classifier 'sources'
+                }
+
+                groupId = "com.twilio"
+                artifactId = "twilsock"
+                version = twilsockVersion // updated manually in twilsockVersion.gradle
+
+                pom {
+                    prepareTwilioPom(owner, project(":twilsock"))
+
+                    name = 'Twilio twilsock client'
+                    description = 'An internal library which is used by by Twilio mobile SDK'
+                    url = 'https://www.twilio.com/docs/conversations'
+                }
+            }
+        }
+    }
+
+    // Following dependencies just to make gradle 8 happy
+    tasks['publishTwilsockReleasePublicationToSonatypeRepository'].mustRunAfter(':twilsock:reZipReleaseAar')
+    tasks['generateMetadataFileForTwilsockReleasePublication'].mustRunAfter(':twilsock:reZipReleaseAar')
+}
+
+if (needPublishSharedInternal) {
+    // this line is parsed on circleci. don't touch it!
+    // see: $MONOREPO/BuildScripts/push-sonatype-git-tag.sh
+    println "Publishing sharedInternal v$sharedInternalVersion"
+
+    publishing {
+        publications {
+            sharedInternalRelease(MavenPublication) {
+                from project(":shared-internal").components.release
+
+                artifact("${project(":shared-internal").buildDir}/libs/shared-internal-$sharedInternalVersion-sources.jar") {
+                    classifier 'sources'
+                }
+
+                groupId = "com.twilio"
+                artifactId = "shared-internal"
+                version = sharedInternalVersion // updated manually in shared-internal-version.gradle
+
+                pom {
+                    prepareTwilioPom(owner, project(":shared-internal"))
+
+                    name = 'Twilio Shared Internal Library'
+                    description = 'An internal library which is used by Twilio mobile SDK'
+                    url = 'https://www.twilio.com/docs/conversations'
+                }
+            }
+        }
+    }
+
+    // Following dependencies just to make gradle 8 happy
+    tasks['publishSharedInternalReleasePublicationToSonatypeRepository'].mustRunAfter(':shared-internal:reZipReleaseAar')
+    tasks['generateMetadataFileForSharedInternalReleasePublication'].mustRunAfter(':shared-internal:reZipReleaseAar')
+}
+
+if (needPublishSharedPublic) {
+    // this line is parsed on circleci. don't touch it!
+    // see: $MONOREPO/BuildScripts/push-sonatype-git-tag.sh
+    println "Publishing sharedPublic v$sharedPublicVersion"
+
+    publishing {
+        publications {
+            sharedPublicRelease(MavenPublication) {
+                from project(":shared-public").components.release
+
+                artifact("${project(":shared-public").buildDir}/libs/shared-public-$sharedPublicVersion-sources.jar") {
+                    classifier 'sources'
+                }
+
+                groupId = "com.twilio"
+                artifactId = "shared-public"
+                version = sharedPublicVersion // updated manually in shared-public-version.gradle
+
+                pom {
+                    prepareTwilioPom(owner, project(":shared-public"))
+
+                    name = 'Twilio Shared Public Library'
+                    description = 'An public utility library which is used by Twilio mobile SDK'
+                    url = 'https://www.twilio.com/docs/conversations'
+                }
+            }
+        }
+    }
+
+    // Following dependencies just to make gradle 8 happy
+    tasks['publishSharedPublicReleasePublicationToSonatypeRepository'].mustRunAfter(':shared-public:reZipReleaseAar')
+    tasks['generateMetadataFileForSharedPublicReleasePublication'].mustRunAfter(':shared-public:reZipReleaseAar')
+}
+
+if (isSyncReleaseCandidate) {
+    // this line is parsed on circleci. don't touch it!
+    // see: $MONOREPO/BuildScripts/push-sonatype-git-tag.sh
+    println "Publishing sync v$syncVersion"
+
+    publishing {
+        publications {
+            syncRelease(MavenPublication) {
+                from project(":sync-android-kt").components.release
+
+                artifact("$buildDir/distributions/sync-sdk-kotlin-dokka.jar") {
+                    classifier 'dokka'
+                }
+                artifact("${project(":sync-android-kt").buildDir}/libs/sync-android-kt-$syncVersion-sources.jar") {
+                    classifier 'sources'
+                }
+
+                groupId = "com.twilio"
+                artifactId = "sync-android-kt"
+                version = syncVersion
+
+                pom {
+                    prepareTwilioPom(owner, project(":sync-android-kt"))
+
+                    name = 'Sync SDK for Android'
+                    description = 'An Android library for synchronization mobile apps with a single source of state in the cloud.'
+                    url = 'https://www.twilio.com/docs/sync'
+                }
+            }
+            syncJavaRelease(MavenPublication) {
+                from project(":sync-android-java").components.release
+
+                artifact("$buildDir/distributions/sync-sdk-java-dokka.jar") {
+                    classifier 'dokka'
+                }
+                artifact("${project(":sync-android-java").buildDir}/libs/sync-android-java-$syncVersion-sources.jar") {
+                    classifier 'sources'
+                }
+
+                groupId = "com.twilio"
+                artifactId = "sync-android-java"
+                version = syncVersion
+
+                pom {
+                    prepareTwilioPom(owner, project(":sync-android-java"))
+
+                    name = 'Sync Android SDK for Java'
+                    description = 'An Android library for synchronization mobile apps with a single source of state in the cloud.'
+                    url = 'https://www.twilio.com/docs/sync'
+                }
+            }
+            syncSharedRelease(MavenPublication) {
+                from project(":sync-android-shared").components.release
+
+                artifact("${project(":sync-android-shared").buildDir}/libs/sync-android-shared-$syncVersion-sources.jar") {
+                    classifier 'sources'
+                }
+
+                groupId = "com.twilio"
+                artifactId = "sync-android-shared"
+                version = syncVersion
+
+                pom {
+                    prepareTwilioPom(owner, project(":sync-android-shared"))
+
+                    name = 'Twilio Sync Shared Library'
+                    description = 'An public utility library which is used by Twilio mobile SDK'
+                    url = 'https://www.twilio.com/docs/sync'
+                }
+            }
+        }
+    }
+
+    // Following dependencies just to make gradle 8 happy
+    tasks['publishSyncReleasePublicationToSonatypeRepository'].mustRunAfter(':sync-android-kt:reZipReleaseAar')
+    tasks['generateMetadataFileForSyncReleasePublication'].mustRunAfter(':sync-android-kt:reZipReleaseAar')
+    tasks['publishSyncJavaReleasePublicationToSonatypeRepository'].mustRunAfter(':sync-android-java:reZipReleaseAar')
+    tasks['generateMetadataFileForSyncJavaReleasePublication'].mustRunAfter(':sync-android-java:reZipReleaseAar')
+    tasks['publishSyncSharedReleasePublicationToSonatypeRepository'].mustRunAfter(':sync-android-shared:reZipReleaseAar')
+    tasks['generateMetadataFileForSyncSharedReleasePublication'].mustRunAfter(':sync-android-shared:reZipReleaseAar')
+}
+
+tasks['publishToSonatype'].with {
+    dependsOn(validateIfSingleRcTagOnCommit)
+    mustRunAfter(validateIfSingleRcTagOnCommit)
+}
+
+tasks['releaseSonatypeStagingRepository'].dependsOn(checkReleaseVersionMatchesRC)
+
+} // gradle.projectsEvaluated
+
+task validateIfSingleRcTagOnCommit {
+    doLast {
+        findRCTag() // throws exception if zero or more than one RC tag found
+    }
+}
+
+task checkReleaseVersionMatchesRC {
+    doLast {
+        def rcTag = findRCTag()
+        if (gitTag != rcTag.replaceAll(/-rc\d+/, "")) {
+            throw new GradleException("No RC tag found to promote $gitTag")
+        }
+        println "RC tag matches release tag: $gitTag"
+    }
+}
+
+def findRCTag() {
+    def isRcTag = { tag ->
+        (tag =~ /^release-sync-android-\d+\.\d+\.\d+-rc\d+$/).find()
+    }
+
+    def rcTags = getGitTagList(gitHash)
+            .findAll { isRcTag(it) }
+
+    if (rcTags.size > 1) {
+        throw new GradleException("Attempt to built multiple RCs on same commit")
+    }
+
+    if (rcTags.size == 0) {
+        throw new GradleException("Cannot find RCs tag")
+    }
+
+    println "Found RC tag: ${rcTags[0]}"
+    return rcTags[0]
+}
+
+def getGitTagList(gitHash) {
+    def tagsStream = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'tag', '--points-at', gitHash
+        standardOutput = tagsStream
+    }
+    return tagsStream.toString().split("\n")
+}
