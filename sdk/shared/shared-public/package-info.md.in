@@ -1,0 +1,6 @@
+# Module Conversations Android SDK Utils
+
+This package provides the utilities necessary to use a Twilio Conversations SDK.
+<br/><br/>
+<b>Min SDK</b>: $ANDROID_MIN_SDK_VERSION
+<br/><br/>

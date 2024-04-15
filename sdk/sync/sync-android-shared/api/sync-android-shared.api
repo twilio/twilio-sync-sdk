@@ -1,0 +1,112 @@
+public final class com/twilio/sync/utils/CacheConfig {
+	public synthetic fun <init> (ZZLjava/lang/Long;ZJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZZLjava/lang/Long;ZJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Z
+	public final fun component2 ()Z
+	public final fun component3 ()Ljava/lang/Long;
+	public final fun component4 ()Z
+	public final fun component5-UwyO8pc ()J
+	public final fun copy-9VgGkz4 (ZZLjava/lang/Long;ZJ)Lcom/twilio/sync/utils/CacheConfig;
+	public static synthetic fun copy-9VgGkz4$default (Lcom/twilio/sync/utils/CacheConfig;ZZLjava/lang/Long;ZJILjava/lang/Object;)Lcom/twilio/sync/utils/CacheConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCleanupPersistentCacheForOtherUsers ()Z
+	public final fun getCleanupUnusedCachesAfter-UwyO8pc ()J
+	public final fun getDropAllCachesOnUnauthorised ()Z
+	public final fun getMaxPersistentCacheSize ()Ljava/lang/Long;
+	public final fun getUsePersistentCache ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/twilio/sync/utils/Closeable {
+	public abstract fun close ()V
+}
+
+public final class com/twilio/sync/utils/ConfigurationKt {
+	public static final field kDefaultPageSize I
+}
+
+public final class com/twilio/sync/utils/ConnectionState : java/lang/Enum {
+	public static final field Connected Lcom/twilio/sync/utils/ConnectionState;
+	public static final field Connecting Lcom/twilio/sync/utils/ConnectionState;
+	public static final field Denied Lcom/twilio/sync/utils/ConnectionState;
+	public static final field Disconnected Lcom/twilio/sync/utils/ConnectionState;
+	public static final field Error Lcom/twilio/sync/utils/ConnectionState;
+	public static final field FatalError Lcom/twilio/sync/utils/ConnectionState;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/twilio/sync/utils/ConnectionState;
+	public static fun values ()[Lcom/twilio/sync/utils/ConnectionState;
+}
+
+public final class com/twilio/sync/utils/LogLevel : java/lang/Enum {
+	public static final field Assert Lcom/twilio/sync/utils/LogLevel;
+	public static final field Debug Lcom/twilio/sync/utils/LogLevel;
+	public static final field Error Lcom/twilio/sync/utils/LogLevel;
+	public static final field Info Lcom/twilio/sync/utils/LogLevel;
+	public static final field Silent Lcom/twilio/sync/utils/LogLevel;
+	public static final field Verbose Lcom/twilio/sync/utils/LogLevel;
+	public static final field Warn Lcom/twilio/sync/utils/LogLevel;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()I
+	public static fun valueOf (Ljava/lang/String;)Lcom/twilio/sync/utils/LogLevel;
+	public static fun values ()[Lcom/twilio/sync/utils/LogLevel;
+}
+
+public final class com/twilio/sync/utils/QueryOrder : java/lang/Enum {
+	public static final field Ascending Lcom/twilio/sync/utils/QueryOrder;
+	public static final field Descending Lcom/twilio/sync/utils/QueryOrder;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/twilio/sync/utils/QueryOrder;
+	public static fun values ()[Lcom/twilio/sync/utils/QueryOrder;
+}
+
+public final class com/twilio/sync/utils/SyncAccountDescriptorKt {
+	public static final fun createAccountDescriptor (Lcom/twilio/util/AccountDescriptor$Companion;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/twilio/util/AccountDescriptor;
+	public static final fun getSYNC_GRANT (Lcom/twilio/util/AccountDescriptor$Companion;)Ljava/lang/String;
+	public static final fun getSyncInstanceSid (Lcom/twilio/util/AccountDescriptor;)Ljava/lang/String;
+}
+
+public final class com/twilio/sync/utils/SyncClientConfig {
+	public synthetic fun <init> (JJILjava/lang/String;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJILjava/lang/String;ZZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-UwyO8pc ()J
+	public final fun component2-UwyO8pc ()J
+	public final fun component3 ()I
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Z
+	public final fun component6 ()Z
+	public final fun copy-xImDYq4 (JJILjava/lang/String;ZZ)Lcom/twilio/sync/utils/SyncClientConfig;
+	public static synthetic fun copy-xImDYq4$default (Lcom/twilio/sync/utils/SyncClientConfig;JJILjava/lang/String;ZZILjava/lang/Object;)Lcom/twilio/sync/utils/SyncClientConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCommandTimeout-UwyO8pc ()J
+	public final fun getDeferCertificateTrustToPlatform ()Z
+	public final fun getHttpTimeout-UwyO8pc ()J
+	public final fun getPageSize ()I
+	public final fun getRegion ()Ljava/lang/String;
+	public final fun getUseProxy ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/sync/utils/SyncConfig {
+	public fun <init> ()V
+	public fun <init> (Lcom/twilio/sync/utils/SyncClientConfig;Lcom/twilio/sync/utils/CacheConfig;)V
+	public synthetic fun <init> (Lcom/twilio/sync/utils/SyncClientConfig;Lcom/twilio/sync/utils/CacheConfig;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/twilio/sync/utils/SyncClientConfig;
+	public final fun component2 ()Lcom/twilio/sync/utils/CacheConfig;
+	public final fun copy (Lcom/twilio/sync/utils/SyncClientConfig;Lcom/twilio/sync/utils/CacheConfig;)Lcom/twilio/sync/utils/SyncConfig;
+	public static synthetic fun copy$default (Lcom/twilio/sync/utils/SyncConfig;Lcom/twilio/sync/utils/SyncClientConfig;Lcom/twilio/sync/utils/CacheConfig;ILjava/lang/Object;)Lcom/twilio/sync/utils/SyncConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCacheConfig ()Lcom/twilio/sync/utils/CacheConfig;
+	public final fun getSyncClientConfig ()Lcom/twilio/sync/utils/SyncClientConfig;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/sync_android_shared/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public fun <init> ()V
+}
+

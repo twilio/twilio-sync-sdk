@@ -1,0 +1,72 @@
+import kotlin.Boolean;
+import kotlinx.datetime.Instant;
+
+CREATE TABLE mapCacheMetadata (
+  sid TEXT PRIMARY KEY,
+  uniqueName TEXT,
+  dateCreated INTEGER AS Instant NOT NULL,
+  dateUpdated INTEGER AS Instant NOT NULL,
+  dateExpires INTEGER AS Instant,
+  revision TEXT NOT NULL,
+  lastEventId INTEGER NOT NULL,
+  isEmpty INTEGER AS Boolean DEFAULT NULL, -- null means 'unknown'
+  beginKey TEXT DEFAULT NULL, -- null means 'unknown'
+  endKey TEXT DEFAULT NULL -- null means 'unknown'
+);
+
+CREATE UNIQUE INDEX mapUniqueName ON mapCacheMetadata(uniqueName);
+
+selectCount:
+SELECT COUNT(*) FROM mapCacheMetadata;
+
+selectBySid:
+SELECT * FROM mapCacheMetadata WHERE sid = ?;
+
+selectByUniqueName:
+SELECT * FROM mapCacheMetadata WHERE uniqueName = ?;
+
+selectBySidOrUniqueName:
+SELECT * FROM mapCacheMetadata WHERE sid = :sidOrUniqueName OR uniqueName = :sidOrUniqueName;
+
+upsert:
+INSERT OR REPLACE INTO mapCacheMetadata VALUES ?;
+
+resetBeginKeyIfGreater:
+UPDATE mapCacheMetadata SET beginKey = NULL WHERE sid = :sid AND beginKey > :itemKey;
+
+resetEndKeyIfLess:
+UPDATE mapCacheMetadata SET endKey = NULL WHERE sid = :sid AND endKey < :itemKey;
+
+resetBeginKeyIfEquals:
+UPDATE mapCacheMetadata SET beginKey = NULL WHERE sid = :sid AND beginKey = :itemKey;
+
+resetEndKeyIfEquals:
+UPDATE mapCacheMetadata SET endKey = NULL WHERE sid = :sid AND endKey = :itemKey;
+
+updateLastEventIdIfNewer:
+UPDATE mapCacheMetadata SET lastEventId = :lastEventId WHERE sid = :sid AND lastEventId < :lastEventId;
+
+updateDateUpdatedIfLater:
+UPDATE mapCacheMetadata SET dateUpdated = :dateUpdated WHERE sid = :sid AND dateUpdated < :dateUpdated;
+
+updateIsEmpty:
+UPDATE mapCacheMetadata SET isEmpty = ? WHERE sid = ?;
+
+updateBeginKey:
+UPDATE mapCacheMetadata SET beginKey = ? WHERE sid = ?;
+
+updateEndKey:
+UPDATE mapCacheMetadata SET endKey = ? WHERE sid = ?;
+
+deleteBySid:
+DELETE FROM mapCacheMetadata WHERE sid = ?;
+
+cleanupWithLimit {
+    DELETE FROM mapItemCacheData WHERE mapSid IN (
+      SELECT sid FROM mapCacheMetadata ORDER BY rowid LIMIT :limit
+    );
+
+    DELETE FROM mapCacheMetadata WHERE rowid IN (
+      SELECT rowid FROM mapCacheMetadata ORDER BY rowid LIMIT :limit
+    );
+}

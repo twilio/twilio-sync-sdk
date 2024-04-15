@@ -1,0 +1,148 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'com.android.library'
+}
+
+apply plugin: 'signing'
+apply from: "${project(":utils").projectDir}/generate-constants.gradle"
+apply from: "${project(":utils").projectDir}/fix-mockk-dependency.gradle"
+
+kotlin {
+    androidTarget()
+    iosArm64()
+    iosSimulatorArm64()
+
+    applyDefaultHierarchyTemplate()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api project(':shared-public')
+                implementation project(':shared-internal')
+                implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerialisationVersion"
+                implementation "org.jetbrains.kotlinx:atomicfu:$kotlinAtomicfuVersion"
+                implementation "io.ktor:ktor-client-core:$ktorVersion"
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation project(':shared-test')
+                implementation kotlin('test')
+                implementation kotlin('reflect')
+            }
+        }
+        androidMain {
+            dependencies {
+                implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerialisationVersion"
+                implementation "org.jetbrains.kotlinx:atomicfu:$kotlinAtomicfuVersion"
+
+                implementation "io.ktor:ktor-client-core:$ktorVersion"
+                implementation "com.neovisionaries:nv-websocket-client:$nvWebsocketVersion"
+            }
+        }
+        androidUnitTest {
+            dependencies {
+                implementation kotlin('test')
+                implementation "io.mockk:mockk:$mockkVersion"
+            }
+        }
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+
+            dependencies {
+                implementation project(':shared-internal')
+                implementation kotlin('test')
+                implementation "androidx.test:runner:$androidXTestRunnerVersion"
+                implementation "junit:junit:$junitVersion"
+                implementation "io.mockk:mockk-android:$mockkVersion"
+            }
+        }
+        iosMain {
+            dependencies {
+                implementation "io.ktor:ktor-client-ios:$ktorVersion"
+            }
+        }
+    }
+}
+
+group = 'com.twilio'
+version = twilsockVersion
+
+android {
+    namespace "com.twilio.twilsock"
+    compileSdk androidCompileSdkVersion
+
+    defaultConfig {
+        minSdk androidMinSdkVersion
+        targetSdk androidCompileSdkVersion
+
+        testBuildType "release"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    sourceSets {
+        androidTest {
+            java.srcDirs += ["src/androidInstrumentedTest/kotlin"]
+            manifest.srcFile "src/androidInstrumentedTest/AndroidManifest.xml"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        // required by kotlinx-datetime:0.4.0 on API below 26
+        // https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
+        coreLibraryDesugaringEnabled true
+
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        unitTests.all {
+            testLogging {
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen {false}
+                showStandardStreams = true
+            }
+        }
+    }
+}
+
+dependencies {
+    // required by kotlinx-datetime:0.4.0 on API below 26
+    // https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugarJdkLibsVersion"
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked" //<< "-Xdiags:verbose"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
+
+if (project.hasProperty("iosDeviceId")) {
+    // Fixes certs issue in iOS simulator tests
+    // See: https://youtrack.jetbrains.com/issue/KT-38317
+    tasks.withType(org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest).configureEach {
+        standalone.set(false)
+        device.set(project.property("iosDeviceId"))
+    }
+}

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- For EncryptedSharedPreferences in ContinuationTokenStorageImpl (require minApi 23) -->
+    <uses-sdk tools:overrideLibrary="androidx.security" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- For proxy feature, can be removed on app level if don't use proxy (useProxy === false) -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <!-- For connectivity monitoring feature in twilsock.
+    Can be removed on app level, in this case network will always be considered as available -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+</manifest>

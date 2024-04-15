@@ -1,0 +1,298 @@
+public final class com/twilio/twilsock/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public fun <init> ()V
+}
+
+public final class com/twilio/twilsock/client/AuthData {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lkotlinx/serialization/json/JsonObject;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lkotlinx/serialization/json/JsonObject;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/util/List;
+	public final fun component5 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lkotlinx/serialization/json/JsonObject;)Lcom/twilio/twilsock/client/AuthData;
+	public static synthetic fun copy$default (Lcom/twilio/twilsock/client/AuthData;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lcom/twilio/twilsock/client/AuthData;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getActiveGrant ()Ljava/lang/String;
+	public final fun getCertificates ()Ljava/util/List;
+	public final fun getNotificationProductId ()Ljava/lang/String;
+	public final fun getToken ()Ljava/lang/String;
+	public final fun getTweaks ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/twilsock/client/ClientMetadata {
+	public static final field Companion Lcom/twilio/twilsock/client/ClientMetadata$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component10 ()Ljava/lang/String;
+	public final fun component11 ()Ljava/lang/String;
+	public final fun component12 ()Ljava/lang/String;
+	public final fun component13 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/twilio/twilsock/client/ClientMetadata;
+	public static synthetic fun copy$default (Lcom/twilio/twilsock/client/ClientMetadata;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/twilio/twilsock/client/ClientMetadata;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAppName ()Ljava/lang/String;
+	public final fun getAppVer ()Ljava/lang/String;
+	public final fun getDevModel ()Ljava/lang/String;
+	public final fun getDevType ()Ljava/lang/String;
+	public final fun getDevVendor ()Ljava/lang/String;
+	public final fun getEnv ()Ljava/lang/String;
+	public final fun getEnvVer ()Ljava/lang/String;
+	public final fun getOs ()Ljava/lang/String;
+	public final fun getOsArch ()Ljava/lang/String;
+	public final fun getOsVer ()Ljava/lang/String;
+	public final fun getSdk ()Ljava/lang/String;
+	public final fun getSdkType ()Ljava/lang/String;
+	public final fun getSdkVer ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/twilsock/client/ClientMetadata$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/twilio/twilsock/client/ClientMetadata$$serializer;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/twilio/twilsock/client/ClientMetadata;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/twilio/twilsock/client/ClientMetadata;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/twilio/twilsock/client/ClientMetadata$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class com/twilio/twilsock/client/ContinuationTokenStorage {
+	public abstract fun getContinuationToken ()Ljava/lang/String;
+	public abstract fun setContinuationToken (Ljava/lang/String;)V
+}
+
+public abstract interface class com/twilio/twilsock/client/Twilsock {
+	public abstract fun addObserver (Lkotlin/jvm/functions/Function1;)Lcom/twilio/twilsock/util/Unsubscriber;
+	public abstract fun connect ()V
+	public abstract fun disconnect ()V
+	public abstract fun getAccountDescriptor ()Lcom/twilio/util/AccountDescriptor;
+	public abstract fun handleMessageReceived ([B)V
+	public abstract fun isConnected ()Z
+	public abstract fun populateInitRegistrations (Ljava/util/Set;)V
+	public abstract fun sendRequest (Lcom/twilio/twilsock/util/HttpRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun sendRequest-dWUq8MI (Ljava/lang/String;J[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun updateToken (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/twilio/twilsock/client/TwilsockFactoryKt {
+	public static final fun TwilsockFactory (Ljava/lang/String;ZLcom/twilio/twilsock/client/AuthData;Lcom/twilio/twilsock/client/ClientMetadata;Lkotlinx/coroutines/CoroutineScope;Lcom/twilio/twilsock/client/ContinuationTokenStorage;Lcom/twilio/twilsock/util/ConnectivityMonitor;Lkotlin/jvm/functions/Function4;)Lcom/twilio/twilsock/client/Twilsock;
+	public static synthetic fun TwilsockFactory$default (Ljava/lang/String;ZLcom/twilio/twilsock/client/AuthData;Lcom/twilio/twilsock/client/ClientMetadata;Lkotlinx/coroutines/CoroutineScope;Lcom/twilio/twilsock/client/ContinuationTokenStorage;Lcom/twilio/twilsock/util/ConnectivityMonitor;Lkotlin/jvm/functions/Function4;ILjava/lang/Object;)Lcom/twilio/twilsock/client/Twilsock;
+}
+
+public final class com/twilio/twilsock/client/TwilsockObserver {
+	public fun <init> ()V
+	public fun <init> (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getOnConnected ()Lkotlin/jvm/functions/Function0;
+	public final fun getOnConnecting ()Lkotlin/jvm/functions/Function0;
+	public final fun getOnDisconnected ()Lkotlin/jvm/functions/Function1;
+	public final fun getOnFatalError ()Lkotlin/jvm/functions/Function1;
+	public final fun getOnMessageReceived ()Lkotlin/jvm/functions/Function2;
+	public final fun getOnNonFatalError ()Lkotlin/jvm/functions/Function1;
+	public final fun getOnRawDataReceived ()Lkotlin/jvm/functions/Function1;
+	public final fun getOnTokenAboutToExpire ()Lkotlin/jvm/functions/Function0;
+	public final fun getOnTokenExpired ()Lkotlin/jvm/functions/Function0;
+	public final fun setOnConnected (Lkotlin/jvm/functions/Function0;)V
+	public final fun setOnConnecting (Lkotlin/jvm/functions/Function0;)V
+	public final fun setOnDisconnected (Lkotlin/jvm/functions/Function1;)V
+	public final fun setOnFatalError (Lkotlin/jvm/functions/Function1;)V
+	public final fun setOnMessageReceived (Lkotlin/jvm/functions/Function2;)V
+	public final fun setOnNonFatalError (Lkotlin/jvm/functions/Function1;)V
+	public final fun setOnRawDataReceived (Lkotlin/jvm/functions/Function1;)V
+	public final fun setOnTokenAboutToExpire (Lkotlin/jvm/functions/Function0;)V
+	public final fun setOnTokenExpired (Lkotlin/jvm/functions/Function0;)V
+}
+
+public final class com/twilio/twilsock/client/TwilsockTransport {
+	public synthetic fun <init> (Lkotlinx/coroutines/CoroutineScope;JLjava/util/List;Lcom/twilio/twilsock/client/TwilsockTransportListener;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun connect (Ljava/lang/String;Z)V
+	public static synthetic fun connect$default (Lcom/twilio/twilsock/client/TwilsockTransport;Ljava/lang/String;ZILjava/lang/Object;)V
+	public final fun disconnect (Ljava/lang/String;)V
+	public final fun sendMessage ([B)V
+}
+
+public abstract interface class com/twilio/twilsock/client/TwilsockTransportListener {
+	public abstract fun onMessageReceived ([B)V
+	public abstract fun onTransportConnected ()V
+	public abstract fun onTransportDisconnected (Lcom/twilio/util/ErrorInfo;)V
+}
+
+public abstract class com/twilio/twilsock/commands/BaseCommand {
+	public static final field Companion Lcom/twilio/twilsock/commands/BaseCommand$Companion;
+	public fun <init> (Lkotlinx/coroutines/CoroutineScope;Lcom/twilio/twilsock/commands/CommandsConfig;)V
+	public final fun awaitResult (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun cancel (Lcom/twilio/util/ErrorInfo;)V
+	public static synthetic fun cancel$default (Lcom/twilio/twilsock/commands/BaseCommand;Lcom/twilio/util/ErrorInfo;ILjava/lang/Object;)V
+	public final fun execute (Lcom/twilio/twilsock/client/Twilsock;)V
+	protected static final fun generateHeaders ()Lcom/twilio/twilsock/util/MultiMap;
+	public final fun isCancelled ()Z
+	protected abstract fun makeRequest (Lcom/twilio/twilsock/client/Twilsock;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected static final fun putRevision (Lcom/twilio/twilsock/util/MultiMap;Ljava/lang/String;)Lcom/twilio/twilsock/util/MultiMap;
+	protected static final fun putTtl-HG0u8IE (Lkotlinx/serialization/json/JsonObjectBuilder;J)V
+	public final fun startTimer ()V
+}
+
+public final class com/twilio/twilsock/commands/BaseCommand$Companion {
+}
+
+public final class com/twilio/twilsock/commands/CommandsConfig {
+	public synthetic fun <init> (JJIILcom/twilio/util/RetrierConfig;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJIILcom/twilio/util/RetrierConfig;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-UwyO8pc ()J
+	public final fun component2-UwyO8pc ()J
+	public final fun component3 ()I
+	public final fun component4 ()I
+	public final fun component5 ()Lcom/twilio/util/RetrierConfig;
+	public final fun copy-ePrTys8 (JJIILcom/twilio/util/RetrierConfig;)Lcom/twilio/twilsock/commands/CommandsConfig;
+	public static synthetic fun copy-ePrTys8$default (Lcom/twilio/twilsock/commands/CommandsConfig;JJIILcom/twilio/util/RetrierConfig;ILjava/lang/Object;)Lcom/twilio/twilsock/commands/CommandsConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCommandTimeout-UwyO8pc ()J
+	public final fun getHttpTimeout-UwyO8pc ()J
+	public final fun getMaxParallelCommands ()I
+	public final fun getPageSize ()I
+	public final fun getRetrierConfig ()Lcom/twilio/util/RetrierConfig;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/twilsock/commands/CommandsConfigKt {
+	public static final fun newCommandsConfig ()Lcom/twilio/twilsock/commands/CommandsConfig;
+}
+
+public final class com/twilio/twilsock/commands/CommandsScheduler {
+	public fun <init> (Lkotlinx/coroutines/CoroutineScope;Lcom/twilio/twilsock/client/Twilsock;Lcom/twilio/twilsock/commands/CommandsConfig;)V
+	public final fun getConfig ()Lcom/twilio/twilsock/commands/CommandsConfig;
+	public final fun post (Lcom/twilio/twilsock/commands/BaseCommand;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class com/twilio/twilsock/util/ConnectivityMonitor {
+	public abstract fun getOnChanged ()Lkotlin/jvm/functions/Function0;
+	public abstract fun isNetworkAvailable ()Z
+	public abstract fun setOnChanged (Lkotlin/jvm/functions/Function0;)V
+	public abstract fun start ()V
+	public abstract fun stop ()V
+}
+
+public final class com/twilio/twilsock/util/HandledInCppException : java/util/concurrent/CancellationException {
+	public fun <init> ()V
+}
+
+public final class com/twilio/twilsock/util/HttpKt {
+	public static final fun getKDefaultRequestTimeout ()J
+}
+
+public final class com/twilio/twilsock/util/HttpMethod : java/lang/Enum {
+	public static final field Companion Lcom/twilio/twilsock/util/HttpMethod$Companion;
+	public static final field DELETE Lcom/twilio/twilsock/util/HttpMethod;
+	public static final field GET Lcom/twilio/twilsock/util/HttpMethod;
+	public static final field POST Lcom/twilio/twilsock/util/HttpMethod;
+	public static final field PUT Lcom/twilio/twilsock/util/HttpMethod;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()I
+	public static fun valueOf (Ljava/lang/String;)Lcom/twilio/twilsock/util/HttpMethod;
+	public static fun values ()[Lcom/twilio/twilsock/util/HttpMethod;
+}
+
+public final class com/twilio/twilsock/util/HttpMethod$Companion {
+	public final fun fromInt (I)Lcom/twilio/twilsock/util/HttpMethod;
+}
+
+public final class com/twilio/twilsock/util/HttpRequest {
+	public synthetic fun <init> (Ljava/lang/String;Lcom/twilio/twilsock/util/HttpMethod;Lcom/twilio/twilsock/util/MultiMap;JLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/twilio/twilsock/util/HttpMethod;Lcom/twilio/twilsock/util/MultiMap;JLjava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/twilio/twilsock/util/HttpMethod;
+	public final fun component3 ()Lcom/twilio/twilsock/util/MultiMap;
+	public final fun component4-UwyO8pc ()J
+	public final fun component5 ()Ljava/lang/String;
+	public final fun copy-zkXUZaI (Ljava/lang/String;Lcom/twilio/twilsock/util/HttpMethod;Lcom/twilio/twilsock/util/MultiMap;JLjava/lang/String;)Lcom/twilio/twilsock/util/HttpRequest;
+	public static synthetic fun copy-zkXUZaI$default (Lcom/twilio/twilsock/util/HttpRequest;Ljava/lang/String;Lcom/twilio/twilsock/util/HttpMethod;Lcom/twilio/twilsock/util/MultiMap;JLjava/lang/String;ILjava/lang/Object;)Lcom/twilio/twilsock/util/HttpRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHeaders ()Lcom/twilio/twilsock/util/MultiMap;
+	public final fun getMethod ()Lcom/twilio/twilsock/util/HttpMethod;
+	public final fun getPayload ()Ljava/lang/String;
+	public final fun getTimeout-UwyO8pc ()J
+	public final fun getUrl ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/twilsock/util/HttpResponse {
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Lcom/twilio/twilsock/util/MultiMap;Ljava/lang/String;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Lcom/twilio/twilsock/util/MultiMap;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Lcom/twilio/twilsock/util/MultiMap;Ljava/lang/String;)Lcom/twilio/twilsock/util/HttpResponse;
+	public static synthetic fun copy$default (Lcom/twilio/twilsock/util/HttpResponse;ILjava/lang/String;Ljava/lang/String;Lcom/twilio/twilsock/util/MultiMap;Ljava/lang/String;ILjava/lang/Object;)Lcom/twilio/twilsock/util/HttpResponse;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHeaders ()Lcom/twilio/twilsock/util/MultiMap;
+	public final fun getPayload ()Ljava/lang/String;
+	public final fun getRawMessageHeaders ()Ljava/lang/String;
+	public final fun getStatus ()Ljava/lang/String;
+	public final fun getStatusCode ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/twilsock/util/MetadataAndroidKt {
+	public static final fun toClientMetadata (Landroid/content/Context;Ljava/lang/String;)Lcom/twilio/twilsock/client/ClientMetadata;
+	public static final fun toClientMetadata (Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Lcom/twilio/twilsock/client/ClientMetadata;
+}
+
+public final class com/twilio/twilsock/util/MultiMap {
+	public static final field Companion Lcom/twilio/twilsock/util/MultiMap$Companion;
+	public fun <init> ()V
+	public synthetic fun <init> (Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun get (Ljava/lang/Object;)Ljava/util/Set;
+	public final fun putAll (Ljava/lang/Object;Ljava/util/Collection;)V
+	public final fun set (Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/twilsock/util/MultiMap$Companion {
+	public final fun serializer (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/twilio/twilsock/util/ProxyInfo {
+	public fun <init> ()V
+	public final fun getHost ()Ljava/lang/String;
+	public final fun getPassword ()Ljava/lang/String;
+	public final fun getPort ()I
+	public final fun getUser ()Ljava/lang/String;
+	public final fun update ()V
+}
+
+public final class com/twilio/twilsock/util/SslContextKt {
+	public static final fun SslContext (Ljava/util/List;)Ljavax/net/ssl/SSLContext;
+}
+
+public final class com/twilio/twilsock/util/Unsubscriber {
+	public fun <init> (Lkotlin/jvm/functions/Function0;)V
+	public final fun unsubscribe ()V
+}
+
