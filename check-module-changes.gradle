@@ -1,3 +1,5 @@
+apply from: "${project(":utils").projectDir}/get-git-root-dir.gradle"
+
 ext.ensureNoChanges = { libVersion, moduleName, libVersionGradlePath ->
     def logStream = new ByteArrayOutputStream()
     exec {
@@ -7,6 +9,9 @@ ext.ensureNoChanges = { libVersion, moduleName, libVersionGradlePath ->
     def bumpVersionCommit = logStream.toString().trim()
     println "$moduleName bumpVersionCommit: $bumpVersionCommit"
 
+    def gitRootDir = getGitRootDir()
+    println "gitRootDir: $gitRootDir"
+
     def diffStream = new ByteArrayOutputStream()
     exec {
         commandLine 'git', 'diff', '--name-only', bumpVersionCommit
@@ -15,7 +20,7 @@ ext.ensureNoChanges = { libVersion, moduleName, libVersionGradlePath ->
     def diff = diffStream.toString().trim()
     def diffPaths = diff
             .split("\n")
-            .collect { file("$monorepoDir/$it").absolutePath }
+            .collect { file("$gitRootDir/$it").absolutePath }
             .findAll { it.startsWith(project(":$moduleName").projectDir.absolutePath) }
 
     def diffCount = diffPaths.size()

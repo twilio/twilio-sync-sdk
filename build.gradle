@@ -21,7 +21,6 @@ plugins {
 }
 
 apply plugin: "signing"
-apply from: "${project(":utils").projectDir}/root-project-build.gradle"
 apply from: "${project(":utils").projectDir}/prepare-version-names.gradle"
 apply from: "./need-publish-module.gradle"
 apply from: "./prepare-pom-xml.gradle"
@@ -38,9 +37,27 @@ nexusPublishing {
     }
 }
 
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
 subprojects {
     afterEvaluate {
-        android.publishing.singleVariant('release')
+        android {
+            publishing.singleVariant('release')
+
+            packagingOptions.resources.excludes.addAll([
+                    // mockk 1.13.7 is not compilable without these excludes
+                    "META-INF/LICENSE.md",
+                    "META-INF/LICENSE-notice.md",
+
+                    // This one came with bumping kotlin to 1.9.20
+                    "META-INF/versions/9/previous-compilation-data.bin"
+            ])
+        }
     }
 }
 

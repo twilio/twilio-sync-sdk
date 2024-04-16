@@ -25,7 +25,7 @@ ext.addFileToAar = { buildType, fileToAdd ->
         dependsOn "addLicenseFileInUnzipped${buildType.capitalize()}Aar"
         from outputAarUnzippedDir
         include '**'
-        archiveFileName = sdkProjectName + "-${buildType}.aar"
+        archiveFileName = aarReleaseFile.name
         destinationDirectory = outputAarDir
     }
 
