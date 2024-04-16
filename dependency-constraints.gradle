@@ -89,7 +89,6 @@ subprojects {
     }
 }
 
-
 def untilNextMajorVersion(version) {
     def matcher = (version =~ /^(\d)\.(\d)\.(\d)$/)
 

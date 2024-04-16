@@ -12,13 +12,13 @@ import androidx.annotation.NonNull;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.common.util.concurrent.SettableFuture;
+import com.twilio.nativesyncjava.util.BaseTestCase;
 import com.twilio.nativesyncjava.util.TestSyncClient;
 import com.twilio.nativesyncjava.util.TestSyncList;
+import com.twilio.nativesyncjava.util.UtilsKt;
 import com.twilio.sync.client.java.SyncClientFactory;
 import com.twilio.sync.client.java.SyncIteratorJava;
 import com.twilio.sync.client.java.SyncListJava;
-import com.twilio.sync.util.BaseTestCase;
-import com.twilio.sync.util.UtilsKt;
 
 import org.json.JSONObject;
 import org.junit.After;

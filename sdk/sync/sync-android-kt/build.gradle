@@ -82,7 +82,6 @@ kotlin {
         }
         androidInstrumentedTest {
             dependencies {
-                implementation project(':sync-android')
                 implementation kotlin('test')
                 implementation "androidx.test:runner:$androidXTestRunnerVersion"
                 implementation "junit:junit:$junitVersion"
@@ -115,10 +114,7 @@ android {
 
         buildConfigField "String", "VERSION_NAME", "\"$fullVersionName\""
 
-        def testBuildTypeValue = findProperty('testBuildType') ?: System.getProperty('testBuildType', 'debug').uncapitalize()
-        println "nativesync testBuildType: $testBuildTypeValue"
-        testBuildType testBuildTypeValue == "releaseWithSymbols" ? "release" : testBuildTypeValue
-
+        testBuildType "release"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -132,11 +128,6 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-        }
-        coordinated {
-            initWith(debug)
-            matchingFallbacks = ['debug']
-            isDefault = true
         }
     }
 

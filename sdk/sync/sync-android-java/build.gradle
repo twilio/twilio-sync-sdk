@@ -60,11 +60,6 @@ android {
         release {
             minifyEnabled false
         }
-        coordinated {
-            initWith(debug)
-            matchingFallbacks = ['debug']
-            isDefault = true
-        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
