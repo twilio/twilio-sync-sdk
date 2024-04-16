@@ -1,0 +1,68 @@
+apply from: "${project(":utils").projectDir}/get-git-root-dir.gradle"
+
+wrapper {
+    gradleVersion = '8.1.1'
+    distributionType = Wrapper.DistributionType.ALL
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+subprojects {
+    afterEvaluate {
+        android.packagingOptions.resources.excludes.addAll([
+                // mockk 1.13.7 is not compilable without these excludes
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+
+                // This one came with bumping kotlin to 1.9.20
+                "META-INF/versions/9/previous-compilation-data.bin"
+        ])
+    }
+}
+
+ext {
+    monorepoDir = getGitRootDir()
+    sdkProjectName = "${rootProject.name}-android"
+}
+
+if (subprojects.find { it.name == ':demo' }) {
+    project(":demo").with {
+        pluginManager.withPlugin("com.android.application") {
+            // Apply after the com.android.application applied
+            apply from: "${project(":utils").projectDir}/coordinated.gradle"
+        }
+    }
+
+    copy {
+        from("$rootProject.projectDir") {
+            include "gradle/**"
+            include "gradlew"
+            include "gradlew.bat"
+        }
+        into "${project(":demo").projectDir}/.."
+    }
+
+    def copyBuildGradleOpt = {
+        rename { "build.gradle" }
+        expand(
+                ANDROID_MIN_SDK_VERSION: androidMinSdkVersion,
+                ANDROID_COMPILE_SDK_VERSION: androidCompileSdkVersion,
+                ANDROID_X_VERSION: androidXVersion,
+                ANDROID_BUILD_TOOLS_VERSION: androidBuildToolsVersion,
+                ANDROID_GRADLE_PLUGIN_VERSION: androidGradlePluginVersion,
+                GOOGLE_SERVICES_VERSION: googleServicesVersion,
+                KOTLIN_VERSION: kotlinVersion,
+                KOTLIN_COROUTINES_VERSION: kotlinCoroutinesVersion
+        )
+    }
+
+    copy {
+        from "${project(":utils").projectDir}/${rootProject.name}-demo-build-gradle.in", copyBuildGradleOpt
+        into "${project(":demo").projectDir}/.."
+    }
+}

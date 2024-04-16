@@ -1,0 +1,8 @@
+ext.getGitRootDir = {
+    def stream = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--show-toplevel'
+        standardOutput = stream
+    }
+    return stream.toString().trim()
+}

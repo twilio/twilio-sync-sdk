@@ -1,0 +1,13 @@
+// See documentation for the binary compatibility validator tool:
+// https://github.com/Kotlin/binary-compatibility-validator
+
+apply plugin: 'org.jetbrains.kotlinx.binary-compatibility-validator'
+
+apiValidation {
+    /**
+     * Sub-projects that are excluded from API validation
+     */
+    findProject("testapp")?.with { ignoredProjects += "testapp" }
+    findProject("demo")?.with { ignoredProjects += "demo" }
+    findProject("shared-test")?.with { ignoredProjects += "shared-test" }
+}

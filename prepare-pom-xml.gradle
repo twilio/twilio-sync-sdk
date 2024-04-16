@@ -1,0 +1,15 @@
+ext.prepareTwilioPom = { pom, proj ->
+    pom.licenses {
+        license {
+            name = 'TWILIO-TOS'
+            url = 'https://www.twilio.com/legal/tos'
+        }
+    }
+
+    pom.developers {
+        developer {
+            id = 'Twilio'
+            name = 'Twilio'
+        }
+    }
+}

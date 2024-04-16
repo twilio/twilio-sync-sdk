@@ -1,0 +1,16 @@
+ext.generateVersionsKt = { destPath, packageName, fullVersionName, shortVersionName ->
+
+    def copyVersionsOpt = {
+        rename { "Versions.kt" }
+        expand(
+                PACKAGE: packageName,
+                FULL_VERSION_NAME: fullVersionName,
+                SHORT_VERSION_NAME: shortVersionName,
+        )
+    }
+
+    copy {
+        from "${project(':utils').projectDir}/VersionsKt.in", copyVersionsOpt
+        into destPath
+    }
+}

@@ -1,0 +1,29 @@
+ext.ensureNoChanges = { libVersion, moduleName, libVersionGradlePath ->
+    def logStream = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'log', '-1', '--pretty=%H', '--', "$libVersionGradlePath"
+        standardOutput = logStream
+    }
+    def bumpVersionCommit = logStream.toString().trim()
+    println "$moduleName bumpVersionCommit: $bumpVersionCommit"
+
+    def diffStream = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'diff', '--name-only', bumpVersionCommit
+        standardOutput = diffStream
+    }
+    def diff = diffStream.toString().trim()
+    def diffPaths = diff
+            .split("\n")
+            .collect { file("$monorepoDir/$it").absolutePath }
+            .findAll { it.startsWith(project(":$moduleName").projectDir.absolutePath) }
+
+    def diffCount = diffPaths.size()
+
+    println "$moduleName diffCount: $diffCount"
+
+    if (diffCount > 0) {
+        throw new GradleException("Changes in $moduleName found since bumping version to $libVersion:\n" +
+                diffPaths.join("\n"))
+    }
+}

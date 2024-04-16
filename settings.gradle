@@ -1,0 +1,19 @@
+include ':sync-android-kt',
+        ':sync-android-java',
+        ':sync-android-shared',
+        ':sync-testapp-java',
+        ':twilsock',
+        ':utils',
+        ':shared-internal',
+        ':shared-public',
+        ':shared-test'
+
+project(':sync-android-kt').projectDir = file("sdk/sync/sync-android-kt")
+project(':sync-android-java').projectDir = file("sdk/sync/sync-android-java")
+project(':sync-android-shared').projectDir = file("sdk/sync/sync-android-shared")
+project(':sync-testapp-java').projectDir = file("sdk/sync/sync-testapp-java")
+project(':twilsock').projectDir = file("sdk/twilsock")
+project(':utils').projectDir = file("sdk/utils")
+project(':shared-internal').projectDir = file("sdk/android/shared-internal")
+project(':shared-public').projectDir = file("sdk/shared/shared-public")
+project(':shared-test').projectDir = file("sdk/shared/shared-test")
