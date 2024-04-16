@@ -15,18 +15,8 @@ ext.generateVersionNames = { gitHash, gitTag ->
         throw new GradleException('Generating version name failed')
     }
 
-    def isSyncReleaseCandidate = false
-    def syncVersion = "SNAPSHOT"
     def isNativeSyncReleaseCandidate = false
     def nativeSyncVersion = "SNAPSHOT"
-    def isConvoReleaseCandidate = false
-    def convoVersion = "SNAPSHOT"
-
-    def syncReleaseTag = (gitTag =~ /^release-sync-android-((\d+\.\d+\.\d+)-rc(\d+))$/)
-    if (syncReleaseTag.find()) {
-        isSyncReleaseCandidate = true
-        syncVersion = syncReleaseTag.group(2)
-    }
 
     def nativeSyncReleaseTag = (gitTag =~ /^release-native-sync-android-((\d+\.\d+\.\d+)-rc(\d+))$/)
     if (nativeSyncReleaseTag.find()) {
@@ -34,87 +24,19 @@ ext.generateVersionNames = { gitHash, gitTag ->
         nativeSyncVersion = nativeSyncReleaseTag.group(2)
     }
 
-    def convoReleaseTag = (gitTag =~ /^release-convo-android-((\d+\.\d+\.\d+)-rc(\d+))$/)
-    if (convoReleaseTag.find()) {
-        isConvoReleaseCandidate = true
-        convoVersion = convoReleaseTag.group(2)
-    }
-
-    def syncConvoReleaseTag = (gitTag =~ /^release-sync-android-((\d+\.\d+\.\d+)-rc(\d+))-convo-android-((\d+\.\d+\.\d+)-rc(\d+))$/)
-    if (syncConvoReleaseTag.find()) {
-        isSyncReleaseCandidate = true
-        isConvoReleaseCandidate = true
-
-        syncVersion = syncConvoReleaseTag.group(2)
-        convoVersion = syncConvoReleaseTag.group(5)
-    }
-
-    def convoSyncReleaseTag = (gitTag =~ /^release-convo-android-((\d+\.\d+\.\d+)-rc(\d+))-sync-android-((\d+\.\d+\.\d+)-rc(\d+))$/)
-    if (convoSyncReleaseTag.find()) {
-        isSyncReleaseCandidate = true
-        isConvoReleaseCandidate = true
-
-        syncVersion = convoSyncReleaseTag.group(5)
-        convoVersion = convoSyncReleaseTag.group(2)
-    }
-
-    def nativeSyncConvoReleaseTag = (gitTag =~ /^release-native-sync-android-((\d+\.\d+\.\d+)-rc(\d+))-convo-android-((\d+\.\d+\.\d+)-rc(\d+))$/)
-    if (nativeSyncConvoReleaseTag.find()) {
-        isNativeSyncReleaseCandidate = true
-        isConvoReleaseCandidate = true
-
-        nativeSyncVersion = nativeSyncConvoReleaseTag.group(2)
-        convoVersion = nativeSyncConvoReleaseTag.group(5)
-    }
-
-    def convoNativeSyncReleaseTag = (gitTag =~ /^release-convo-android-((\d+\.\d+\.\d+)-rc(\d+))-native-sync-android-((\d+\.\d+\.\d+)-rc(\d+))$/)
-    if (convoNativeSyncReleaseTag.find()) {
-        isNativeSyncReleaseCandidate = true
-        isConvoReleaseCandidate = true
-
-        nativeSyncVersion = convoNativeSyncReleaseTag.group(5)
-        convoVersion = convoNativeSyncReleaseTag.group(2)
-    }
-
-    def syncFullVersion = "$syncVersion-$gitShortHash"
     def nativeSyncFullVersion = "$nativeSyncVersion-$gitShortHash"
-    def convoFullVersion = "$convoVersion-$gitShortHash"
 
-    return [isSyncReleaseCandidate, syncVersion, syncFullVersion,
-            isNativeSyncReleaseCandidate, nativeSyncVersion, nativeSyncFullVersion,
-            isConvoReleaseCandidate, convoVersion, convoFullVersion]
-}
-
-ext.generateConvoVersionNames = { gitHash, gitTag ->
-    def (isSyncReleaseCandidate,  syncVersion,  syncFullVersion,
-         isNativeSyncReleaseCandidate,  nativeSyncVersion,  nativeSyncFullVersion,
-         isConvoReleaseCandidate, convoVersion, convoFullVersion) = generateVersionNames(gitHash, gitTag)
-
-    return convoFullVersion
-}
-
-ext.generateSyncVersionNames = { gitHash, gitTag ->
-    def (isSyncReleaseCandidate,  syncVersion,  syncFullVersion,
-         isNativeSyncReleaseCandidate,  nativeSyncVersion,  nativeSyncFullVersion,
-         isConvoReleaseCandidate, convoVersion, convoFullVersion) = generateVersionNames(gitHash, gitTag)
-
-    return [syncFullVersion, syncVersion]
+    return [isNativeSyncReleaseCandidate, nativeSyncVersion, nativeSyncFullVersion]
 }
 
 ext.generateNativeSyncVersionNames = { gitHash, gitTag ->
-    def (isSyncReleaseCandidate,  syncVersion,  syncFullVersion,
-         isNativeSyncReleaseCandidate,  nativeSyncVersion,  nativeSyncFullVersion,
-         isConvoReleaseCandidate, convoVersion, convoFullVersion) = generateVersionNames(gitHash, gitTag)
+    def (isNativeSyncReleaseCandidate,  nativeSyncVersion,  nativeSyncFullVersion) = generateVersionNames(gitHash, gitTag)
 
     return [nativeSyncFullVersion, nativeSyncVersion]
 }
 
 ext.generatePublishVersionNames = { gitHash, gitTag ->
-    def (isSyncReleaseCandidate,  syncVersion,  syncFullVersion,
-         isNativeSyncReleaseCandidate,  nativeSyncVersion,  nativeSyncFullVersion,
-         isConvoReleaseCandidate, convoVersion, convoFullVersion) = generateVersionNames(gitHash, gitTag)
+    def (isNativeSyncReleaseCandidate,  nativeSyncVersion,  nativeSyncFullVersion) = generateVersionNames(gitHash, gitTag)
 
-    return [isSyncReleaseCandidate,  syncVersion,
-            isNativeSyncReleaseCandidate,  nativeSyncVersion,
-            isConvoReleaseCandidate, convoVersion]
+    return [isNativeSyncReleaseCandidate,  nativeSyncVersion]
 }

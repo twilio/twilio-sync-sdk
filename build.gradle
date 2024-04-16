@@ -11,7 +11,6 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
         classpath "com.squareup.sqldelight:gradle-plugin:$sqldelightVersion"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
-        classpath "com.google.gms:google-services:$googleServicesVersion"
     }
 }
 
@@ -54,18 +53,10 @@ println "need to publish shared-internal: $needPublishSharedInternal"
 def needPublishSharedPublic = needPublishSharedPublic(sharedPublicVersion)
 println "need to publish shared-public: $needPublishSharedPublic"
 
-def (isSyncReleaseCandidate, syncVersion,
-     isNativeSyncReleaseCandidate, nativeSyncVersion,
-     isConvoReleaseCandidate, convoVersion) = generatePublishVersionNames(gitHash, gitTag)
+def (isNativeSyncReleaseCandidate, nativeSyncVersion) = generatePublishVersionNames(gitHash, gitTag)
 
-println "publishing isSyncReleaseCandidate?: $isSyncReleaseCandidate"
-println "publishing syncVersion: $syncVersion"
-println()
 println "publishing isNativeSyncReleaseCandidate?: $isNativeSyncReleaseCandidate"
 println "publishing nativeSyncVersion: $nativeSyncVersion"
-println()
-println "publishing isConvoReleaseCandidate?: $isConvoReleaseCandidate"
-println "publishing convoVersion: $convoVersion"
 println()
 
 signing {
@@ -174,75 +165,6 @@ if (needPublishSharedPublic) {
     }
 }
 
-if (isSyncReleaseCandidate) {
-    // this line is parsed on circleci. don't touch it!
-    // see: $MONOREPO/BuildScripts/push-sonatype-git-tag.sh
-    println "Publishing sync v$syncVersion"
-
-    publishing {
-        publications {
-            syncRelease(MavenPublication) {
-                from project(":sync-android").components.release
-
-                artifact("${rootProject.projectDir}/../sync/build/libs/sync-dokka.jar") {
-                    classifier 'dokka'
-                }
-                artifact("${project(":sync-android").buildDir}/libs/sync-android-sources.jar") {
-                    classifier 'sources'
-                }
-
-                groupId = "com.twilio"
-                artifactId = "sync-android"
-                version = syncVersion
-
-                pom {
-                    prepareTwilioPom(owner, project(":sync-android"))
-
-                    name = 'Sync SDK for Android'
-                    description = 'An Android library for synchronization mobile apps with a single source of state in the cloud.'
-                    url = 'https://www.twilio.com/docs/sync'
-
-                    scm {
-                        connection = 'scm:git:git@github.com:twilio/sync-quickstart-android.git'
-                        developerConnection = 'scm:git:ssh://github.com:twilio/sync-quickstart-android.git'
-                        url = 'https://github.com/twilio/sync-quickstart-android/tree/master'
-                    }
-                }
-            }
-            syncReleaseWithSymbols(MavenPublication) {
-                from project(":sync-android").components.releaseWithSymbols
-
-                artifact("${rootProject.projectDir}/../sync/build/libs/sync-dokka.jar") {
-                    classifier 'dokka'
-                }
-                artifact("${project(":sync-android").buildDir}/libs/sync-android-sources.jar") {
-                    classifier 'sources'
-                }
-
-                groupId = "com.twilio"
-                artifactId = "sync-android-with-symbols"
-                version = syncVersion
-
-                pom {
-                    prepareTwilioPom(owner, project(":sync-android"))
-
-                    name = 'Sync SDK for Android With Symbols'
-                    description = 'An Android library for synchronization mobile apps with a single source of state ' +
-                            'in the cloud. This version contains native symbols which could be used to symbolicate stack ' +
-                            'traces of native crashes using crashlytics or similar tools'
-                    url = 'https://www.twilio.com/docs/sync'
-
-                    scm {
-                        connection = 'scm:git:git@github.com:twilio/sync-quickstart-android.git'
-                        developerConnection = 'scm:git:ssh://github.com:twilio/sync-quickstart-android.git'
-                        url = 'https://github.com/twilio/sync-quickstart-android/tree/master'
-                    }
-                }
-            }
-        }
-    }
-}
-
 if (isNativeSyncReleaseCandidate) {
     // this line is parsed on circleci. don't touch it!
     // see: $MONOREPO/BuildScripts/push-sonatype-git-tag.sh
@@ -335,93 +257,12 @@ if (isNativeSyncReleaseCandidate) {
     }
 }
 
-if (isConvoReleaseCandidate) {
-    // this line is parsed on circleci. don't touch it!
-    // see: $MONOREPO/BuildScripts/push-sonatype-git-tag.sh
-    println "Publishing convo v$convoVersion"
-
-    publishing {
-        publications {
-            convoRelease(MavenPublication) {
-                from project(":convo-android").components.release
-
-                artifact("${rootProject.projectDir}/../convo/build/libs/convo-dokka.jar") {
-                    classifier 'dokka'
-                }
-                artifact("${project(":convo-android").buildDir}/libs/convo-android-sources.jar") {
-                    classifier 'sources'
-                }
-
-                groupId = "com.twilio"
-                artifactId = "conversations-android"
-                version = convoVersion
-
-                pom {
-                    prepareTwilioPom(owner, project(":convo-android"))
-
-                    name = 'Twilio Conversations Android SDK'
-                    description = 'An Android library for communications between participants using different ' +
-                            'channels (SMS, WhatsApp, Twilio Programmable Chat etc)'
-                    url = 'https://www.twilio.com/docs/conversations'
-
-                    scm {
-                        connection = 'scm:git:git://github.com:twilio/twilio-conversations-demo-kotlin.git'
-                        developerConnection = 'scm:git:ssh://github.com:twilio/twilio-conversations-demo-kotlin.git'
-                        url = 'https://github.com/twilio/twilio-conversations-demo-kotlin/tree/main'
-                    }
-                }
-            }
-            convoReleaseWithSymbols(MavenPublication) {
-                from project(":convo-android").components.releaseWithSymbols
-
-                artifact("${rootProject.projectDir}/../convo/build/libs/convo-dokka.jar") {
-                    classifier 'dokka'
-                }
-                artifact("${project(":convo-android").buildDir}/libs/convo-android-sources.jar") {
-                    classifier 'sources'
-                }
-
-                groupId = "com.twilio"
-                artifactId = "conversations-android-with-symbols"
-                version = convoVersion
-
-                pom {
-                    prepareTwilioPom(owner, project(":convo-android"))
-
-                    name = 'Twilio Conversations Android SDK With Symbols'
-                    description = 'An Android library for communications between participants using different ' +
-                            'channels (SMS, WhatsApp, Twilio Programmsble Chat etc). This version contains native ' +
-                            'symbols which could be used to symbolicate stack traces of native crashes using crashlytics ' +
-                            'or similar tools'
-                    url = 'https://www.twilio.com/docs/conversations'
-
-                    scm {
-                        connection = 'scm:git:git://github.com:twilio/twilio-conversations-demo-kotlin.git'
-                        developerConnection = 'scm:git:ssh://github.com:twilio/twilio-conversations-demo-kotlin.git'
-                        url = 'https://github.com/twilio/twilio-conversations-demo-kotlin/tree/main'
-                    }
-                }
-            }
-        }
-    }
-}
-
 tasks['publishToSonatype'].with {
     dependsOn(validateIfSingleRcTagOnCommit)
     mustRunAfter(validateIfSingleRcTagOnCommit)
 }
 
 tasks['releaseSonatypeStagingRepository'].dependsOn(checkReleaseVersionMatchesRC)
-
-// Following dependencies just to make gradle 8 happy
-if (isSyncReleaseCandidate) {
-    tasks['publishSyncReleasePublicationToSonatypeRepository'].mustRunAfter('signSyncReleaseWithSymbolsPublication')
-    tasks['publishSyncReleaseWithSymbolsPublicationToSonatypeRepository'].mustRunAfter('signSyncReleasePublication')
-}
-if (isConvoReleaseCandidate) {
-    tasks['publishConvoReleasePublicationToSonatypeRepository'].mustRunAfter('signConvoReleaseWithSymbolsPublication')
-    tasks['publishConvoReleaseWithSymbolsPublicationToSonatypeRepository'].mustRunAfter('signConvoReleasePublication')
-}
 
 } // gradle.projectsEvaluated
 
