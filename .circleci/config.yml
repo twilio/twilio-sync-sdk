@@ -1,0 +1,3737 @@
+version: 2.1
+
+orbs:
+  android: circleci/android@2.0.3
+  slack: circleci/slack@4.12.5
+  macos: circleci/macos@2.3.4
+
+aliases:
+  - &workspace
+    ~/rtd-sdk-monorepo
+  - &build_output
+    target/build
+  - &ios_testables_root_project_dir
+    root-projects/ios/cpp-tests
+  - &android_testables_root_project_dir
+    root-projects/android/cpp-tests
+  - &android_chat_convo_jni_dir
+    sdk/android/chat-convo-jni
+  - &android_sync_sdk_jni_dir
+    sdk/android/sync/sdk/src/main/jni
+  - &android_convo_root_project_dir
+    root-projects/android/convo
+  - &android_sync_root_project_dir
+    root-projects/android/sync
+  - &android_publishing_root_project_dir
+    root-projects/android/publishing
+  - &android_apk_test_runner_root_project_dir
+    cpp/rtd-shared-lib/Interface/Test/apk-test-runner
+  - &android_convo_sdk_dir
+    sdk/android/convo/sdk
+  - &android_sync_sdk_dir
+    sdk/android/sync/sdk
+  - &android_convo_testapp_dir
+    sdk/android/convo/testapp
+  - &android_sync_testapp_dir
+    sdk/android/sync/testapp
+  - &android_twilsock_output
+    sdk/android/twilsock/build/outputs
+  - &android_shared_public_output
+    sdk/android/shared-public/build/outputs
+  - &android_shared_public_sources_jar
+    sdk/android/shared-public/build/libs
+  - &android_shared_internal_output
+    sdk/android/shared-internal/build/outputs
+  - &android_convo_sdk_output
+    sdk/android/convo/sdk/build/outputs
+  - &android_sync_sdk_output
+    sdk/android/sync/sdk/build/outputs
+  - &android_native_sync_sdk_output
+    sdk/android/sync-android-kt/build/outputs
+  - &android_native_sync_java_sdk_output
+    sdk/android/sync-android-java/build/outputs
+  - &android_native_sync_shared_sdk_output
+    sdk/android/sync-android-shared/build/outputs
+  - &android_convo_sdk_tests_output
+    sdk/android/convo/testapp/build/outputs
+  - &android_sync_sdk_tests_output
+    sdk/android/sync/testapp/build/outputs
+  - &android_convo_sdk_docs_jar_output
+    root-projects/android/convo/build/libs
+  - &android_convo_sdk_docs_html_output
+    root-projects/android/convo/build/dokka/htmlMultiModule
+  - &android_convo_sdk_sources_jar_output
+    sdk/android/convo/sdk/build/libs
+  - &android_sync_sdk_docs_jar_output
+    root-projects/android/sync/build/libs
+  - &android_sync_sdk_docs_html_output
+    root-projects/android/sync/build/dokka/htmlMultiModule
+  - &android_sync_sdk_sources_jar_output
+    sdk/android/sync/sdk/build/libs
+  - &android_native_sync_sdk_jar_output
+    sdk/android/sync-android-kt/build/libs
+  - &android_native_sync_java_sdk_jar_output
+    sdk/android/sync-android-java/build/libs
+  - &android_native_sync_shared_jar_output
+    sdk/android/sync-android-shared/build/libs
+  - &test_results_folder
+    /tmp/junit
+  - &release-tool-dir
+    tools/sdk-release-tool
+  - &cdn-pin-tool-dir
+    tools/rtd-sdk-cdn-pin
+  - &ios-libs-to-report >
+    -t libMsgCommonLib
+    -t libMsgTwilsockLib
+    -t libMsgNotificationLib
+    -t libMsgSyncLib
+    -t libMsgConversationsLib
+    -t libMediaLib
+    -t libTwilioTwilsockLib
+    -t libTwilioCommonLib
+    -t libTwilioStateMachine
+    -t TwilioConversationsClient
+    -t TwilioSyncClient
+
+  #============================================================================
+  # Aliases: Parameters
+  #============================================================================
+
+  - platform-parameter: &platform-parameter
+      platform:
+        description: "Platform to build"
+        type: enum
+        enum: ["android", "ios"]
+  - product-parameter: &product-parameter
+      product:
+        description: "Product to build"
+        type: enum
+        enum: ["convo", "sync",  "TwilsockLib", "cpp-tests-convo"]
+  - build-type-parameter: &build-type-parameter
+      build-type:
+        description: "Build type to build"
+        type: enum
+        enum: ["release", "debug"]
+  - build-arch-parameter: &build-arch-parameter
+      build-arch:
+        description: "Build architecture to build"
+        type: enum
+        enum: ["all", "x86_64", "x86", "armeabi-v7a", "arm64-v8a", "i386", "armv7", "arm64"]
+        default: "all"
+  - cpp-test-name-parameter: &cpp-test-name-parameter
+      cpp-test-name:
+        description: "Cpp-lib name to test"
+        type: enum
+        enum: ["MsgConversationsLib", "RtdSharedLib", "RtdSyncLib"]
+  - source-dir-parameter: &source-dir-parameter
+      source-dir:
+        description: "SDK source directory"
+        type: string
+  - dest-dir-parameter: &dest-dir-parameter
+      dest-dir:
+        description: "destination directory"
+        type: string
+  - sdk-build-type-parameter: &sdk-build-type-parameter
+      sdk-build-type:
+        description: "Sdk build type"
+        type: enum
+        enum: ["Release", "Debug", "ReleaseWithSymbols"]
+  - sdk-test-type-parameter: &sdk-test-type-parameter
+      sdk-test-type:
+        description: "Test type to run"
+        type: enum
+        enum: ["release", "debug", "releaseWithSymbols"]
+  - testapp-dir-parameter: &testapp-dir-parameter
+      testapp-dir:
+        description: "Sdk testapp directory"
+        type: string
+  - token-service-url-parameter: &token-service-url-parameter
+      token-service-url:
+        description: "Access token service url"
+        type: string
+  - test-media-service-url-parameter: &test-media-service-url-parameter
+      test-media-service-url:
+        description: "Test media service url"
+        type: string
+        default: ""
+  - test-media-set-service-url-parameter: &test-media-set-service-url-parameter
+      test-media-set-service-url:
+        description: "Test media service url"
+        type: string
+        default: ""
+  - test-twilsock-service-url-parameter: &test-twilsock-service-url-parameter
+      test-twilsock-service-url:
+        description: "Test twilsock service url"
+        type: string
+        default: ""
+  - sms-proxy-number-parameter: &sms-proxy-number-parameter
+      sms-proxy-number:
+        description: "Conversations sms proxy number"
+        type: string
+  - gradle-project-dir-parameter: &gradle-project-dir-parameter
+      gradle-project-dir:
+        description: "Gradle project directory"
+        type: string
+  - gradle-target-parameter: &gradle-target-parameter
+      gradle-target:
+        description: "Gradle target to execute"
+        type: string
+  - output-file-parameter: &output-file-parameter
+      output-file:
+        description: "Output file"
+        type: string
+        default: ""
+  - input-file-parameter: &input-file-parameter
+      input-file:
+        description: "Input file"
+        type: string
+  - do-not-strip-symbols-parameter: &do-not-strip-symbols-parameter
+      do-not-strip-symbols:
+        description: "Gradle flag to strip symbols"
+        type: boolean
+        default: false
+  - ios-build-sim-parameter: &ios-build-sim-parameter
+      build-sim:
+        description: "Build simulator target"
+        type: boolean
+        default: false
+  - ios-mac-catalyst-parameter: &ios-mac-catalyst-parameter
+      mac-catalyst:
+        description: "Use Mac Catalyst as target"
+        type: boolean
+        default: false
+  - sdk-type-parameter: &sdk-type-parameter
+      sdk-type:
+        description: "SDK Type"
+        type: enum
+        enum: ["sync", "convo",  "TwilsockLib"]
+  - ios-tests-group-parameter: &ios-tests-group-parameter
+      ios-tests-group:
+        description: "iOS tests group"
+        type: enum
+        enum: ["SyncLib", "ConvoLib", "SharedLibs", "TwilsockLib", "sync", "convo", "Convo"]
+  - upload-type-parameter: &upload-type-parameter
+      upload-type:
+        description: "Upload type"
+        type: enum
+        enum: ["stage", "prod"]
+  - pre-persist-steps-parameter: &pre-persist-steps-parameter
+      pre-persist-steps:
+        description: "Steps that will be executed before persisting workspace"
+        type: steps
+        default: []
+  # Orchestration tag names are chosen not to be prefixes of each other, that's why it's possible
+  # to use shorter names like `test-shared` instead of full `test-shared-android` as generated by
+  # the test orchestration script.
+  # You can use this to mix and match platform specific filters with more broad per-product filters.
+  - orchestrator-tag-name-parameter: &orchestrator-tag-name-parameter
+      test-tag:
+        description: "Test tag that must be present to run test"
+        type: enum
+        enum: [
+            "test-shared-ios", "test-shared-android",
+            "test-sync-ios", "test-sync-android",
+            "test-convo-ios", "test-convo-android",
+            "test-sdk-convo-ios", "test-sdk-convo-android",
+            "test-sdk-sync-ios", "test-sdk-sync-android", "test-native-sync-sdk",
+            "test-sdk-twilsock-ios", "test-twilsock-android", "test-shared-internal-android"
+            ]
+  - target-branch-parameter: &target-branch-parameter
+      target-branch:
+        description: "Target branch for merge into"
+        type: string
+  - steps-to-run-parameter: &steps-to-run-parameter
+        steps-to-run:
+          description: "Steps that will be executed"
+          type: steps
+          default: []
+
+  #============================================================================
+  # Aliases: Tag & Branch Filters
+  #============================================================================
+
+  - any-branch-or-android-rc-tag-filter: &any-branch-or-android-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-(convo|sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-convo-android-\d+\.\d+\.\d+-rc\d+-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+-convo-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-(convo|sync)-kotlin-ios-\d+\.\d+\.\d+-rc\d+$/
+  - any-branch-or-convo-android-rc-tag-filter: &any-branch-or-convo-android-rc-tag-filter
+      filters:
+        tags:
+          only: 
+            - /^release-convo-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-convo-android-\d+\.\d+\.\d+-rc\d+-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+-convo-android-\d+\.\d+\.\d+-rc\d+$/
+  - any-branch-or-sync-android-rc-tag-filter: &any-branch-or-sync-android-rc-tag-filter
+      filters:
+        tags:
+          only: 
+            - /^release-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-convo-android-\d+\.\d+\.\d+-rc\d+-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+-convo-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-sync-kotlin-ios-\d+\.\d+\.\d+-rc\d+$/
+  - android-rc-tag-filter: &android-rc-tag-filter
+      filters:
+        tags:
+          only: 
+            - /^release-(convo|sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-convo-android-\d+\.\d+\.\d+-rc\d+-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+-convo-android-\d+\.\d+\.\d+-rc\d+$/
+        branches:
+          ignore: /.*/
+  - release-android-tag-filter: &release-android-tag-filter
+      filters:
+        tags:
+          only: #native-sync RC is uploaded to sonatype with same artifact names as old c++ sync. 
+                #So just use regular sync tags to promote it to release
+            - /^release-(convo|sync)-android-\d+\.\d+\.\d+$/
+            - /^release-convo-android-\d+\.\d+\.\d+-sync-android-\d+\.\d+\.\d+$/
+            - /^release-sync-android-\d+\.\d+\.\d+-convo-android-\d+\.\d+\.\d+$/
+        branches:
+          ignore: /.*/
+  - kotlin-ios-rc-tag-filter: &kotlin-ios-rc-tag-filter
+      filters:
+        tags:
+          only: 
+            - /^release-(convo|sync)-kotlin-ios-\d+\.\d+\.\d+-rc\d+$/
+        branches:
+          ignore: /.*/
+  - release-kotlin-ios-tag-filter: &release-kotlin-ios-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-(convo|sync)-kotlin-ios-\d+\.\d+\.\d+$/
+        branches:
+          ignore: /.*/
+  - any-branch-or-ios-rc-tag-filter: &any-branch-or-ios-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-(sync|convo|twilsock)-ios-\d+\.\d+\.\d+-rc\d+$/
+  - ios-rc-tag-filter: &ios-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-(sync|convo|twilsock)-ios-\d+\.\d+\.\d+-rc\d+$/
+        branches:
+          ignore: /.*/
+  - any-branch-or-sync-ios-rc-tag-filter: &any-branch-or-sync-ios-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-sync-ios-\d+\.\d+\.\d+-rc\d+$/
+  - ios-convo-or-sync-rc-tag-filter: &ios-convo-or-sync-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-(convo|sync)-ios-\d+\.\d+\.\d+-rc\d+$/
+        branches:
+          ignore: /.*/
+  - any-branch-or-convo-or-sync-ios-rc-tag-filter: &any-branch-or-convo-or-sync-ios-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-(convo|sync)-ios-\d+\.\d+\.\d+-rc\d+$/
+  - any-branch-or-convo-ios-rc-tag-filter: &any-branch-or-convo-ios-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-convo-ios-\d+\.\d+\.\d+-rc\d+$/
+  - any-branch-or-twilsock-ios-rc-tag-filter: &any-branch-or-twilsock-ios-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-twilsock-ios-\d+\.\d+\.\d+-rc\d+$/
+  - ios-sync-rc-tag-filter: &ios-sync-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-sync-ios-\d+\.\d+\.\d+-rc\d+$/
+        branches:
+          ignore: /.*/
+  - ios-convo-rc-tag-filter: &ios-convo-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-convo-ios-\d+\.\d+\.\d+-rc\d+$/
+        branches:
+          ignore: /.*/
+  - ios-twilsock-rc-tag-filter: &ios-twilsock-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-twilsock-ios-\d+\.\d+\.\d+-rc\d+$/
+        branches:
+          ignore: /.*/
+  - release-ios-tag-filter: &release-ios-tag-filter
+      filters:
+        tags:
+          only: /^release-(sync|convo|twilsock)-ios-\d+\.\d+\.\d+$/
+        branches:
+          ignore: /.*/
+  - release-sync-ios-tag-filter: &release-sync-ios-tag-filter
+      filters:
+        tags:
+          only: /^release-sync-ios-\d+\.\d+\.\d+$/
+        branches:
+          ignore: /.*/
+  - release-convo-ios-tag-filter: &release-convo-ios-tag-filter
+      filters:
+        tags:
+          only: /^release-convo-ios-\d+\.\d+\.\d+$/
+        branches:
+          ignore: /.*/
+  - release-twilsock-ios-tag-filter: &release-twilsock-ios-tag-filter
+      filters:
+        tags:
+          only: /^release-twilsock-ios-\d+\.\d+\.\d+$/
+        branches:
+          ignore: /.*/
+
+  - release-branch-filter: &release-branch-filter
+      filters:
+        tags:
+          ignore: /.*/
+        branches:
+          only:
+            - /^release\/.*$/
+
+#============================================================================
+# Executors
+#============================================================================
+
+executors:
+  linux-android-executor:
+    docker:
+      - image: cibuilderbot/docker-circleci-linux-android
+        auth:
+           username: $DOCKER_HUB_USERNAME
+           password: $DOCKER_HUB_PASSWORD
+    resource_class: xlarge
+    working_directory: *workspace
+    environment:
+      CMAKE_BUILD_PARALLEL_LEVEL: 2
+  linux-generic-executor:
+    docker:
+      - image: cimg/base:2023.04
+    working_directory: *workspace
+  macos-kotlin-ios-executor-x86:
+    macos:
+      xcode: "15.1.0"
+    resource_class: macos.x86.medium.gen2
+    working_directory: *workspace
+  macos-kotlin-ios-executor-m1:
+    macos:
+      xcode: "15.1.0"
+    resource_class: macos.m1.medium.gen1
+    working_directory: *workspace
+    environment:
+      # when bumping xcode version - update the IOS_SIMULATOR_DEVICE_ID
+      # See: https://circleci.com/docs/using-macos/
+      # (on m1 executor deviceId is different than specified in the doc above (the doc is for x86_64). 
+      # Run `xcrun simctl list` on a circleci node to get full device ids list)
+      IOS_SIMULATOR_DEVICE_ID: A2CD73C7-D03C-47CA-858B-94C0D2A9475A
+
+  macos-ios-executor:
+    macos:
+      xcode: "14.3.1" # TODO: on change check `install_ios_certificates` step and remove fastlane downgrade if needed
+    resource_class: macos.x86.medium.gen2
+    working_directory: *workspace
+  small-linux-android-executor:
+    docker:
+      - image: cibuilderbot/docker-circleci-linux-android
+        auth:
+           username: $DOCKER_HUB_USERNAME
+           password: $DOCKER_HUB_PASSWORD
+    resource_class: small
+    working_directory: *workspace
+  android-small-executor:
+    docker:
+      - image: cimg/android:2023.11.1
+    resource_class: small
+    working_directory: *workspace
+  android-with-emulator-executor:
+    machine:
+      image: android:2023.10.1
+      resource_class: large
+    working_directory: *workspace
+    environment:
+      CONVO_ROOT: *android_convo_root_project_dir
+      SYNC_ROOT: *android_sync_root_project_dir
+
+commands:
+
+  #============================================================================
+  # Commands: All
+  #============================================================================
+
+  clean_build_outputs:
+    description: "Clean"
+    parameters:
+      dir:
+        description: "Directory to clean"
+        type: string
+        default: *build_output
+    steps:
+      - run:
+          name: Clean build outputs
+          command: |
+            source ~/.bashrc
+            rm -rf << parameters.dir >>/tmp
+            ./BuildScripts/clean-build-outputs.sh << parameters.dir >>
+
+  process_tap_results:
+    steps:
+      - run:
+          name: Process tap results
+          command: |
+            source ~/.bashrc
+            ./BuildScripts/process-tap-xunit-results.sh
+          working_directory: *workspace
+          environment:
+            RESULTS_FOLDER: *test_results_folder
+
+  git_run_with_disabled_branch_protection:
+    description: "Run steps with disabled  \"Include administration\" policy for << parameters.target-branch >> branch protection on GitHub"
+    parameters:
+      <<: *target-branch-parameter
+      <<: *steps-to-run-parameter
+    steps:
+      - run:
+          name: "Setup git config"
+          command: |
+            source ~/.bashrc
+            git config --global user.name "$GITHUB_USERNAME"
+            git config --global user.email "$GITHUB_USER_EMAIL"
+      - run:
+          name: "Temporarily disable \"Include administration\" policy for << parameters.target-branch >> branch protection on GitHub"
+          command: |
+            source ~/.bashrc
+            curl -u $GITHUB_USERNAME:$GITHUB_TOKEN -X DELETE https://api.github.com/repos/twilio/rtd-sdk-monorepo/branches/<< parameters.target-branch >>/protection/enforce_admins
+      - steps: << parameters.steps-to-run >>
+      - run:
+          name: "Enable \"Include administration\" policy for << parameters.target-branch >> branch protection on GitHub"
+          when: always
+          command: |
+            source ~/.bashrc
+            curl -u $GITHUB_USERNAME:$GITHUB_TOKEN -X POST https://api.github.com/repos/twilio/rtd-sdk-monorepo/branches/<< parameters.target-branch >>/protection/enforce_admins
+
+  git_merge_release_to_develop:
+    steps:
+      - run:
+          name: "Merge $CIRCLE_BRANCH into develop"
+          command: |
+            source ~/.bashrc
+            ./BuildScripts/git-auto-merge.sh $CIRCLE_BRANCH develop
+
+  brew_update:
+    description: "Update Homebrew"
+    steps:
+      - run:
+          name: "Update Homebrew"
+          command: |
+            HOMEBREW_NO_ANALYTICS=1 brew update
+
+  brew_install_maven:
+    description: "Install maven through Homebrew"
+    steps:
+      - run:
+          name: "Install maven through Homebrew"
+          command: |
+            HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install maven
+
+  # This step is still used in one place - in Android release.
+  prepare_release_tool:
+    description: "Prepare AWS settings"
+    steps:
+      - checkout
+      - run:
+          name: Install sdk-release-tool
+          command: cd $RELEASE_TOOL_DIR && make SKIP_CREDENTIALS=1 install
+          environment:
+            RELEASE_TOOL_DIR: *release-tool-dir
+      - run:
+          name: Decode aws settings dev
+          command: echo "$CDN_DEV_JSON" | base64 --decode > $RELEASE_TOOL_DIR/cdn-sdki.dev.json
+          environment:
+            RELEASE_TOOL_DIR: *release-tool-dir
+      - run:
+          name: Decode aws settings stage
+          command: echo "$CDN_STAGE_JSON" | base64 --decode > $RELEASE_TOOL_DIR/cdn-sdki.stage.json
+          environment:
+            RELEASE_TOOL_DIR: *release-tool-dir
+      - run:
+          name: Decode aws settings prod
+          command: echo "$CDN_PROD_JSON" | base64 --decode > $RELEASE_TOOL_DIR/cdn-sdki.prod.json
+          environment:
+            RELEASE_TOOL_DIR: *release-tool-dir
+      - persist_to_workspace:
+          root: .
+          paths:
+            - tools/sdk-release-tool/venv
+            - tools/sdk-release-tool/cdn-sdki.*.json
+
+  generate_testlist:
+    description: "Generate list of builds and tests to execute"
+    steps:
+      - run:
+          name: "Calculate changes from commits"
+          command: |
+            ./BuildScripts/prepare-tests-list.rb HEAD ./testlist.txt
+            echo "Test suites designated to run in this build:"
+            cat ./testlist.txt
+      - store_artifacts:
+          path: testlist.txt
+      - persist_to_workspace:
+          root: .
+          paths:
+            - testlist.txt
+
+  check_testlist:
+    parameters:
+      <<: *orchestrator-tag-name-parameter
+    description: "Check against a list if a build or test should be executed"
+    steps:
+      - attach_workspace:
+          at: *workspace
+      - check_testlist_empty
+      - run:
+          name: "Check if build should run"
+          command: |
+            set -e
+            [ ! -z "<< pipeline.git.tag >>" ] && exit 0 # never skip a job for tag build
+            if grep -q << parameters.test-tag >> ./testlist.txt; then
+              echo "Running << parameters.test-tag >>"
+            else
+              echo "NOT running << parameters.test-tag >>"
+              circleci-agent step halt
+            fi
+
+  check_testlist_empty:
+    description: "Check if the list is empty then skip the job"
+    steps:
+      - run:
+          name: "Check if the list is empty then skip the job"
+          command: |
+            set -e
+            [ ! -z "<< pipeline.git.tag >>" ] && exit 0 # never skip a job for tag build
+            if [ "`cat ./testlist.txt | wc -l | xargs`" -eq "0" ]; then
+              echo "No tests to run — testlist is empty"
+              circleci-agent step halt
+            fi
+
+  store_compressed:
+    description: Compress folder/file and store in artifacts
+    parameters:
+      path:
+        description: "Path to the file or folder to be compressed & uploaded"
+        type: string
+      artifact-name:
+        description: "Name to be used for artifact"
+        type: string
+    steps:
+      - run:
+          name: Compress << parameters.path >>
+          command: zip -r << parameters.artifact-name >>.zip << parameters.path >>
+      - store_artifacts:
+          name: Store compressed << parameters.path >>
+          path: << parameters.artifact-name >>.zip
+
+  generate_gcloud_settings:
+    description: "Generate GCloud settings"
+    steps:
+      - run:
+          name: Decode Google Cloud key.json
+          command: echo "$GCLOUD_SETTINGS" | base64 --decode > rtd-shared-lib-a27041a3fda9.json
+      - run:
+          name: Install gcloud if necessary
+          command: |
+            which gcloud >/dev/null 2>&1 && exit 0
+
+            # See: https://cloud.google.com/sdk/docs/install#linux
+            curl -O --output-dir ~/ https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-466.0.0-linux-x86_64.tar.gz
+            tar -xf ~/google-cloud-cli-466.0.0-linux-x86_64.tar.gz -C ~/
+            ~/google-cloud-sdk/install.sh --path-update true --quiet
+            ln -s ~/google-cloud-sdk/bin/gcloud ~/bin/gcloud
+            ln -s ~/google-cloud-sdk/bin/gsutil ~/bin/gsutil
+      - run:
+          name: Set Google Cloud target project
+          command: |
+            source ~/.bashrc
+            gcloud config set project rtd-shared-lib
+      - run:
+          name: Authenticate with Google Cloud
+          command: |
+            source ~/.bashrc
+            gcloud auth activate-service-account  rtd-shared-lib@appspot.gserviceaccount.com --key-file=rtd-shared-lib-a27041a3fda9.json --project=rtd-shared-lib
+
+  notify_slack:
+    parameters:
+      <<: *upload-type-parameter
+    steps:
+      - when:
+          condition:
+            equal: [ prod, << parameters.upload-type >> ]
+          steps:
+            - slack/notify:
+                event: pass
+                channel: 'rtd-sdk-releases'
+                template: success_tagged_deploy_1
+      - when:
+          condition:
+            equal: [ stage, << parameters.upload-type >> ]
+          steps:
+            - slack/notify:
+                event: pass
+                template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+          mentions: "@msgsdk-team"
+
+  #============================================================================
+  # Commands: iOS
+  #============================================================================
+
+  brew_prepare_build_cpp:
+    description: "Prepare environment for MacOS and iOS builds (cache enabled)"
+    steps:
+      - brew_update
+      - run:
+          name: "Install CMake, Go through Homebrew"
+          command: |
+            HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake go
+
+  brew_install_xcresultparser:
+    steps:
+      - run:
+          name: Install xcresultparser to generate HTML coverage report by *.xcresult
+          command: |
+            brew tap a7ex/homebrew-formulae
+            brew install xcresultparser
+
+  brew_install_xchtmlreport:
+    steps:
+      - run:
+          name: Install XCTestHtmlReport
+          command: brew install XCTestHtmlReport/xchtmlreport/xchtmlreport
+
+  linux_install_gh:
+    steps:
+      - run:
+          name: Install gh
+          command: which gh >/dev/null || ( sudo apt update; sudo apt install -y gh; )
+
+  linux_install_jq:
+    steps:
+      - run:
+          name: Install jq
+          command: which jq >/dev/null || ( sudo apt update; sudo apt install -y jq; )
+
+  linux_install_rsync:
+    steps:
+      - run:
+          name: Install rsync
+          command: which rsync >/dev/null || ( sudo apt update; sudo apt install -y rsync; )
+
+  gem_install_xcodeproj:
+    steps:
+      - run:
+          name: Intall ruby gem
+          command: which gem >/dev/null || ( sudo apt update; sudo apt install -y ruby-dev; )
+      - run:
+          name: Install newest version of xcodeproj
+          command: sudo gem install xcodeproj
+
+  install_ios_certificates:
+    description: "Install certificates"
+    parameters:
+      <<: *ios-mac-catalyst-parameter
+    steps:
+      - run: # recommendation from CircleCI to get rid of certificates installations problems
+          name: Set fastlane version to 2.210.1
+          command: |
+            gem uninstall fastlane --all --executables
+            gem install fastlane --version 2.210.1 --no-document
+      - run:
+          name: Install certificates
+          command: ./sdk/ios/Scripts/install-ios-certificates.sh
+          environment:
+            MAC_CATALYST: <<# parameters.mac-catalyst >>1<</ parameters.mac-catalyst >>
+
+  build_sdk_ios:
+    description: Build << parameters.sdk-type >> iOS SDK
+    parameters:
+      <<: *sdk-type-parameter
+    steps:
+      - install_ios_certificates
+      - run:
+          name: Build iOS << parameters.sdk-type >> SDK universal framework
+          command: ./sdk/ios/Scripts/xcode-build-xcframework.sh << parameters.sdk-type >>
+      - persist_to_workspace:
+          root: .
+          paths:
+            - sdk/ios/Local/Products/
+      - store_artifacts:
+          path: sdk/ios/Local/Products/TwilioConversationsClient.xcframework.zip
+      - store_artifacts:
+          path: sdk/ios/Local/Products/TwilioSyncClient.xcframework.zip
+      - store_artifacts:
+          path: sdk/ios/Local/Products/TwilioTwilsockLib.zip
+      - store_artifacts:
+          path: sdk/ios/Local/Products/TwilioCommonLib.zip
+      - store_artifacts:
+          path: sdk/ios/Local/Products/TwilioStateMachine.zip
+
+  build_for_testing_ios:
+    description: Build iOS << parameters.ios-tests-group >> for testing
+    parameters:
+      <<: *ios-build-sim-parameter
+      <<: *ios-mac-catalyst-parameter
+      <<: *ios-tests-group-parameter
+      <<: *build-type-parameter
+    steps:
+      - install_ios_certificates:
+          mac-catalyst: << parameters.mac-catalyst >>
+      - gem_install_xcodeproj
+      - when:
+          condition:
+            equal: [ << parameters.build-type >>, "debug" ]
+          steps:
+            - run:
+                name: Build iOS << parameters.ios-tests-group >> for testing
+                command: ./sdk/ios/Scripts/build-for-test.sh << parameters.ios-tests-group >>
+                environment:
+                  CONFIGURATION: Debug
+                  SIM: <<# parameters.build-sim >>1<</ parameters.build-sim >>
+                  MAC_CATALYST: <<# parameters.mac-catalyst >>1<</ parameters.mac-catalyst >>
+      - unless:
+          condition:
+            equal: [ << parameters.build-type >>, "debug" ]
+          steps:
+            - run:
+                name: Build iOS << parameters.ios-tests-group >> for testing
+                command: ./sdk/ios/Scripts/build-for-test.sh << parameters.ios-tests-group >>
+                environment:
+                  SIM: <<# parameters.build-sim >>1<</ parameters.build-sim >>
+                  MAC_CATALYST: <<# parameters.mac-catalyst >>1<</ parameters.mac-catalyst >>
+      - persist_to_workspace:
+          root: .
+          paths:
+            - sdk/ios/Local/<< parameters.ios-tests-group >>-<< parameters.build-type >>/*.zip
+      - store_artifacts:
+          path: sdk/ios/Local/<< parameters.ios-tests-group >>-<< parameters.build-type >>/TestsArchive-iphoneos-Release.zip
+      - store_artifacts:
+          path: sdk/ios/Local/<< parameters.ios-tests-group >>-<< parameters.build-type >>/TestsArchive-iphonesimulator-Release.zip
+      - store_artifacts:
+          path: sdk/ios/Local/<< parameters.ios-tests-group >>-<< parameters.build-type >>/TestsArchive-macosx-Release.zip
+      - store_artifacts:
+          path: sdk/ios/Local/<< parameters.ios-tests-group >>-<< parameters.build-type >>/TestsArchive-iphoneos-Debug.zip
+      - store_artifacts:
+          path: sdk/ios/Local/<< parameters.ios-tests-group >>-<< parameters.build-type >>/TestsArchive-iphonesimulator-Debug.zip
+      - store_artifacts:
+          path: sdk/ios/Local/<< parameters.ios-tests-group >>-<< parameters.build-type >>/TestsArchive-macosx-Debug.zip
+
+  get_coverage_html:
+    description: Generate HTML coverage report for iOS simulator tests
+    parameters:
+      xcresult-path:
+        description: "Path of xcresult bundle containing code coverage"
+        type: string
+      html-coverage-report-path:
+        description: "Path of HTML report to be generated"
+        type: string
+    steps:
+      - run:
+          name: Generate HTML report for code coverage
+          command: |
+            xcresultparser -n $LIBS -c -o html \
+              << parameters.xcresult-path >> > << parameters.html-coverage-report-path >>
+          environment:
+            LIBS: *ios-libs-to-report
+      - store_artifacts:
+          path: << parameters.html-coverage-report-path >>
+
+  test_locally_ios:
+    description: Test << parameters.ios-tests-group >> iOS SDK
+    parameters:
+      <<: *ios-tests-group-parameter
+      <<: *ios-mac-catalyst-parameter
+      <<: *build-type-parameter
+    steps:
+      - brew_install_xcresultparser
+      - brew_install_xchtmlreport
+      - when:
+          condition: << parameters.mac-catalyst >>
+          steps:
+            - macos/add-uitest-permissions
+      - when:
+          condition:
+            equal: [ << parameters.build-type >>, "debug" ]
+          steps:
+            - run:
+                name: Run sim tests for << parameters.ios-tests-group >> iOS SDK
+                command: ./sdk/ios/Scripts/run-tests-locally.sh << parameters.ios-tests-group >>
+                no_output_timeout: 120m
+                environment:
+                  CONFIGURATION: Debug
+                  SIM: <<^ parameters.mac-catalyst >>1<</ parameters.mac-catalyst >>
+                  MAC_CATALYST: <<# parameters.mac-catalyst >>1<</ parameters.mac-catalyst >>
+      - unless:
+          condition:
+            equal: [ << parameters.build-type >>, "debug" ]
+          steps:
+            - run:
+                name: Run sim tests for << parameters.ios-tests-group >> iOS SDK
+                command: ./sdk/ios/Scripts/run-tests-locally.sh << parameters.ios-tests-group >>
+                no_output_timeout: 120m
+                environment:
+                  SIM: <<^ parameters.mac-catalyst >>1<</ parameters.mac-catalyst >>
+                  MAC_CATALYST: <<# parameters.mac-catalyst >>1<</ parameters.mac-catalyst >>
+      - store_artifacts:
+          path: sdk/ios/Local/build/<< parameters.ios-tests-group >>-<< parameters.build-type >>/index.html
+      - store_test_results:
+          path: sdk/ios/Local/build/<< parameters.ios-tests-group >>-<< parameters.build-type >>/report.junit
+      - store_artifacts:
+          path: sdk/ios/Local/build/<< parameters.ios-tests-group >>-<< parameters.build-type >>/TestResults-macosx.xcresult.tgz
+      - store_artifacts:
+          path: sdk/ios/Local/build/<< parameters.ios-tests-group >>-<< parameters.build-type >>/TestResults-iphonesimulator.xcresult.tgz
+      - when:
+          condition:
+            not: << parameters.mac-catalyst >>
+          steps:
+            - persist_to_workspace:
+                root: .
+                paths:
+                  - sdk/ios/Local/build/<< parameters.ios-tests-group >>-<< parameters.build-type >>/TestResults-iphonesimulator.xcresult.tgz
+            - get_coverage_html:
+                xcresult-path: sdk/ios/Local/build/<< parameters.ios-tests-group >>-<< parameters.build-type >>/TestResults-iphonesimulator.xcresult
+                html-coverage-report-path: ios_tests_coverage.html
+
+  test_device_ios:
+    description: Test device << parameters.ios-tests-group >> iOS SDK
+    parameters:
+      <<: *ios-tests-group-parameter
+      <<: *build-type-parameter
+    steps:
+      - generate_gcloud_settings
+      - when:
+          condition:
+            equal: [ << parameters.build-type >>, "debug" ]
+          steps:
+            - run:
+                name: Run device tests for << parameters.ios-tests-group >> iOS SDK
+                command: |
+                  source ~/.bashrc
+                  ./sdk/ios/Scripts/run-tests-in-gcloud.sh << parameters.ios-tests-group >>
+                no_output_timeout: 120m
+                environment:
+                  CONFIGURATION: Debug
+      - unless:
+          condition:
+            equal: [ << parameters.build-type >>, "debug" ]
+          steps:
+            - run:
+                name: Run device tests for << parameters.ios-tests-group >> iOS SDK
+                command: |
+                  source ~/.bashrc
+                  ./sdk/ios/Scripts/run-tests-in-gcloud.sh << parameters.ios-tests-group >>
+                no_output_timeout: 120m
+      - store_test_results:
+          path: sdk/ios/Local/build/junit
+      - store_artifacts:
+          path: sdk/ios/Local/build/Results-<< parameters.ios-tests-group >>.tgz
+
+  distribute_sdk_ios:
+    description: Distribute << parameters.sdk-type >> iOS SDK to << parameters.upload-type >>
+    parameters:
+      <<: *upload-type-parameter
+    steps:
+      - run:
+          name: Install git-cliff
+          command: brew install git-cliff
+      - run:
+          name: Publish iOS SDK to << parameters.upload-type >>
+          command: cd ./tools/release-pipeline && yarn && yarn release "$CIRCLE_TAG"
+
+  bump_project_ios:
+    description: Bump version of iOS SDK
+    parameters:
+      <<: *sdk-type-parameter
+    steps:
+      - gem_install_xcodeproj
+      - run:
+          name: Bump version of iOS  << parameters.sdk-type >> SDK
+          command: ./sdk/ios/Scripts/bump-project-version.sh << parameters.sdk-type >>
+
+  merge_sim_ios_xcresults:
+    description: Run 'xcresulttool merge' to join found *.xcresults into a single .xcresult bundle
+    parameters:
+      merged-xcresult-path:
+        description: "Resulting xcresult bundle path"
+        type: string
+      artifact-name:
+        description: "Name to be used for artifact uploading"
+        type: string
+    steps:
+      - run:
+          name: Merge found *.xcresult bundles into a single .xcresult
+          command: |
+            ./sdk/ios/Scripts/merge-sim-xcresults.sh << parameters.merged-xcresult-path >>
+      - store_compressed:
+          path: << parameters.merged-xcresult-path >>
+          artifact-name: << parameters.artifact-name >>.xcresult
+      - get_coverage_html:
+          xcresult-path: << parameters.merged-xcresult-path >>
+          html-coverage-report-path: << parameters.artifact-name >>_coverage.html
+
+  #============================================================================
+  # Commands: Android
+  #============================================================================
+
+  generate_sonatype_settings:
+    description: "Generate Sonatype settings"
+    parameters:
+      <<: *dest-dir-parameter
+    steps:
+      - run:
+          name: Generate Sonatype settings
+          command: |
+            echo "$SONATYPE_SETTINGS" | base64 --decode > << parameters.dest-dir >>/sonatype-settings.xml
+          working_directory: *workspace
+
+  remove_so_libs:
+    description: "Remove .so libs"
+    parameters:
+      dir:
+        description: "Directory to remove .so libs from"
+        type: string
+        default: *build_output
+    steps:
+      - run:
+          name: Remove .so libs
+          command: |
+            source ~/.bashrc
+            find << parameters.dir >> -type f -name "*.so" -delete
+            find << parameters.dir >> -type d -empty -delete
+
+  build_android:
+    description: "Build"
+    parameters:
+      <<: *source-dir-parameter
+      <<: *product-parameter
+      <<: *platform-parameter
+      <<: *build-type-parameter
+      <<: *build-arch-parameter
+      <<: *pre-persist-steps-parameter
+    steps:
+      - run:
+          name: Build << parameters.platform >> << parameters.build-type >> << parameters.build-arch >>
+          command: |
+            source ~/.bashrc
+            BuildScripts/build-rtd-lib --destdir=$DEST_DIR --srcdir=<< parameters.source-dir >> --product=<< parameters.product >> --platform=<< parameters.platform >> --build-type=<< parameters.build-type >> --arch=<< parameters.build-arch >> configure
+            BuildScripts/build-rtd-lib --destdir=$DEST_DIR --srcdir=<< parameters.source-dir >> --product=<< parameters.product >> --platform=<< parameters.platform >> --build-type=<< parameters.build-type >> --arch=<< parameters.build-arch >> --failed-tests-mark-unstable --keep-build-products compile
+          no_output_timeout: 120m
+          environment:
+            DEST_DIR: *build_output
+      - clean_build_outputs
+      - store_artifacts:
+          path: *build_output
+      - steps: << parameters.pre-persist-steps >>
+      - persist_to_workspace:
+          root: .
+          paths:
+            - *build_output
+
+  prepare-keystore-android:
+    description: "Generate signing config"
+    parameters:
+      <<: *testapp-dir-parameter
+    steps:
+      - run:
+          name: "Decode Signing Settings: << parameters.testapp-dir >>"
+          command: |
+            echo "$KEYSTORE" | base64 --decode > apk-test-runner.keystore
+            echo "$BUILD_GRADLE_ADDON" | base64 --decode >> signing-release.gradle
+          working_directory: << parameters.testapp-dir >>
+      - persist_to_workspace:
+          root: .
+          paths:
+            - << parameters.testapp-dir >>/apk-test-runner.keystore
+            - << parameters.testapp-dir >>/signing-release.gradle
+
+  prepare-test-service-urls-android:
+    description: "Setup Test Services URLs"
+    parameters:
+      <<: *gradle-project-dir-parameter
+      <<: *token-service-url-parameter
+      <<: *test-twilsock-service-url-parameter
+      <<: *test-media-service-url-parameter
+      <<: *test-media-set-service-url-parameter
+    steps:
+      - run:
+          name: "Setup Test Services URLs: << parameters.gradle-project-dir >>"
+          command: |
+              echo ACCESS_TOKEN_SERVICE_URL=<< parameters.token-service-url >> >> gradle.properties
+              echo TEST_TWILSOCK_SERVICE_URL=<< parameters.test-twilsock-service-url >> >> gradle.properties
+              echo TEST_MEDIA_SERVICE_URL=<< parameters.test-media-service-url >> >> gradle.properties
+              echo TEST_MEDIA_SET_SERVICE_URL=<< parameters.test-media-set-service-url >> >> gradle.properties
+          working_directory: << parameters.gradle-project-dir >>
+      - persist_to_workspace:
+          root: .
+          paths:
+            - << parameters.gradle-project-dir >>/gradle.properties
+
+  prepare-sms-proxy-number-android:
+    description: "Setup SMS_PROXY_NUMBER"
+    parameters:
+      <<: *gradle-project-dir-parameter
+      <<: *sms-proxy-number-parameter
+    steps:
+      - run:
+          name: "Setup SMS_PROXY_NUMBER: << parameters.gradle-project-dir >>"
+          command: |
+              echo SMS_PROXY_NUMBER=<< parameters.sms-proxy-number >> >> gradle.properties
+          working_directory: << parameters.gradle-project-dir >>
+      - persist_to_workspace:
+          root: .
+          paths:
+            - << parameters.gradle-project-dir >>/gradle.properties
+
+  generate_project_settings_gradle:
+    description: "Generate project settings"
+    parameters:
+      <<: *gradle-project-dir-parameter
+    steps:
+      - run:
+          name: "Generate project settings: << parameters.gradle-project-dir >>"
+          command: |
+            echo "sonatype.username=$SONATYPE_USERNAME" >> gradle.properties
+            echo "sonatype.password=$SONATYPE_PASSWORD" >> gradle.properties
+
+            echo "signing.keyId=$SONATYPE_SIGNING_KEY_ID" >> gradle.properties
+            echo "signing.password=$SONATYPE_SIGNING_PASSWORD" >> gradle.properties
+            echo "signing.secretKeyRingFile=`pwd`/secring.gpg" >> gradle.properties
+            echo "$SONATYPE_KEY_RING_FILE" | base64 --decode > secring.gpg
+
+            echo "buildNumber=$CIRCLE_BUILD_NUM" >> gradle.properties
+            echo "gitHash=$CIRCLE_SHA1" >> gradle.properties
+            echo "gitBranch=$CIRCLE_BRANCH" >> gradle.properties
+            echo "gitTag=$CIRCLE_TAG" >> gradle.properties
+          working_directory: << parameters.gradle-project-dir >>
+
+  cdn_pin_android:
+    description: "Pin to CDN"
+    steps:
+      - run:
+          name: "Pin to CDN"
+          command: |
+            ./BuildScripts/pin-android.sh
+
+  copy_jni_libs_convo_android:
+    description: "Copying jni libs"
+    steps:
+      - run:
+          name: "Copying jni libs"
+          command: |
+            function copyLibs() {
+              ARCH=$1
+              mkdir -p src/main/jniLibs/$ARCH
+              cp ~/rtd-sdk-monorepo/target/build/android/convo/RelWithDebInfo-$ARCH/libtwilio-convo-native.so src/main/jniLibs/$ARCH
+            }
+
+            copyLibs x86
+            copyLibs x86_64
+            copyLibs armeabi-v7a
+            copyLibs arm64-v8a
+          working_directory: *android_convo_sdk_dir
+
+  copy_jni_libs_sync_android:
+    description: "Copying jni libs"
+    steps:
+      - run:
+          name: "Copying jni libs"
+          command: |
+            function copyLibs() {
+              ARCH=$1
+              mkdir -p src/main/jniLibs/$ARCH
+              cp ~/rtd-sdk-monorepo/target/build/android/sync/RelWithDebInfo-$ARCH/libsync-sdk-native.so src/main/jniLibs/$ARCH
+            }
+
+            copyLibs x86
+            copyLibs x86_64
+            copyLibs armeabi-v7a
+            copyLibs arm64-v8a
+          working_directory: *android_sync_sdk_dir
+
+  apply_signing_config:
+    description: "Applying signing config"
+    parameters:
+      <<: *testapp-dir-parameter
+    steps:
+      - run:
+          name: "Applying signing config"
+          command: |
+            echo 'apply from: "./signing-release.gradle"' >> build.gradle
+          working_directory: << parameters.testapp-dir >>
+
+  run_gradle_target:
+    description: "Running Gradle target"
+    parameters:
+      <<: *gradle-project-dir-parameter
+      <<: *gradle-target-parameter
+      <<: *do-not-strip-symbols-parameter
+      <<: *output-file-parameter
+    steps:
+      - run:
+          name: "Run Gradle target: << parameters.gradle-target >>"
+          command: |
+            source ~/.bashrc
+            echo "BUILD_NUM $CIRCLE_BUILD_NUM"
+            echo "SHA1 $CIRCLE_SHA1"
+            echo "BRANCH $CIRCLE_BRANCH"
+            echo "TAG $CIRCLE_TAG"
+            ./gradlew \
+              -PdoNotStripSymbols="<< parameters.do-not-strip-symbols >>" \
+              << parameters.gradle-target >> \
+              | tee << parameters.output-file >>
+          no_output_timeout: 120m
+          working_directory: << parameters.gradle-project-dir >>
+
+  print_sha256:
+    description: "Printing SHA256"
+    parameters:
+      <<: *source-dir-parameter
+      <<: *input-file-parameter
+    steps:
+      - run: 
+          name: "Printing SHA256"
+          command: shasum -a 256 << parameters.input-file >>
+          working_directory: << parameters.source-dir >>
+
+  push_sonatype_git_tag:
+    description: "Push sonatype git tag"
+    parameters:
+      <<: *gradle-project-dir-parameter
+      <<: *input-file-parameter
+    steps:
+      - run:
+          name: "Push sonatype git tag"
+          command: |
+            ./BuildScripts/push-sonatype-git-tag.sh << parameters.gradle-project-dir >>/<< parameters.input-file >>
+
+  create_aggregated_gradle_android:
+    steps:
+      - run:
+          name: "Create aggregated gradle config"
+          command: |
+            cat root-projects/android/utils/versions.gradle \
+                root-projects/android/convo/build.gradle \
+                sdk/android/shared-public/build.gradle \
+                sdk/android/shared-internal/build.gradle \
+                sdk/android/twilsock/build.gradle \
+                sdk/android/convo/sdk/build.gradle \
+                sdk/android/convo/testapp/build.gradle \
+                root-projects/android/sync/build.gradle \
+                sdk/android/sync-android-kt/build.gradle \
+                sdk/android/sync-android-java/build.gradle \
+                sdk/android/sync-android-shared/build.gradle \
+                sdk/android/sync/sdk/build.gradle \
+                sdk/android/sync/testapp/build.gradle \
+                cpp/rtd-shared-lib/Interface/Test/apk-test-runner/build.gradle \
+                cpp/rtd-shared-lib/Interface/Test/apk-test-runner/app/build.gradle.in > root-projects/android/aggregated.gradle
+
+  save_gradle_cache:
+    steps:
+      - create_aggregated_gradle_android
+      - save_cache:
+          paths:
+            - ~/.konan
+            - ~/.gradle
+            - root-projects/android/convo/.gradle
+            - root-projects/android/sync/.gradle
+            - cpp/rtd-shared-lib/Interface/Test/apk-test-runner/.gradle
+          key: gradle-cache-{{ checksum "root-projects/android/aggregated.gradle" }}
+
+  restore_gradle_cache:
+    steps:
+      - create_aggregated_gradle_android
+      - restore_cache:
+          key: gradle-cache-{{ checksum "root-projects/android/aggregated.gradle" }}
+
+  save_cache_kmm_ios:
+    steps:
+      - create_aggregated_gradle_android
+      - save_cache:
+          paths:
+            - ~/.gradle
+            - ~/.konan
+            - ~/android-sdk
+          key: cache-kmm-ios-{{ checksum "root-projects/android/aggregated.gradle" }}
+
+  restore_cache_kmm_ios:
+    steps:
+      - create_aggregated_gradle_android
+      - restore_cache:
+          key: cache-kmm-ios-{{ checksum "root-projects/android/aggregated.gradle" }}
+
+  download_and_setup_android_sdk:
+    description: "Download and setup android SDK"
+    parameters:
+      <<: *gradle-project-dir-parameter
+    steps:
+      - run:
+          name: "Download and setup android SDK"
+          command: |
+            ANDROID_SDK_ROOT="$HOME/android-sdk"
+            ./BuildScripts/download-android-sdk.sh "$ANDROID_SDK_ROOT"
+            echo "sdk.dir=$ANDROID_SDK_ROOT" >> "$PROJECT_GRADLE_DIR/local.properties"
+            echo "org.gradle.daemon=false" >> "$PROJECT_GRADLE_DIR/gradle.properties"
+          environment:
+            PROJECT_GRADLE_DIR: << parameters.gradle-project-dir >>
+
+jobs:
+
+  #============================================================================
+  # Jobs: All
+  #============================================================================
+
+  git-merge-release-to-develop:
+    executor: linux-generic-executor
+    description: "Merge release branch into develop"
+    steps:
+      - checkout
+      - git_run_with_disabled_branch_protection:
+          target-branch: develop
+          steps-to-run: [git_merge_release_to_develop]
+
+  prepare-release-tool:
+    executor: linux-generic-executor
+    steps:
+      - checkout
+      - prepare_release_tool
+
+  generate-test-list:
+    executor: linux-generic-executor
+    description: "Generate test list"
+    steps:
+      - checkout
+      - run: sudo apt-get update; sudo apt-get install -y ruby
+      - generate_testlist
+
+  #============================================================================
+  # Jobs: Android
+  #============================================================================
+
+  prepare-android-environment:
+    executor: small-linux-android-executor
+    description: "Generate signing config & test list"
+    steps:
+      - checkout
+      - generate_testlist
+      - prepare-keystore-android:
+          testapp-dir: *android_convo_testapp_dir
+      - prepare-keystore-android:
+          testapp-dir: *android_sync_testapp_dir
+
+  pin-sdk-android:
+    executor: android-small-executor
+    description: "Pin to CDN"
+    steps:
+      - checkout
+      - generate_sonatype_settings:
+          dest-dir: *cdn-pin-tool-dir
+      - attach_workspace:
+          at: *workspace
+      - cdn_pin_android
+
+  prepare-dependencies-android:
+    executor: small-linux-android-executor
+    description: "Fetch SDK Dependendencies"
+    steps:
+      - checkout
+      - generate_project_settings_gradle:
+          gradle-project-dir: *android_convo_root_project_dir
+      - generate_project_settings_gradle:
+          gradle-project-dir: *android_sync_root_project_dir
+      - generate_project_settings_gradle:
+          gradle-project-dir: *android_publishing_root_project_dir
+      - prepare-test-service-urls-android:
+          gradle-project-dir: *android_publishing_root_project_dir
+          token-service-url: "$CONV_ACCESS_TOKEN_SERVICE_URL"
+          test-twilsock-service-url: "$CONV_TEST_TWILSOCK_SERVICE_URL"
+          test-media-service-url: "$CONV_TEST_MEDIA_SERVICE_URL"
+          test-media-set-service-url: "$CONV_TEST_MEDIA_SET_SERVICE_URL"
+      - prepare-test-service-urls-android:
+          gradle-project-dir: *android_convo_root_project_dir
+          token-service-url: "$CONV_ACCESS_TOKEN_SERVICE_URL"
+          test-twilsock-service-url: "$CONV_TEST_TWILSOCK_SERVICE_URL"
+          test-media-service-url: "$CONV_TEST_MEDIA_SERVICE_URL"
+          test-media-set-service-url: "$CONV_TEST_MEDIA_SET_SERVICE_URL"
+      - prepare-test-service-urls-android:
+          gradle-project-dir: *android_sync_root_project_dir
+          token-service-url: "$SYNC_ACCESS_TOKEN_SERVICE_URL"
+          test-twilsock-service-url: "$CONV_TEST_TWILSOCK_SERVICE_URL"
+      - prepare-sms-proxy-number-android:
+          gradle-project-dir: *android_convo_root_project_dir
+          sms-proxy-number: "$CONV_SMS_PROXY_NUMBER"
+      - restore_gradle_cache
+      - run_gradle_target:
+          gradle-project-dir: *android_convo_root_project_dir
+          gradle-target: dependencies
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: dependencies
+      - when:
+          condition:
+            # run dependencies for android_publishing_root_project_dir conditionally, because it
+            # fails build in case of android modules versions haven't been bumped on time
+            # this check must be done on building RC only (where the versions must already be set correctly)
+            matches: 
+                pattern: "^release-.*-android-[0-9]+\\.[0-9]+\\.[0-9]+-rc[0-9]+$"
+                value: << pipeline.git.tag >>
+          steps:
+            - run_gradle_target:
+                gradle-project-dir: *android_publishing_root_project_dir
+                gradle-target: dependencies
+      - save_gradle_cache
+
+  test-sdk-android:
+    executor: small-linux-android-executor
+    description: "Test"
+    parameters:
+      <<: *testapp-dir-parameter
+      <<: *sdk-test-type-parameter
+      <<: *orchestrator-tag-name-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - generate_gcloud_settings
+      - run:
+          name: Run androidTest in Firebase Test Lab
+          command: |
+            ./BuildScripts/run-sdk-android-tests-in-gcloud.sh \
+                << parameters.testapp-dir >>/build/outputs/apk/<< parameters.sdk-test-type >>/testapp-<< parameters.sdk-test-type >>.apk \
+                << parameters.testapp-dir >>/build/outputs/apk/androidTest/<< parameters.sdk-test-type >>/testapp-<< parameters.sdk-test-type >>-androidTest.apk \
+                -<< parameters.sdk-test-type >> \
+      - store_artifacts:
+          name: Uploading FTL tests artifacts
+          path: /tmp/gcloud-results
+          destination: gcloud-results
+      - store_test_results:
+          path: *test_results_folder
+
+  test-common-android:
+    executor: small-linux-android-executor
+    description: "Test"
+    parameters:
+      <<: *testapp-dir-parameter
+      <<: *sdk-test-type-parameter
+      <<: *orchestrator-tag-name-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - generate_gcloud_settings
+      - run:
+          name: Run common android tests in Firebase Test Lab
+          command: |
+            ./BuildScripts/run-sdk-android-tests-in-gcloud.sh \
+                << parameters.testapp-dir >>/build/outputs/apk/<< parameters.sdk-test-type >>/testapp-<< parameters.sdk-test-type >>.apk \
+                sdk/android/convo/sdk/build/outputs/apk/androidTest/<< parameters.sdk-test-type >>/convo-android-<< parameters.sdk-test-type >>-androidTest.apk \
+                -<< parameters.sdk-test-type >>
+      - store_artifacts:
+          name: Uploading FTL tests artifacts
+          path: /tmp/gcloud-results
+          destination: gcloud-results
+      - store_test_results:
+          path: *test_results_folder
+
+  build-twilsock-android:
+    executor: linux-android-executor
+    description: "Build"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - run_gradle_target:
+          gradle-project-dir: *android_convo_root_project_dir
+          gradle-target: twilsock:assembleRelease twilsock:assembleAndroidTest -DtestBuildType=release
+      - run_gradle_target:
+          gradle-project-dir: *android_convo_root_project_dir
+          gradle-target: twilsock:testReleaseUnitTest
+      - store_test_results:
+          path: sdk/android/twilsock/build/test-results/testReleaseUnitTest
+      - clean_build_outputs:
+          dir: sdk/android/twilsock/build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - sdk/android/twilsock/build/*
+      - store_artifacts:
+          path: *android_twilsock_output
+      - print_sha256:
+          source-dir: *android_twilsock_output
+          input-file: aar/*
+
+  test-shared-internal-android:
+    executor: small-linux-android-executor
+    description: "Test"
+    parameters:
+      <<: *orchestrator-tag-name-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - generate_gcloud_settings
+      - run:
+          name: Run shared-internal android tests in Firebase Test Lab
+          command: |
+            TESTAPP="$CONVO_TESTAPP_DIR/build/outputs/apk/release/testapp-release.apk"
+            [[ -f "$TESTAPP" ]] || TESTAPP="$SYNC_TESTAPP_DIR/build/outputs/apk/release/testapp-release.apk"
+
+            SHARDS_COUNT=1 # shared-internal don't have enough tests to fill default 5 shards.
+
+            ./BuildScripts/run-sdk-android-tests-in-gcloud.sh \
+                "$TESTAPP" \
+                sdk/android/shared-internal/build/outputs/apk/androidTest/release/shared-internal-release-androidTest.apk \
+                -release \
+                $SHARDS_COUNT
+          environment:
+            CONVO_TESTAPP_DIR: *android_convo_testapp_dir
+            SYNC_TESTAPP_DIR: *android_sync_testapp_dir
+      - store_artifacts:
+          name: Uploading FTL tests artifacts
+          path: /tmp/gcloud-results
+          destination: gcloud-results
+      - store_test_results:
+          path: *test_results_folder
+
+  test-twilsock-android:
+    executor: small-linux-android-executor
+    description: "Test"
+    parameters:
+      <<: *orchestrator-tag-name-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - generate_gcloud_settings
+      - run:
+          name: Run twilsock android tests in Firebase Test Lab
+          command: |
+            TESTAPP="$CONVO_TESTAPP_DIR/build/outputs/apk/release/testapp-release.apk"
+            [[ -f "$TESTAPP" ]] || TESTAPP="$SYNC_TESTAPP_DIR/build/outputs/apk/release/testapp-release.apk"
+            ./BuildScripts/run-sdk-android-tests-in-gcloud.sh \
+                "$TESTAPP" \
+                sdk/android/twilsock/build/outputs/apk/androidTest/release/twilsock-release-androidTest.apk \
+                -release
+          environment:
+            CONVO_TESTAPP_DIR: *android_convo_testapp_dir
+            SYNC_TESTAPP_DIR: *android_sync_testapp_dir
+      - store_artifacts:
+          name: Uploading FTL tests artifacts
+          path: /tmp/gcloud-results
+          destination: gcloud-results
+      - store_test_results:
+          path: *test_results_folder
+
+  test-twilsock-kotlin-ios:
+    executor: macos-kotlin-ios-executor-m1
+    description: "Test"
+    parameters:
+      <<: *orchestrator-tag-name-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - run: 
+          name: Run kotlin twilsock ios tests on iOS Simulator
+          command: |
+            ./BuildScripts/run-tests-kotlin-ios.rb sdk/android/twilsock/build/bin/iosSimulatorArm64/debugTest/test.kexe
+
+  build-testables-twilsock-kotlin-ios:
+    executor: macos-kotlin-ios-executor-x86
+    description: "Build"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_cache_kmm_ios
+      - download_and_setup_android_sdk:
+          gradle-project-dir: *android_convo_root_project_dir
+      - run_gradle_target:
+          gradle-project-dir: *android_convo_root_project_dir
+          gradle-target: twilsock:iosSimulatorArm64TestBinaries
+      - save_cache_kmm_ios
+      - persist_to_workspace:
+          root: .
+          paths:
+            - sdk/android/twilsock/build/*
+      - store_artifacts:
+          path: sdk/android/twilsock/build/bin
+          destination: bin
+
+  build-shared-internal-android:
+    executor: linux-android-executor
+    description: "Build"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - run_gradle_target:
+          gradle-project-dir: *android_convo_root_project_dir
+          gradle-target: shared-internal:assembleRelease shared-internal:assembleAndroidTest -DtestBuildType=release
+      - run_gradle_target:
+          gradle-project-dir: *android_convo_root_project_dir
+          gradle-target: shared-internal:testReleaseUnitTest
+      - store_test_results:
+          path: sdk/android/shared-internal/build/test-results/testReleaseUnitTest
+      - clean_build_outputs:
+          dir: sdk/android/shared-internal/build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - sdk/android/shared-internal/build/*
+      - store_artifacts:
+          path: *android_shared_internal_output
+      - print_sha256:
+          source-dir: *android_shared_internal_output
+          input-file: aar/*
+
+  build-shared-public-android:
+    executor: linux-android-executor
+    description: "Build"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - run_gradle_target:
+          gradle-project-dir: *android_convo_root_project_dir
+          gradle-target: shared-public:assembleRelease shared-public:packageSources
+      - clean_build_outputs:
+          dir: sdk/android/shared-public/build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - sdk/android/shared-public/build/*
+      - store_artifacts:
+          path: *android_shared_public_output
+      - store_artifacts:
+          path: *android_shared_public_sources_jar
+      - print_sha256:
+          source-dir: *android_shared_public_output
+          input-file: aar/*
+
+  coverage-convo-sdk-android:
+    executor: android-with-emulator-executor
+    description: "Coverage"
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: test-sdk-convo-android
+      - copy_jni_libs_convo_android
+      - android/start-emulator-and-run-tests:
+          post-emulator-launch-assemble-command: |
+            $CONVO_ROOT/gradlew \
+              --project-dir $CONVO_ROOT \
+              convo-android:testDebugUnitTest
+          test-command: ./gradlew coverageReport
+          system-image: system-images;android-30;google_apis;x86
+          run-tests-working-directory: *android_convo_root_project_dir
+          restore-gradle-cache-prefix: convo
+      - persist_to_workspace:
+          root: .
+          paths:
+            - root-projects/android/convo/build/reports/jacoco/*
+            - sdk/android/convo/sdk/build/outputs/unit_test_code_coverage/*
+            - sdk/android/convo/sdk/build/outputs/code_coverage/*
+            - sdk/android/convo/testapp/build/outputs/code_coverage/*
+      - store_artifacts:
+          path: root-projects/android/convo/build/reports/jacoco
+          destination: jacoco
+      - store_artifacts:
+          path: sdk/android/convo/sdk/build/outputs/unit_test_code_coverage
+          destination: coverage-data
+      - store_artifacts:
+          path: sdk/android/convo/sdk/build/outputs/code_coverage
+          destination: coverage-data
+      - store_artifacts:
+          path: sdk/android/convo/testapp/build/outputs/code_coverage
+          destination: coverage-data
+
+  build-convo-android:
+    executor: linux-android-executor
+    parameters:
+      <<: *build-type-parameter
+      <<: *build-arch-parameter
+    steps:
+      - checkout
+      - build_android:
+          product: convo
+          platform: android
+          source-dir: *android_chat_convo_jni_dir
+          build-type: << parameters.build-type >>
+          build-arch: << parameters.build-arch >>
+
+  build-convo-sdk-android:
+    executor: linux-android-executor
+    description: "Build"
+    parameters:
+      <<: *sdk-build-type-parameter
+      <<: *do-not-strip-symbols-parameter
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - copy_jni_libs_convo_android
+      - apply_signing_config:
+          testapp-dir: *android_convo_testapp_dir
+      - run_gradle_target:
+          gradle-project-dir: *android_convo_root_project_dir
+          gradle-target: convo-android:assemble<< parameters.sdk-build-type >> testapp:assemble<< parameters.sdk-build-type >> testapp:assembleAndroidTest convo-android:assembleAndroidTest -DtestBuildType=<< parameters.sdk-build-type >>
+          do-not-strip-symbols: << parameters.do-not-strip-symbols >>
+      - run_gradle_target:
+          gradle-project-dir: *android_convo_root_project_dir
+          gradle-target: apiCheck
+      - run_gradle_target:
+          gradle-project-dir: *android_convo_root_project_dir
+          gradle-target: convo-android:test<< parameters.sdk-build-type >>UnitTest
+      - store_test_results:
+          path: sdk/android/convo/sdk/build/test-results/test<< parameters.sdk-build-type >>UnitTest
+      - clean_build_outputs:
+          dir: sdk/android/convo/sdk/build
+      - clean_build_outputs:
+          dir: sdk/android/convo/testapp/build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - sdk/android/convo/sdk/build/*
+            - sdk/android/convo/testapp/build/*
+      - store_artifacts:
+          path: *android_convo_sdk_output
+      - store_artifacts:
+          path: *android_convo_sdk_tests_output
+      - print_sha256:
+          source-dir: *android_convo_sdk_output
+          input-file: aar/*
+
+  build-convo-sdk-kotlin-ios:
+    executor: macos-kotlin-ios-executor-x86
+    description: "Build"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_cache_kmm_ios
+      - download_and_setup_android_sdk:
+          gradle-project-dir: *android_convo_root_project_dir
+      - run_gradle_target:
+          gradle-project-dir: *android_convo_root_project_dir
+          gradle-target: convo-android:assembleXCFramework
+      - save_cache_kmm_ios
+      - run: 
+          name: Compressing artifacts
+          command: tar czf xcode-frameworks.zip -C sdk/android/convo/sdk/build/XCFrameworks/release/convo_android.xcframework .
+      - store_artifacts:
+          path: xcode-frameworks.zip
+
+  build-convo-docs-android:
+    executor: linux-android-executor
+    description: "Generate documentation"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - run_gradle_target:
+          gradle-project-dir: *android_convo_root_project_dir
+          gradle-target: packageDocs
+      - persist_to_workspace:
+          root: .
+          paths:
+            - root-projects/android/convo/build/*
+            - *android_convo_sdk_sources_jar_output
+      - store_artifacts:
+          path: *android_convo_sdk_docs_jar_output
+      - store_artifacts:
+          path: *android_convo_sdk_docs_html_output
+      - store_artifacts:
+          path: *android_convo_sdk_sources_jar_output
+
+  wait-tests-passed-android:
+    executor: macos-ios-executor
+    description: "All << parameters.product >> tests passed"
+    parameters:
+      <<: *product-parameter
+    steps:
+      - run:
+          name: All << parameters.product >> tests passed
+          command: echo "All << parameters.product >> tests passed"
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - store_artifacts:
+          path: root-projects/android/<< parameters.product >>/build/reports/jacoco
+          destination: jacoco
+      - store_artifacts:
+          path: sdk/android/<< parameters.product >>/sdk/build/outputs/unit_test_code_coverage
+          destination: coverage-data
+      - store_artifacts:
+          path: sdk/android/<< parameters.product >>/sdk/build/outputs/code_coverage
+          destination: coverage-data
+      - store_artifacts:
+          path: sdk/android/<< parameters.product >>/testapp/build/outputs/code_coverage
+          destination: coverage-data
+
+  coverage-sync-sdk-android:
+    executor: android-with-emulator-executor
+    description: "Coverage"
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: test-sdk-sync-android
+      - copy_jni_libs_sync_android
+      - android/start-emulator-and-run-tests:
+          post-emulator-launch-assemble-command: |
+            $SYNC_ROOT/gradlew \
+              --project-dir $SYNC_ROOT \
+              testapp:assembleDebugAndroidTest
+          test-command: ./gradlew coverageReport
+          system-image: system-images;android-30;google_apis;x86
+          run-tests-working-directory: *android_sync_root_project_dir
+          restore-gradle-cache-prefix: sync
+      - persist_to_workspace:
+          root: .
+          paths:
+            - root-projects/android/sync/build/reports/jacoco/*
+            - sdk/android/sync/testapp/build/outputs/code_coverage/*
+      - store_artifacts:
+          path: root-projects/android/sync/build/reports/jacoco
+          destination: jacoco
+      - store_artifacts:
+          path: sdk/android/sync/testapp/build/outputs/code_coverage
+          destination: coverage-data
+
+  build-sync-android:
+    executor: linux-android-executor
+    parameters:
+      <<: *build-type-parameter
+      <<: *build-arch-parameter
+    steps:
+      - checkout
+      - build_android:
+          product: sync
+          platform: android
+          source-dir: *android_sync_sdk_jni_dir
+          build-type: << parameters.build-type >>
+          build-arch: << parameters.build-arch >>
+
+  build-sync-sdk-android:
+    executor: linux-android-executor
+    description: "Build"
+    parameters:
+      <<: *sdk-build-type-parameter
+      <<: *do-not-strip-symbols-parameter
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - copy_jni_libs_sync_android
+      - apply_signing_config:
+          testapp-dir: *android_sync_testapp_dir
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: sync-android:assemble<< parameters.sdk-build-type >> testapp:assemble<< parameters.sdk-build-type >> testapp:assembleAndroidTest -DtestBuildType=<< parameters.sdk-build-type >>
+          do-not-strip-symbols: << parameters.do-not-strip-symbols >>
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: apiCheck
+      - clean_build_outputs:
+          dir: sdk/android/sync/sdk/build
+      - clean_build_outputs:
+          dir: sdk/android/sync/testapp/build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - sdk/android/sync/sdk/build/*
+            - sdk/android/sync/testapp/build/*
+      - store_artifacts:
+          path: *android_sync_sdk_output
+      - store_artifacts:
+          path: *android_sync_sdk_tests_output
+      - print_sha256:
+          source-dir: *android_sync_sdk_output
+          input-file: aar/*
+
+  build-native-sync-sdk-android:
+    executor: linux-android-executor
+    description: "Build"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - copy_jni_libs_sync_android
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: sync-android-kt:assembleRelease sync-android-java:assembleRelease sync-android-shared:assembleRelease sync-android-kt:assembleAndroidTest -DtestBuildType=release
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: apiCheck
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: sync-android-kt:testReleaseUnitTest
+      - store_test_results:
+          path: sdk/android/sync-android-kt/build/test-results/testReleaseUnitTest
+      - clean_build_outputs:
+          dir: sdk/android/sync-android-kt/build
+      - clean_build_outputs:
+          dir: sdk/android/sync-android-java/build
+      - clean_build_outputs:
+          dir: sdk/android/sync-android-shared/build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - sdk/android/sync-android-kt/build/*
+            - sdk/android/sync-android-java/build/*
+            - sdk/android/sync-android-shared/build/*
+      - store_artifacts:
+          path: *android_native_sync_sdk_output
+      - store_artifacts:
+          path: *android_native_sync_java_sdk_output
+      - store_artifacts:
+          path: *android_native_sync_shared_sdk_output
+      - print_sha256:
+          source-dir: *android_native_sync_sdk_output
+          input-file: aar/*
+      - print_sha256:
+          source-dir: *android_native_sync_java_sdk_output
+          input-file: aar/*
+
+  build-native-sync-sdk-kotlin-ios:
+    executor: macos-kotlin-ios-executor-x86
+    description: "Build"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - install_ios_certificates
+      - gem_install_xcodeproj
+      - restore_cache_kmm_ios
+      - download_and_setup_android_sdk:
+          gradle-project-dir: *android_sync_root_project_dir
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: sync-android-kt:assembleTwilioSyncLibReleaseXCFramework
+      - save_cache_kmm_ios
+      - run:
+          name: Build TwilioSync.xcframework
+          command: ./BuildScripts/build-sync-xcframework-kotlin-ios.sh
+      - run:
+          name: Build Documentation
+          command: ./BuildScripts/build-docs-kotlin-ios.sh TwilioSync ""
+      - run:
+          name: Compressing artifacts
+          command: |
+            tar czf TwilioSyncLib.zip -C sdk/android/sync-android-kt/build/XCFrameworks/release/TwilioSyncLib.xcframework .
+            tar czf TwilioSync.zip -C root-projects/ios/TwilioSync/output/xcframeworks/TwilioSync.xcframework .
+            tar czf TwilioSync.doccarchive.zip -C root-projects/ios/TwilioSync/DerivedData/Build/Products/Release-iphoneos/TwilioSync.doccarchive .
+      - store_artifacts:
+          path: TwilioSyncLib.zip
+      - store_artifacts:
+          path: TwilioSync.zip
+      - store_artifacts:
+          path: TwilioSync.doccarchive.zip
+      - run:
+          name: Build TwilioSyncTests
+          command: ./BuildScripts/build-sync-tests-kotlin-ios.sh
+      - persist_to_workspace:
+          root: .
+          paths:
+            - sdk/android/sync-android-kt/build/XCFrameworks/release/TwilioSyncLib.xcframework
+            - root-projects/ios/TwilioSync/output/xcframeworks/TwilioSync.xcframework
+            - root-projects/ios/TwilioSync/DerivedData/Build/Products/TwilioSyncTests.zip
+      - store_artifacts:
+          path: root-projects/ios/TwilioSync/DerivedData/Build/Products/TwilioSyncTests.zip
+
+  test-native-sync-sdk-android:
+    executor: small-linux-android-executor
+    description: "Test"
+    parameters:
+      <<: *orchestrator-tag-name-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - copy_jni_libs_sync_android
+      - generate_gcloud_settings
+      - run:
+          name: Run native-sync-sdk android tests in Firebase Test Lab
+          command: |
+            TESTAPP="$SYNC_TESTAPP_DIR/build/outputs/apk/release/testapp-release.apk"
+            ./BuildScripts/run-sdk-android-tests-in-gcloud.sh \
+                "$TESTAPP" \
+                sdk/android/sync-android-kt/build/outputs/apk/androidTest/release/sync-android-kt-release-androidTest.apk \
+                -release
+          environment:
+            SYNC_TESTAPP_DIR: *android_sync_testapp_dir
+      - store_artifacts:
+          name: Uploading FTL tests artifacts
+          path: /tmp/gcloud-results
+          destination: gcloud-results
+      - store_test_results:
+          path: *test_results_folder
+
+  test-native-sync-sdk-kotlin-ios:
+    executor: small-linux-android-executor
+    description: "Test"
+    parameters:
+      <<: *orchestrator-tag-name-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - generate_gcloud_settings
+      - run:
+          name: Run native-sync-sdk kotlin-ios tests in Firebase Test Lab
+          command: ./BuildScripts/run-tests-in-gcloud-kotlin-ios.sh "$TEST_ARCHIVE" "$RESULTS_DIR" "$ARTIFACTS_DIR"
+          environment:
+            TEST_ARCHIVE: root-projects/ios/TwilioSync/DerivedData/Build/Products/TwilioSyncTests.zip
+            RESULTS_DIR: *test_results_folder
+            ARTIFACTS_DIR: /tmp/gcloud-results
+      - store_artifacts:
+          name: Uploading FTL tests artifacts
+          path: /tmp/gcloud-results
+          destination: gcloud-results
+      - store_test_results:
+          path: *test_results_folder
+
+  build-testables-native-sync-lib-kotlin-ios:
+    executor: macos-kotlin-ios-executor-x86
+    description: "Build"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_cache_kmm_ios
+      - download_and_setup_android_sdk:
+          gradle-project-dir: *android_sync_root_project_dir
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: sync-android-kt:iosSimulatorArm64TestBinaries
+      - save_cache_kmm_ios
+      - persist_to_workspace:
+          root: .
+          paths:
+            - sdk/android/sync-android-kt/build/*
+      - store_artifacts:
+          path: sdk/android/sync-android-kt/build/bin
+          destination: bin
+
+  test-native-sync-lib-kotlin-ios:
+    executor: macos-kotlin-ios-executor-m1
+    description: "Test"
+    parameters:
+      <<: *orchestrator-tag-name-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - run: 
+          name: Run kotlin native-sync lib ios tests on iOS Simulator
+          command: |
+            ./BuildScripts/run-tests-kotlin-ios.rb sdk/android/sync-android-kt/build/bin/iosSimulatorArm64/debugTest/test.kexe
+
+  build-sync-docs-android:
+    executor: linux-android-executor
+    description: "Generate documentation"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: packageDocs
+      - persist_to_workspace:
+          root: .
+          paths:
+            - root-projects/android/sync/build/*
+            - *android_sync_sdk_sources_jar_output
+            - *android_native_sync_sdk_jar_output
+            - *android_native_sync_java_sdk_jar_output
+            - *android_native_sync_shared_jar_output
+      - store_artifacts:
+          path: *android_sync_sdk_docs_jar_output
+      - store_artifacts:
+          path: *android_sync_sdk_docs_html_output
+      - store_artifacts:
+          path: *android_sync_sdk_sources_jar_output
+      - store_artifacts:
+          path: *android_native_sync_sdk_jar_output
+      - store_artifacts:
+          path: *android_native_sync_java_sdk_jar_output
+      - store_artifacts:
+          path: *android_native_sync_shared_jar_output
+
+  publish-sdk-android:
+    executor: small-linux-android-executor
+    description: "Publish"
+    steps:
+      - checkout
+      - generate_project_settings_gradle:
+          gradle-project-dir: *android_publishing_root_project_dir
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - run_gradle_target:
+          gradle-project-dir: *android_publishing_root_project_dir
+          gradle-target: publishToSonatype closeSonatypeStagingRepository
+          output-file: gradle-output.log
+      - push_sonatype_git_tag:
+          gradle-project-dir: *android_publishing_root_project_dir
+          input-file: gradle-output.log
+
+  promote-to-release-sdk-android:
+    executor: small-linux-android-executor
+    description: "Promote to release"
+    steps:
+      - checkout
+      - generate_project_settings_gradle:
+          gradle-project-dir: *android_publishing_root_project_dir
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - run:
+          name: Extract sonatype repo id from git tag
+          command: |
+            SONATYPE_REPO_ID=`./BuildScripts/parse-sonatype-git-tag.sh`
+            echo "export SONATYPE_REPO_ID=$SONATYPE_REPO_ID" > $BASH_ENV
+      - run_gradle_target:
+          gradle-project-dir: *android_publishing_root_project_dir
+          gradle-target: releaseSonatypeStagingRepository --staging-repository-id $SONATYPE_REPO_ID
+
+  build-testables-android:
+    executor: linux-android-executor
+    parameters:
+      <<: *product-parameter
+      <<: *build-type-parameter
+      <<: *build-arch-parameter
+      <<: *orchestrator-tag-name-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - restore_gradle_cache
+      - build_android:
+          product: << parameters.product >>
+          platform: android
+          source-dir: *android_testables_root_project_dir
+          build-type: << parameters.build-type >>
+          build-arch: << parameters.build-arch >>
+          pre-persist-steps: [remove_so_libs]
+
+  test-cpp-android:
+    executor: small-linux-android-executor
+    description: "Test"
+    parameters:
+      <<: *product-parameter
+      <<: *build-type-parameter
+      <<: *build-arch-parameter
+      <<: *cpp-test-name-parameter
+      <<: *orchestrator-tag-name-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - generate_gcloud_settings
+      - run:
+          name: Test << parameters.build-type >> << parameters.build-arch >> << parameters.cpp-test-name >>
+          command: |
+            source ~/.bashrc
+            BuildScripts/build-rtd-lib --destdir=$DEST_DIR --srcdir=$SRC_DIR --product=<< parameters.product >> --platform=android --build-type=<< parameters.build-type >> \
+                --arch=<< parameters.build-arch >> --test-name=<< parameters.cpp-test-name >> --failed-tests-mark-unstable --keep-build-products test
+          no_output_timeout: 120m
+          environment:
+            DEST_DIR: *build_output
+            SRC_DIR: *android_testables_root_project_dir
+      - store_artifacts:
+          name: Uploading FTL tests artifacts
+          path: /tmp/gcloud-results
+          destination: gcloud-results
+      - store_test_results:
+          path: *test_results_folder
+
+  #================================================================
+  # Jobs: iOS
+  #================================================================
+
+  build-sdk-ios:
+    executor: macos-ios-executor
+    parameters:
+      <<: *sdk-type-parameter
+      <<: *orchestrator-tag-name-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - build_sdk_ios:
+          sdk-type: << parameters.sdk-type >>
+
+  build-test-ios:
+    executor: macos-ios-executor
+    parameters:
+      <<: *ios-build-sim-parameter
+      <<: *ios-mac-catalyst-parameter
+      <<: *ios-tests-group-parameter
+      <<: *build-type-parameter
+      <<: *orchestrator-tag-name-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - build_for_testing_ios:
+          ios-tests-group: << parameters.ios-tests-group >>
+          build-sim: << parameters.build-sim >>
+          mac-catalyst: << parameters.mac-catalyst >>
+          build-type: << parameters.build-type >>
+
+  test-locally-ios:
+    executor: macos-ios-executor
+    parameters:
+      <<: *ios-mac-catalyst-parameter
+      <<: *ios-tests-group-parameter
+      <<: *orchestrator-tag-name-parameter
+      <<: *build-type-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - test_locally_ios:
+          ios-tests-group: << parameters.ios-tests-group >>
+          mac-catalyst: << parameters.mac-catalyst >>
+          build-type: << parameters.build-type >>
+
+  test-device-ios:
+    executor: linux-generic-executor
+    parameters:
+      <<: *ios-tests-group-parameter
+      <<: *orchestrator-tag-name-parameter
+      <<: *build-type-parameter
+    steps:
+      - checkout
+      - check_testlist:
+          test-tag: << parameters.test-tag >>
+      - test_device_ios:
+          ios-tests-group: << parameters.ios-tests-group >>
+          build-type: << parameters.build-type >>
+
+  coverage-ios-sim:
+    executor: macos-ios-executor
+    steps:
+      - checkout
+      # Require execution of all tests, starting from the lower level (shared-lib). Create overall coverage report only if all tests are executed.
+      - check_testlist:
+          test-tag: test-shared-ios
+      - brew_install_xcresultparser
+      - merge_sim_ios_xcresults:
+          merged-xcresult-path: all_tests_merged.xcresult
+          artifact-name: all_tests_merged
+
+  wait-tests-passed-ios:
+    executor: macos-ios-executor
+    description: "Wait until all tests passed"
+    steps:
+      - run:
+          name: All tests passed
+          command: echo "All tests passed"
+
+  distribute-sdk-ios:
+    executor: macos-ios-executor # doc generation requires macOS executor
+    parameters:
+      <<: *upload-type-parameter
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - install_ios_certificates
+      - gem_install_xcodeproj
+      - distribute_sdk_ios:
+          upload-type: << parameters.upload-type >>
+      - notify_slack:
+          upload-type: << parameters.upload-type >>
+
+  bump-project-ios:
+    executor: linux-generic-executor
+    parameters:
+      <<: *sdk-type-parameter
+    steps:
+      - checkout
+      - bump_project_ios:
+          sdk-type: << parameters.sdk-type >>
+
+  trigger-smoke-tests:
+    executor: linux-generic-executor
+    steps:
+      - checkout
+      - run:
+          name: Trigger smoke tests
+          command: ./sdk/ios/Scripts/trigger-smoke-tests.sh
+
+workflows:
+  version: 2.1
+
+  #=========================================================================
+  # Workflows: Android Build, Test & Publish Snapshot
+  #=========================================================================
+
+  android:
+    jobs:
+      - prepare-android-environment:
+          <<: *any-branch-or-android-rc-tag-filter
+          context: rtd-android-chat-demo-app-release
+      - prepare-dependencies-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+      - build-shared-internal-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+      - build-shared-public-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+      - build-twilsock-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+      - build-testables-twilsock-kotlin-ios:
+          <<: *any-branch-or-android-rc-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+      - test-twilsock-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          test-tag: test-twilsock-android
+          context: rtd-ci-testing
+          requires:
+            - build-twilsock-android
+            - build-sync-sdk-android-release
+            - build-convo-sdk-android-release
+      - test-twilsock-kotlin-ios:
+          <<: *any-branch-or-android-rc-tag-filter
+          test-tag: test-twilsock-android
+          context: rtd-ci-testing
+          requires:
+            - build-testables-twilsock-kotlin-ios
+      - test-shared-internal-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          test-tag: test-shared-internal-android
+          context: rtd-ci-testing
+          requires:
+            - build-shared-internal-android
+            - build-sync-sdk-android-release
+            - build-convo-sdk-android-release
+      - build-sync-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          name: build-sync-android-armeabi-v7a-release
+          build-type: release
+          build-arch: armeabi-v7a
+      - build-sync-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          name: build-sync-android-arm64-v8a-release
+          build-type: release
+          build-arch: arm64-v8a
+      - build-sync-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          name: build-sync-android-x86-release
+          build-type: release
+          build-arch: x86
+      - build-sync-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          name: build-sync-android-x86_64-release
+          build-type: release
+          build-arch: x86_64
+      - build-sync-sdk-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          name: build-sync-sdk-android-release
+          sdk-build-type: Release
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+            - build-sync-android-x86-release
+            - build-sync-android-x86_64-release
+            - build-sync-android-armeabi-v7a-release
+            - build-sync-android-arm64-v8a-release
+      - build-sync-sdk-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          name: build-sync-sdk-android-releaseWithSymbols
+          sdk-build-type: ReleaseWithSymbols
+          do-not-strip-symbols: true
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+            - build-sync-android-x86-release
+            - build-sync-android-x86_64-release
+            - build-sync-android-armeabi-v7a-release
+            - build-sync-android-arm64-v8a-release
+      - build-native-sync-sdk-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+            - build-sync-android-x86-release
+            - build-sync-android-x86_64-release
+            - build-sync-android-armeabi-v7a-release
+            - build-sync-android-arm64-v8a-release
+      - build-native-sync-sdk-kotlin-ios:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+      - test-native-sync-sdk-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          test-tag: test-native-sync-sdk
+          context: rtd-ci-testing
+          requires:
+            - build-sync-sdk-android-release
+            - build-native-sync-sdk-android
+      - test-native-sync-sdk-kotlin-ios:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          test-tag: test-native-sync-sdk
+          context: rtd-ci-testing
+          requires:
+            - build-native-sync-sdk-kotlin-ios
+      - build-testables-native-sync-lib-kotlin-ios:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+      - test-native-sync-lib-kotlin-ios:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          test-tag: test-twilsock-android
+          context: rtd-ci-testing
+          requires:
+            - build-testables-native-sync-lib-kotlin-ios
+      - build-sync-docs-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+      - coverage-sync-sdk-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+            - build-sync-android-x86-release
+            - build-sync-android-x86_64-release
+            - build-sync-android-armeabi-v7a-release
+            - build-sync-android-arm64-v8a-release
+      - test-sdk-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          name: test-sync-sdk-android-release
+          test-tag: test-sdk-sync-android
+          testapp-dir: *android_sync_testapp_dir
+          sdk-test-type: release
+          context: rtd-ci-testing
+          requires:
+            - build-sync-sdk-android-release
+      - test-sdk-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          name: test-sync-sdk-android-releaseWithSymbols
+          test-tag: test-sdk-sync-android
+          testapp-dir: *android_sync_testapp_dir
+          sdk-test-type: releaseWithSymbols
+          context: rtd-ci-testing
+          requires:
+            - build-sync-sdk-android-releaseWithSymbols
+      - build-convo-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: build-convo-android-armeabi-v7a-release
+          build-type: release
+          build-arch: armeabi-v7a
+      - build-convo-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: build-convo-android-arm64-v8a-release
+          build-type: release
+          build-arch: arm64-v8a
+      - build-convo-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: build-convo-android-x86-release
+          build-type: release
+          build-arch: x86
+      - build-convo-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: build-convo-android-x86_64-release
+          build-type: release
+          build-arch: x86_64
+      - build-convo-sdk-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: build-convo-sdk-android-release
+          sdk-build-type: Release
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+            - build-convo-android-x86-release
+            - build-convo-android-x86_64-release
+            - build-convo-android-armeabi-v7a-release
+            - build-convo-android-arm64-v8a-release
+      - build-convo-sdk-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: build-convo-sdk-android-releaseWithSymbols
+          sdk-build-type: ReleaseWithSymbols
+          do-not-strip-symbols: true
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+            - build-convo-android-x86-release
+            - build-convo-android-x86_64-release
+            - build-convo-android-armeabi-v7a-release
+            - build-convo-android-arm64-v8a-release
+      - build-convo-sdk-kotlin-ios:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: build-convo-sdk-kotlin-ios
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+      - build-convo-docs-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+      - coverage-convo-sdk-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-android-environment
+            - prepare-dependencies-android
+            - build-convo-android-x86-release
+            - build-convo-android-x86_64-release
+            - build-convo-android-armeabi-v7a-release
+            - build-convo-android-arm64-v8a-release
+      - test-sdk-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: test-convo-sdk-android-release
+          test-tag: test-sdk-convo-android
+          testapp-dir: *android_convo_testapp_dir
+          sdk-test-type: release
+          context: rtd-ci-testing
+          requires:
+            - build-convo-sdk-android-release
+      - test-sdk-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: test-convo-sdk-android-releaseWithSymbols
+          test-tag: test-sdk-convo-android
+          testapp-dir: *android_convo_testapp_dir
+          sdk-test-type: releaseWithSymbols
+          context: rtd-ci-testing
+          requires:
+            - build-convo-sdk-android-releaseWithSymbols
+      - test-common-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: test-convo-common-android-release
+          test-tag: test-sdk-convo-android
+          testapp-dir: *android_convo_testapp_dir
+          sdk-test-type: release
+          context: rtd-ci-testing
+          requires:
+            - build-convo-sdk-android-release
+      - test-common-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: test-convo-common-android-releaseWithSymbols
+          test-tag: test-sdk-convo-android
+          testapp-dir: *android_convo_testapp_dir
+          sdk-test-type: releaseWithSymbols
+          context: rtd-ci-testing
+          requires:
+            - build-convo-sdk-android-releaseWithSymbols
+      - build-testables-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: build-testables-convo-android-armeabi-v7a-debug
+          test-tag: test-convo-android
+          product: cpp-tests-convo
+          build-type: debug
+          build-arch: armeabi-v7a
+          requires:
+            - prepare-android-environment
+      - build-testables-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: build-testables-convo-android-arm64-v8a-debug
+          test-tag: test-convo-android
+          product: cpp-tests-convo
+          build-type: debug
+          build-arch: arm64-v8a
+          requires:
+            - prepare-android-environment
+      - build-testables-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: build-testables-convo-android-x86-debug
+          test-tag: test-convo-android
+          product: cpp-tests-convo
+          build-type: debug
+          build-arch: x86
+          requires:
+            - prepare-android-environment
+      - build-testables-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: build-testables-convo-android-armeabi-v7a-release
+          test-tag: test-convo-android
+          product: cpp-tests-convo
+          build-type: release
+          build-arch: armeabi-v7a
+          requires:
+            - prepare-android-environment
+      - build-testables-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: build-testables-convo-android-arm64-v8a-release
+          test-tag: test-convo-android
+          product: cpp-tests-convo
+          build-type: release
+          build-arch: arm64-v8a
+          requires:
+            - prepare-android-environment
+      - build-testables-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: build-testables-convo-android-x86-release
+          test-tag: test-convo-android
+          product: cpp-tests-convo
+          build-type: release
+          build-arch: x86
+          requires:
+            - prepare-android-environment
+      - test-cpp-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: test-shared-android-x86-release
+          product: cpp-tests-convo
+          test-tag: test-shared-android
+          build-type: release
+          build-arch: x86
+          cpp-test-name: RtdSharedLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-x86-release
+      - test-cpp-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: test-sync-android-x86-release
+          product: cpp-tests-convo
+          test-tag: test-sync-android
+          build-type: release
+          build-arch: x86
+          cpp-test-name: RtdSyncLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-x86-release
+      - test-cpp-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: test-shared-android-x86-debug
+          product: cpp-tests-convo
+          test-tag: test-shared-android
+          build-type: debug
+          build-arch: x86
+          cpp-test-name: RtdSharedLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-x86-debug
+      - test-cpp-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: test-sync-android-x86-debug
+          product: cpp-tests-convo
+          test-tag: test-sync-android
+          build-type: debug
+          build-arch: x86
+          cpp-test-name: RtdSyncLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-x86-debug
+      - test-cpp-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: test-shared-android-armeabi-v7a-release
+          product: cpp-tests-convo
+          test-tag: test-shared-android
+          build-type: release
+          build-arch: armeabi-v7a
+          cpp-test-name: RtdSharedLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-armeabi-v7a-release
+      - test-cpp-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: test-sync-android-armeabi-v7a-release
+          product: cpp-tests-convo
+          test-tag: test-sync-android
+          build-type: release
+          build-arch: armeabi-v7a
+          cpp-test-name: RtdSyncLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-armeabi-v7a-release
+      - test-cpp-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: test-shared-android-armeabi-v7a-debug
+          product: cpp-tests-convo
+          test-tag: test-shared-android
+          build-type: debug
+          build-arch: armeabi-v7a
+          cpp-test-name: RtdSharedLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-armeabi-v7a-debug
+      - test-cpp-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: test-sync-android-armeabi-v7a-debug
+          product: cpp-tests-convo
+          test-tag: test-sync-android
+          build-type: debug
+          build-arch: armeabi-v7a
+          cpp-test-name: RtdSyncLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-armeabi-v7a-debug
+      - test-cpp-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: test-shared-android-arm64-v8a-release
+          product: cpp-tests-convo
+          test-tag: test-shared-android
+          build-type: release
+          build-arch: arm64-v8a
+          cpp-test-name: RtdSharedLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-arm64-v8a-release
+      - test-cpp-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: test-sync-android-arm64-v8a-release
+          product: cpp-tests-convo
+          test-tag: test-sync-android
+          build-type: release
+          build-arch: arm64-v8a
+          cpp-test-name: RtdSyncLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-arm64-v8a-release
+      - test-cpp-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: test-shared-android-arm64-v8a-debug
+          product: cpp-tests-convo
+          test-tag: test-shared-android
+          build-type: debug
+          build-arch: arm64-v8a
+          cpp-test-name: RtdSharedLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-arm64-v8a-debug
+      - test-cpp-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          name: test-sync-android-arm64-v8a-debug
+          product: cpp-tests-convo
+          test-tag: test-sync-android
+          build-type: debug
+          build-arch: arm64-v8a
+          cpp-test-name: RtdSyncLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-arm64-v8a-debug
+      - test-cpp-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: test-convo-android-x86-release
+          product: cpp-tests-convo
+          test-tag: test-convo-android
+          build-type: release
+          build-arch: x86
+          cpp-test-name: MsgConversationsLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-x86-release
+      - test-cpp-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: test-convo-android-x86-debug
+          product: cpp-tests-convo
+          test-tag: test-convo-android
+          build-type: debug
+          build-arch: x86
+          cpp-test-name: MsgConversationsLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-x86-debug
+      - test-cpp-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: test-convo-android-armeabi-v7a-release
+          product: cpp-tests-convo
+          test-tag: test-convo-android
+          build-type: release
+          build-arch: armeabi-v7a
+          cpp-test-name: MsgConversationsLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-armeabi-v7a-release
+      - test-cpp-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: test-convo-android-armeabi-v7a-debug
+          product: cpp-tests-convo
+          test-tag: test-convo-android
+          build-type: debug
+          build-arch: armeabi-v7a
+          cpp-test-name: MsgConversationsLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-armeabi-v7a-debug
+      - test-cpp-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: test-convo-android-arm64-v8a-release
+          product: cpp-tests-convo
+          test-tag: test-convo-android
+          build-type: release
+          build-arch: arm64-v8a
+          cpp-test-name: MsgConversationsLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-arm64-v8a-release
+      - test-cpp-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: test-convo-android-arm64-v8a-debug
+          product: cpp-tests-convo
+          test-tag: test-convo-android
+          build-type: debug
+          build-arch: arm64-v8a
+          cpp-test-name: MsgConversationsLib
+          context: rtd-ci-testing
+          requires:
+            - build-testables-convo-android-arm64-v8a-debug
+
+      - wait-tests-passed-android:
+          <<: *any-branch-or-convo-android-rc-tag-filter
+          name: wait-tests-convo-android
+          product: convo
+          requires:
+            - test-convo-android-x86-release
+            - test-shared-android-x86-release
+            - test-sync-android-x86-release
+            - test-convo-android-x86-debug
+            - test-shared-android-x86-debug
+            - test-sync-android-x86-debug
+            - test-convo-android-armeabi-v7a-release
+            - test-shared-android-armeabi-v7a-release
+            - test-sync-android-armeabi-v7a-release
+            - test-convo-android-armeabi-v7a-debug
+            - test-shared-android-armeabi-v7a-debug
+            - test-sync-android-armeabi-v7a-debug
+            - test-convo-android-arm64-v8a-release
+            - test-shared-android-arm64-v8a-release
+            - test-sync-android-arm64-v8a-release
+            - test-convo-android-arm64-v8a-debug
+            - test-shared-android-arm64-v8a-debug
+            - test-sync-android-arm64-v8a-debug
+            - test-twilsock-android
+            - test-twilsock-kotlin-ios
+            - test-shared-internal-android
+            - test-convo-sdk-android-release
+            - test-convo-sdk-android-releaseWithSymbols
+            - test-convo-common-android-release
+            - test-convo-common-android-releaseWithSymbols
+            - coverage-convo-sdk-android
+            - build-convo-docs-android
+            - build-convo-sdk-kotlin-ios
+            - build-shared-internal-android
+            - build-shared-public-android
+
+      - wait-tests-passed-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          name: wait-tests-sync-android
+          product: sync
+          requires:
+            - test-shared-android-x86-release
+            - test-sync-android-x86-release
+            - test-shared-android-x86-debug
+            - test-sync-android-x86-debug
+            - test-shared-android-armeabi-v7a-release
+            - test-sync-android-armeabi-v7a-release
+            - test-shared-android-armeabi-v7a-debug
+            - test-sync-android-armeabi-v7a-debug
+            - test-shared-android-arm64-v8a-release
+            - test-sync-android-arm64-v8a-release
+            - test-shared-android-arm64-v8a-debug
+            - test-sync-android-arm64-v8a-debug
+            - test-twilsock-android
+            - test-twilsock-kotlin-ios
+            - test-shared-internal-android
+            - test-native-sync-sdk-android
+            - test-native-sync-sdk-kotlin-ios
+            - test-native-sync-lib-kotlin-ios
+            - test-sync-sdk-android-release
+            - test-sync-sdk-android-releaseWithSymbols
+            - coverage-sync-sdk-android
+            - build-sync-docs-android
+            - build-shared-internal-android
+            - build-shared-public-android
+
+      - publish-sdk-android:
+          <<: *android-rc-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - wait-tests-sync-android
+            - wait-tests-convo-android
+
+      - distribute-sdk-ios:
+          <<: *kotlin-ios-rc-tag-filter
+          name: distribute-sdk-kotlin-ios-stage
+          upload-type: stage
+          context:
+            - rtd-github-api
+            - rtd-ci-build-publish-snapshot
+            - rtd-sdk-slack-secrets
+          requires:
+            - wait-tests-sync-android
+            - wait-tests-convo-android
+
+  #=========================================================================
+  # Workflows: Promote Android
+  #=========================================================================
+
+  promote-to-release-android:
+    jobs:
+      - prepare-release-tool:
+          <<: *release-android-tag-filter
+          context: rtd-cdn-upload
+      - prepare-dependencies-android:
+          <<: *release-android-tag-filter
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+      - slack/on-hold:
+          <<: *release-android-tag-filter
+          name: notify-slack-release-android
+          channel: 'rtd-sdk-releases'
+          context: rtd-sdk-slack-secrets
+          requires:
+            - prepare-release-tool
+            - prepare-dependencies-android
+          mentions: "@msgsdk-team"
+      - approve-release-android:
+          <<: *release-android-tag-filter
+          type: approval
+          requires:
+            - notify-slack-release-android
+      - pin-sdk-android:
+          <<: *release-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - approve-release-android
+      - promote-to-release-sdk-android:
+          <<: *release-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - pin-sdk-android
+
+  promote-to-release-kotlin-ios:
+    jobs:
+      - distribute-sdk-ios:
+          <<: *release-kotlin-ios-tag-filter
+          name: distribute-sdk-kotlin-ios-prod
+          upload-type: prod
+          context:
+            - rtd-github-api
+            - rtd-ci-build-publish-snapshot
+            - rtd-sdk-slack-secrets
+
+  #=========================================================================
+  # Workflows: iOS Build, Test & Publish Snapshot
+  #=========================================================================
+
+  ios:
+    jobs:
+      - generate-test-list:
+          <<: *any-branch-or-ios-rc-tag-filter
+
+      - trigger-smoke-tests:
+          <<: *ios-convo-or-sync-rc-tag-filter
+          name: trigger-smoke-tests-stage
+          context: rtd-circleci-api
+          requires:
+            - distribute-sdk-twilsock-ios-stage
+            - distribute-sdk-sync-ios-stage
+            - distribute-sdk-convo-ios-stage
+
+      # twilsock
+      - build-sdk-ios:
+          <<: *any-branch-or-ios-rc-tag-filter
+          name: build-twilsock-framework-ios
+          sdk-type: TwilsockLib
+          test-tag: test-sdk-convo-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-ios-rc-tag-filter
+          name: build-twilsock-lib-ios-x86_64
+          ios-tests-group: TwilsockLib
+          test-tag: test-sdk-twilsock-ios
+          build-type: debug
+          build-sim: true
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      # - build-test-ios:
+      #     <<: *any-branch-or-ios-rc-tag-filter
+      #     name: build-twilsock-lib-mac-catalyst-x86_64
+      #     ios-tests-group: TwilsockLib
+      #     test-tag: test-sdk-twilsock-ios
+      #     build-type: debug
+      #     mac-catalyst: true
+      #     context:
+      #       - rtd-ci-tokens
+      #       - rtd-ci-test-instance-config
+      #       - rtd-ci-build-publish-snapshot
+      #     requires:
+      #       - generate-test-list
+
+      - test-locally-ios:
+          <<: *any-branch-or-ios-rc-tag-filter
+          name: test-twilsock-lib-ios-x86_64
+          ios-tests-group: TwilsockLib
+          test-tag: test-sdk-twilsock-ios
+          build-type: debug
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - build-twilsock-lib-ios-x86_64
+      # - test-locally-ios:
+      #     <<: *any-branch-or-ios-rc-tag-filter
+      #     name: test-twilsock-lib-mac-catalyst-x86_64
+      #     ios-tests-group: TwilsockLib
+      #     test-tag: test-sdk-twilsock-ios
+      #     build-type: debug
+      #     mac-catalyst: true
+      #     context:
+      #       - rtd-ci-tokens
+      #       - rtd-ci-test-instance-config
+      #       - rtd-ci-build-publish-snapshot
+      #     requires:
+      #       - build-twilsock-lib-mac-catalyst-x86_64
+
+      - distribute-sdk-ios:
+          <<: *ios-twilsock-rc-tag-filter
+          name: distribute-sdk-twilsock-ios-stage
+          upload-type: stage
+          context:
+            - rtd-github-api
+            - rtd-sdk-slack-secrets
+          requires:
+            - build-twilsock-framework-ios
+            - test-twilsock-lib-ios-x86_64
+            # - test-twilsock-lib-mac-catalyst-x86_64
+
+      # sync
+      - build-sdk-ios:
+          <<: *any-branch-or-sync-ios-rc-tag-filter
+          name: build-sdk-sync-ios
+          sdk-type: sync
+          test-tag: test-sdk-sync-ios
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-sync-ios-rc-tag-filter
+          name: build-sdk-test-sync-ios-tests-x86_64
+          ios-tests-group: sync
+          test-tag: test-sdk-sync-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          build-sim: true
+          build-type: release
+          requires:
+            - generate-test-list
+      # - build-test-ios:
+      #     <<: *any-branch-or-sync-ios-rc-tag-filter
+      #     name: build-sdk-test-sync-mac-catalyst-tests-x86_64
+      #     ios-tests-group: sync
+      #     test-tag: test-sdk-sync-ios
+      #     context:
+      #       - rtd-ci-tokens
+      #       - rtd-ci-test-instance-config
+      #       - rtd-ci-build-publish-snapshot
+      #     mac-catalyst: true
+      #     build-type: release
+      #     requires:
+      #       - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-sync-ios-rc-tag-filter
+          name: build-sdk-test-sync-ios-tests-arm64
+          ios-tests-group: sync
+          test-tag: test-sdk-sync-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          build-type: release
+          requires:
+            - generate-test-list
+      - test-locally-ios:
+          <<: *any-branch-or-sync-ios-rc-tag-filter
+          name: test-sdk-sync-ios-x86_64
+          ios-tests-group: sync
+          test-tag: test-sdk-sync-ios
+          build-type: release
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-sdk-test-sync-ios-tests-x86_64
+      # - test-locally-ios:
+      #     <<: *any-branch-or-sync-ios-rc-tag-filter
+      #     name: test-sdk-sync-mac-catalyst-x86_64
+      #     ios-tests-group: sync
+      #     test-tag: test-sdk-sync-ios
+      #     build-type: release
+      #     mac-catalyst: true
+      #     context:
+      #       - rtd-ci-testing
+      #       - rtd-ci-tokens
+      #     requires:
+      #       - build-sdk-test-sync-mac-catalyst-tests-x86_64
+      - test-device-ios:
+          <<: *any-branch-or-sync-ios-rc-tag-filter
+          name: test-sdk-sync-ios-arm64
+          ios-tests-group: sync
+          test-tag: test-sdk-sync-ios
+          build-type: release
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-sdk-test-sync-ios-tests-arm64
+      - coverage-ios-sim:
+          <<: *any-branch-or-sync-ios-rc-tag-filter
+          name: coverage-sync-sdk-ios
+          context: rtd-ci-testing
+          requires:
+            - test-twilsock-lib-ios-x86_64
+            - test-cpp-shared-ios-x86_64-release
+            - test-cpp-sync-ios-x86_64-release
+            - test-sdk-sync-ios-x86_64
+      - distribute-sdk-ios:
+          <<: *ios-sync-rc-tag-filter
+          name: distribute-sdk-sync-ios-stage
+          upload-type: stage
+          context:
+            - rtd-github-api
+            - rtd-sdk-slack-secrets
+          requires:
+            - test-sdk-sync-ios-arm64
+            - test-sdk-sync-ios-x86_64
+            # - test-sdk-sync-mac-catalyst-x86_64
+            - test-cpp-shared-ios-x86_64-debug
+            - test-cpp-shared-ios-x86_64-release
+            - test-cpp-shared-ios-arm64-debug
+            - test-cpp-shared-ios-arm64-release
+            - test-cpp-sync-ios-x86_64-debug
+            - test-cpp-sync-ios-x86_64-release
+            - test-cpp-sync-ios-arm64-debug
+            - test-cpp-sync-ios-arm64-release
+            - test-twilsock-lib-ios-x86_64
+            # - test-twilsock-lib-mac-catalyst-x86_64
+            - coverage-sync-sdk-ios
+            - build-sdk-sync-ios
+
+      # convo
+      - build-sdk-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: build-sdk-convo-ios
+          sdk-type: convo
+          test-tag: test-sdk-convo-ios
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: build-sdk-test-convo-ios-tests-x86_64
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          ios-tests-group: convo
+          test-tag: test-sdk-convo-ios
+          build-type: release
+          build-sim: true
+          requires:
+            - generate-test-list
+      # - build-test-ios:
+      #     <<: *any-branch-or-convo-ios-rc-tag-filter
+      #     name: build-sdk-test-convo-mac-catalyst-tests-x86_64
+      #     context:
+      #       - rtd-ci-tokens
+      #       - rtd-ci-test-instance-config
+      #       - rtd-ci-build-publish-snapshot
+      #     ios-tests-group: convo
+      #     test-tag: test-sdk-convo-ios
+      #     build-type: release
+      #     mac-catalyst: true
+      #     requires:
+      #       - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: build-sdk-test-convo-ios-tests-arm64
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          ios-tests-group: convo
+          build-type: release
+          test-tag: test-sdk-convo-ios
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: build-test-spm-convo-ios-x86_64
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          ios-tests-group: Convo
+          build-type: debug
+          build-sim: true
+          test-tag: test-sdk-convo-ios
+          requires:
+            - generate-test-list
+      # Uncomment when FTL will be able to run tests for packages on devices
+      # - build-test-ios:
+      #     <<: *any-branch-or-convo-ios-rc-tag-filter
+      #     name: build-twilsock-lib-ios-arm64
+      #     test-tag: test-sdk-convo-ios
+      #     ios-tests-group: TwilsockLib
+      #     build-type: debug
+      #     requires:
+      #       - prepare-ios-environment
+      - test-locally-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: test-sdk-convo-ios-tests-x86_64
+          ios-tests-group: convo
+          test-tag: test-sdk-convo-ios
+          build-type: release
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+          requires:
+            - build-sdk-test-convo-ios-tests-x86_64
+      # - test-locally-ios:
+      #     <<: *any-branch-or-convo-ios-rc-tag-filter
+      #     name: test-sdk-convo-mac-catalyst-tests-x86_64
+      #     ios-tests-group: convo
+      #     test-tag: test-sdk-convo-ios
+      #     build-type: release
+      #     mac-catalyst: true
+      #     context:
+      #       - rtd-ci-testing
+      #       - rtd-ci-tokens
+      #       - rtd-ci-test-instance-config
+      #     requires:
+      #       - build-sdk-test-convo-mac-catalyst-tests-x86_64
+      - test-device-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: test-sdk-convo-ios-tests-arm64
+          ios-tests-group: convo
+          test-tag: test-sdk-convo-ios
+          build-type: release
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-sdk-test-convo-ios-tests-arm64
+      - test-locally-ios:
+          <<: *any-branch-or-ios-rc-tag-filter
+          name: test-spm-convo-ios-x86_64
+          ios-tests-group: Convo
+          test-tag: test-sdk-convo-ios
+          build-type: debug
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - build-test-spm-convo-ios-x86_64
+      - coverage-ios-sim:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: coverage-convo-sdk-ios
+          context: rtd-ci-testing
+          requires:
+            - test-twilsock-lib-ios-x86_64
+            - test-cpp-shared-ios-x86_64-release
+            - test-cpp-sync-ios-x86_64-release
+            - test-cpp-convo-ios-x86_64-release
+            - test-sdk-convo-ios-tests-x86_64
+            - test-spm-convo-ios-x86_64
+      - distribute-sdk-ios:
+          <<: *ios-convo-rc-tag-filter
+          name: distribute-sdk-convo-ios-stage
+          upload-type: stage
+          context:
+            - rtd-github-api
+            - rtd-sdk-slack-secrets
+          requires:
+            - test-sdk-convo-ios-tests-arm64
+            - test-sdk-convo-ios-tests-x86_64
+            # - test-sdk-convo-mac-catalyst-tests-x86_64
+            - test-cpp-shared-ios-x86_64-debug
+            - test-cpp-shared-ios-x86_64-release
+            - test-cpp-shared-ios-arm64-debug
+            - test-cpp-shared-ios-arm64-release
+            - test-cpp-sync-ios-x86_64-debug
+            - test-cpp-sync-ios-x86_64-release
+            - test-cpp-sync-ios-arm64-debug
+            - test-cpp-sync-ios-arm64-release
+            - test-cpp-convo-ios-x86_64-debug
+            - test-cpp-convo-ios-x86_64-release
+            - test-cpp-convo-ios-arm64-debug
+            - test-cpp-convo-ios-arm64-release
+            - test-twilsock-lib-ios-x86_64
+            # - test-twilsock-lib-mac-catalyst-x86_64
+            # Uncomment when FTL will be able to run tests for packages on devices
+            # - test-twilsock-lib-ios-arm64
+            - coverage-convo-sdk-ios
+            - build-sdk-convo-ios
+
+      # ios cpp convo
+      - build-test-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: build-cpp-tests-convo-ios-x86_64-debug
+          build-type: debug
+          build-sim: true
+          ios-tests-group: ConvoLib
+          test-tag: test-convo-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: build-cpp-tests-convo-ios-x86_64-release
+          build-type: release
+          build-sim: true
+          ios-tests-group: ConvoLib
+          test-tag: test-convo-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: build-cpp-tests-convo-ios-arm64-debug
+          build-type: debug
+          build-sim: false
+          ios-tests-group: ConvoLib
+          test-tag: test-convo-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: build-cpp-tests-convo-ios-arm64-release
+          build-type: release
+          build-sim: false
+          ios-tests-group: ConvoLib
+          test-tag: test-convo-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      # ios cpp sync
+      - build-test-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: build-cpp-tests-sync-ios-x86_64-debug
+          build-type: debug
+          build-sim: true
+          ios-tests-group: SyncLib
+          test-tag: test-sync-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: build-cpp-tests-sync-ios-x86_64-release
+          build-type: release
+          build-sim: true
+          ios-tests-group: SyncLib
+          test-tag: test-sync-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: build-cpp-tests-sync-ios-arm64-debug
+          build-type: debug
+          build-sim: false
+          ios-tests-group: SyncLib
+          test-tag: test-sync-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: build-cpp-tests-sync-ios-arm64-release
+          build-type: release
+          build-sim: false
+          ios-tests-group: SyncLib
+          test-tag: test-sync-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      # ios cpp shared
+      - build-test-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: build-cpp-tests-shared-ios-x86_64-debug
+          build-type: debug
+          build-sim: true
+          ios-tests-group: SharedLibs
+          test-tag: test-shared-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: build-cpp-tests-shared-ios-x86_64-release
+          build-type: release
+          build-sim: true
+          ios-tests-group: SharedLibs
+          test-tag: test-shared-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: build-cpp-tests-shared-ios-arm64-debug
+          build-type: debug
+          build-sim: false
+          ios-tests-group: SharedLibs
+          test-tag: test-shared-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      - build-test-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: build-cpp-tests-shared-ios-arm64-release
+          build-type: release
+          build-sim: false
+          ios-tests-group: SharedLibs
+          test-tag: test-shared-ios
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+          requires:
+            - generate-test-list
+      #test cpp shared
+      - test-locally-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: test-cpp-shared-ios-x86_64-debug
+          test-tag: test-shared-ios
+          build-type: debug
+          ios-tests-group: SharedLibs
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-cpp-tests-shared-ios-x86_64-debug
+      - test-device-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: test-cpp-shared-ios-arm64-debug
+          test-tag: test-shared-ios
+          build-type: debug
+          ios-tests-group: SharedLibs
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-cpp-tests-shared-ios-arm64-debug
+      - test-locally-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: test-cpp-shared-ios-x86_64-release
+          test-tag: test-shared-ios
+          build-type: release
+          ios-tests-group: SharedLibs
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-cpp-tests-shared-ios-x86_64-release
+      - test-device-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: test-cpp-shared-ios-arm64-release
+          test-tag: test-shared-ios
+          build-type: release
+          ios-tests-group: SharedLibs
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-cpp-tests-shared-ios-arm64-release
+      #test cpp sync
+      - test-locally-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: test-cpp-sync-ios-x86_64-debug
+          test-tag: test-sync-ios
+          build-type: debug
+          ios-tests-group: SyncLib
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-cpp-tests-sync-ios-x86_64-debug
+      - test-device-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: test-cpp-sync-ios-arm64-debug
+          test-tag: test-sync-ios
+          build-type: debug
+          ios-tests-group: SyncLib
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-cpp-tests-sync-ios-arm64-debug
+      - test-locally-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: test-cpp-sync-ios-x86_64-release
+          test-tag: test-sync-ios
+          build-type: release
+          ios-tests-group: SyncLib
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-cpp-tests-sync-ios-x86_64-release
+      - test-device-ios:
+          <<: *any-branch-or-convo-or-sync-ios-rc-tag-filter
+          name: test-cpp-sync-ios-arm64-release
+          test-tag: test-sync-ios
+          build-type: release
+          ios-tests-group: SyncLib
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-cpp-tests-sync-ios-arm64-release
+      #test cpp convo
+      - test-locally-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: test-cpp-convo-ios-x86_64-debug
+          test-tag: test-convo-ios
+          build-type: debug
+          ios-tests-group: ConvoLib
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-cpp-tests-convo-ios-x86_64-debug
+      - test-device-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: test-cpp-convo-ios-arm64-debug
+          test-tag: test-convo-ios
+          build-type: debug
+          ios-tests-group: ConvoLib
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-cpp-tests-convo-ios-arm64-debug
+      - test-locally-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: test-cpp-convo-ios-x86_64-release
+          test-tag: test-convo-ios
+          build-type: release
+          ios-tests-group: ConvoLib
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-cpp-tests-convo-ios-x86_64-release
+      - test-device-ios:
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          name: test-cpp-convo-ios-arm64-release
+          test-tag: test-convo-ios
+          build-type: release
+          ios-tests-group: ConvoLib
+          context:
+            - rtd-ci-testing
+            - rtd-ci-tokens
+          requires:
+            - build-cpp-tests-convo-ios-arm64-release
+
+      - wait-tests-passed-ios: # this job is `required` for github PRs
+          <<: *any-branch-or-convo-ios-rc-tag-filter
+          requires:
+            - build-twilsock-framework-ios
+            - test-twilsock-lib-ios-x86_64
+            # - test-twilsock-lib-mac-catalyst-x86_64
+            - test-sdk-sync-ios-arm64
+            - test-sdk-sync-ios-x86_64
+            # - test-sdk-sync-mac-catalyst-x86_64
+            - test-cpp-shared-ios-x86_64-debug
+            - test-cpp-shared-ios-x86_64-release
+            - test-cpp-shared-ios-arm64-debug
+            - test-cpp-shared-ios-arm64-release
+            - test-cpp-sync-ios-x86_64-debug
+            - test-cpp-sync-ios-x86_64-release
+            - test-cpp-sync-ios-arm64-debug
+            - test-cpp-sync-ios-arm64-release
+            - test-twilsock-lib-ios-x86_64
+            # - test-twilsock-lib-mac-catalyst-x86_64
+            - coverage-sync-sdk-ios
+            - build-sdk-sync-ios
+            - test-sdk-convo-ios-tests-arm64
+            - test-sdk-convo-ios-tests-x86_64
+            # - test-sdk-convo-mac-catalyst-tests-x86_64
+            - build-sdk-convo-ios
+            - test-cpp-shared-ios-x86_64-debug
+            - test-cpp-shared-ios-x86_64-release
+            - test-cpp-shared-ios-arm64-debug
+            - test-cpp-shared-ios-arm64-release
+            - test-cpp-sync-ios-x86_64-debug
+            - test-cpp-sync-ios-x86_64-release
+            - test-cpp-sync-ios-arm64-debug
+            - test-cpp-sync-ios-arm64-release
+            - test-cpp-convo-ios-x86_64-debug
+            - test-cpp-convo-ios-x86_64-release
+            - test-cpp-convo-ios-arm64-debug
+            - test-cpp-convo-ios-arm64-release
+            - coverage-convo-sdk-ios
+            - test-twilsock-lib-ios-x86_64
+            # - test-twilsock-lib-mac-catalyst-x86_64
+            # Uncomment when FTL will be able to run tests for packages on devices
+            # - test-twilsock-lib-ios-arm64
+
+  #=========================================================================
+  # Workflows: Promote Convo, Sync & Twilsock iOS
+  #=========================================================================
+
+  promote-to-release-ios:
+    jobs:
+      # Promote, pin, upload to gh are a single step now:
+      - distribute-sdk-ios:
+          <<: *release-sync-ios-tag-filter
+          name: promote-release-sync-ios
+          upload-type: prod
+          context:
+            - rtd-github-api
+            - rtd-sdk-slack-secrets
+      # - bump-project-ios:
+      #     <<: *release-sync-ios-tag-filter
+      #     name: bump-sync-version-ios
+      #     context:
+      #       - rtd-github-api
+      #       - rtd-sdk-slack-secrets
+      #     sdk-type: sync
+      #     requires:
+      #       - pin-release-sync-ios
+
+      - distribute-sdk-ios:
+          <<: *release-convo-ios-tag-filter
+          name: promote-release-convo-ios
+          upload-type: prod
+          context:
+            - rtd-github-api
+            - rtd-sdk-slack-secrets
+      # - bump-project-ios:
+      #     <<: *release-convo-ios-tag-filter
+      #     name: bump-convo-version-ios
+      #     context: rtd-github-api
+      #     sdk-type: convo
+      #     requires:
+      #       - pin-release-convo-ios
+
+      - distribute-sdk-ios:
+          <<: *release-twilsock-ios-tag-filter
+          name: promote-release-twilsock-ios
+          upload-type: prod
+          context:
+            - rtd-github-api
+            - rtd-sdk-slack-secrets
+
+      - trigger-smoke-tests:
+          <<: *release-ios-tag-filter
+          context: rtd-circleci-api
+          requires:
+            - promote-release-twilsock-ios
+            - promote-release-sync-ios
+            - promote-release-convo-ios
+
+  #=========================================================================
+  # Workflows: Auto-merge release branch into develop
+  #=========================================================================
+
+  merge-release-to-develop:
+    jobs:
+      - git-merge-release-to-develop:
+          <<: *release-branch-filter
+          context: rtd-github-api
