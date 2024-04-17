@@ -6,7 +6,7 @@ set -x
 MONOREPO_DIR=`git rev-parse --show-toplevel`
 OUTPUT_DIR="output"
 
-cd "$MONOREPO_DIR/root-projects/ios/TwilioSync"
+cd "$MONOREPO_DIR/ios/TwilioSync"
 rm -rf "$OUTPUT_DIR"
 
 xcodebuild archive \
