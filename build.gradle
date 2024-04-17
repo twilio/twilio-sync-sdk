@@ -11,6 +11,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
         classpath "com.squareup.sqldelight:gradle-plugin:$sqldelightVersion"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
+        classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$binaryCompatibilityValidatorVersion"
     }
 }
 
@@ -21,6 +22,7 @@ plugins {
 }
 
 apply plugin: "signing"
+apply from: "${project(":utils").projectDir}/binary-compatibility-validator.gradle"
 apply from: "${project(":utils").projectDir}/prepare-version-names.gradle"
 apply from: "./need-publish-module.gradle"
 apply from: "./prepare-pom-xml.gradle"

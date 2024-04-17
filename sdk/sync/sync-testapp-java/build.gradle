@@ -14,7 +14,6 @@ buildscript {
 android {
     namespace "com.twilio.sync.testapp"
     compileSdk androidCompileSdkVersion
-    ndkVersion androidNdkVersion
 
     defaultConfig {
         applicationId "com.twilio.sync.testapp"

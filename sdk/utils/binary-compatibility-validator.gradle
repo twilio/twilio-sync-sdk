@@ -7,7 +7,6 @@ apiValidation {
     /**
      * Sub-projects that are excluded from API validation
      */
-    findProject("testapp")?.with { ignoredProjects += "testapp" }
-    findProject("demo")?.with { ignoredProjects += "demo" }
+    findProject("sync-testapp-java")?.with { ignoredProjects += "sync-testapp-java" }
     findProject("shared-test")?.with { ignoredProjects += "shared-test" }
 }
