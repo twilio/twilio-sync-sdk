@@ -1075,18 +1075,23 @@ jobs:
           dir: sdk/sync/sync-android-java/build
       - clean_build_outputs:
           dir: sdk/sync/sync-android-shared/build
+      - clean_build_outputs:
+          dir: sdk/sync/sync-testapp-java/build
       - persist_to_workspace:
           root: .
           paths:
             - sdk/sync/sync-android-kt/build/*
             - sdk/sync/sync-android-java/build/*
             - sdk/sync/sync-android-shared/build/*
+            - sdk/sync/sync-testapp-java/build/*
       - store_artifacts:
           path: *android_native_sync_sdk_output
       - store_artifacts:
           path: *android_native_sync_java_sdk_output
       - store_artifacts:
           path: *android_native_sync_shared_sdk_output
+      - store_artifacts:
+          path: *android_sync_sdk_tests_output
       - print_sha256:
           source-dir: *android_native_sync_sdk_output
           input-file: aar/*
@@ -1360,6 +1365,7 @@ workflows:
           context: rtd-ci-testing
           requires:
             - build-shared-internal-android
+            - build-native-sync-sdk-android # for testapp.apk
       - build-native-sync-sdk-android:
           <<: *any-branch-or-sync-android-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
