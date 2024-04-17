@@ -8,8 +8,8 @@
 // instead of building new ones from the same sources.
 //
 // When plugin is successfully applied you can see in the gradle output skipped tasks, like:
-// > Task :convo-android:bundleReleaseAar SKIPPED
-// > Task :generateMetadataFileForConvoReleasePublication
+// > Task :sync-android-kt:bundleReleaseAar SKIPPED
+// > Task :generateMetadataFileForNativeSyncReleasePublication
 
 
 gradle.taskGraph.whenReady {

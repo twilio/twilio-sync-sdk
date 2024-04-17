@@ -27,7 +27,7 @@ apply from: "${project(":utils").projectDir}/prepare-version-names.gradle"
 apply from: "./need-publish-module.gradle"
 apply from: "./prepare-pom-xml.gradle"
 apply from: "./dependency-constraints.gradle"
-apply from: "./disable-metadata-subtasks.gradle"
+//apply from: "./disable-metadata-subtasks.gradle" // TODO: cannot just unconditionally disable anymore. Add flag for that?
 
 nexusPublishing {
     repositories {
