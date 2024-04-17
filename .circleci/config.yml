@@ -963,7 +963,7 @@ jobs:
       - run: 
           name: Run kotlin twilsock ios tests on iOS Simulator
           command: |
-            ./BuildScripts/run-tests-kotlin-ios.rb sdk/android/twilsock/build/bin/iosSimulatorArm64/debugTest/test.kexe
+            ./BuildScripts/run-tests-kotlin-ios.rb sdk/twilsock/build/bin/iosSimulatorArm64/debugTest/test.kexe
 
   build-testables-twilsock-kotlin-ios:
     executor: macos-kotlin-ios-executor-x86
@@ -1219,7 +1219,7 @@ jobs:
       - run: 
           name: Run kotlin native-sync lib ios tests on iOS Simulator
           command: |
-            ./BuildScripts/run-tests-kotlin-ios.rb sdk/android/sync-android-kt/build/bin/iosSimulatorArm64/debugTest/test.kexe
+            ./BuildScripts/run-tests-kotlin-ios.rb sdk/sync/sync-android-kt/build/bin/iosSimulatorArm64/debugTest/test.kexe
 
   build-sync-docs-android:
     executor: linux-android-executor
