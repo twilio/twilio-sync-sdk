@@ -42,8 +42,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 const val IDENTITY = "TwilsockTest"
-const val ACTIVE_GRANT = "ip_messaging"
-const val PRODUCT_ID = "ip_messaging"
+const val ACTIVE_GRANT = "data_sync"
+const val PRODUCT_ID = "data_sync"
 
 open class TwilsockTest {
 
