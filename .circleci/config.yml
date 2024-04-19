@@ -911,7 +911,7 @@ jobs:
       - run:
           name: Run shared-internal android tests in Firebase Test Lab
           command: |
-            TESTAPP="$SYNC_TESTAPP_DIR/build/outputs/apk/release/testapp-release.apk"
+            TESTAPP="$SYNC_TESTAPP_DIR/build/outputs/apk/release/sync-testapp-java-release.apk"
             SHARDS_COUNT=1 # shared-internal don't have enough tests to fill default 5 shards.
 
             ./BuildScripts/run-sdk-android-tests-in-gcloud.sh \
@@ -939,7 +939,7 @@ jobs:
       - run:
           name: Run twilsock android tests in Firebase Test Lab
           command: |
-            TESTAPP="$SYNC_TESTAPP_DIR/build/outputs/apk/release/testapp-release.apk"
+            TESTAPP="$SYNC_TESTAPP_DIR/build/outputs/apk/release/sync-testapp-java-release.apk"
             ./BuildScripts/run-sdk-android-tests-in-gcloud.sh \
                 "$TESTAPP" \
                 sdk/twilsock/build/outputs/apk/androidTest/release/twilsock-release-androidTest.apk \
@@ -1156,7 +1156,7 @@ jobs:
       - run:
           name: Run native-sync-sdk android tests in Firebase Test Lab
           command: |
-            TESTAPP="$SYNC_TESTAPP_DIR/build/outputs/apk/release/testapp-release.apk"
+            TESTAPP="$SYNC_TESTAPP_DIR/build/outputs/apk/release/sync-testapp-java-release.apk"
             ./BuildScripts/run-sdk-android-tests-in-gcloud.sh \
                 "$TESTAPP" \
                 sdk/sync/sync-android-kt/build/outputs/apk/androidTest/release/sync-android-kt-release-androidTest.apk \
@@ -1355,6 +1355,7 @@ workflows:
           context: rtd-ci-testing
           requires:
             - build-twilsock-android
+            - build-native-sync-sdk-android # for testapp.apk
       - test-twilsock-kotlin-ios:
           <<: *any-branch-or-android-rc-tag-filter
           context: rtd-ci-testing
