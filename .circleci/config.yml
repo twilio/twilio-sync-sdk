@@ -406,7 +406,7 @@ commands:
         default: *build_output
     steps:
       - run:
-          name: Clean build outputs
+          name: "Clean build outputs: << parameters.dir >>"
           command: |
             source ~/.bashrc
             rm -rf << parameters.dir >>/tmp
@@ -720,7 +720,7 @@ commands:
       <<: *input-file-parameter
     steps:
       - run: 
-          name: "Printing SHA256"
+          name: "Printing SHA256: << parameters.source-dir >>"
           command: shasum -a 256 << parameters.input-file >>
           working_directory: << parameters.source-dir >>
 
@@ -1058,6 +1058,8 @@ jobs:
       - attach_workspace:
           at: *workspace
       - restore_gradle_cache
+      - apply_signing_config:
+          testapp-dir: *android_sync_testapp_dir
       - run_gradle_target:
           gradle-project-dir: *android_sync_root_project_dir
           gradle-target: sync-android-kt:assembleRelease sync-android-java:assembleRelease sync-android-shared:assembleRelease sync-testapp-java:assembleRelease sync-android-kt:assembleAndroidTest sync-testapp-java:assembleAndroidTest
