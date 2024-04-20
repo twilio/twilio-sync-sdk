@@ -13,7 +13,7 @@ TEST_ARCHIVE=$1
 RESULTS_DIR=$2
 ARTIFACTS_DIR=$3
 
-DEVICE="model=iphone13pro,version=15.2"
+DEVICE="model=iphone13pro"
 LOG_FILE="$RESULTS_DIR/gcloud_output.txt"
 
 rm -rf "$RESULTS_DIR"
