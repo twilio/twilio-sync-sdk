@@ -862,8 +862,8 @@ jobs:
           name: Run androidTest in Firebase Test Lab
           command: |
             ./BuildScripts/run-sdk-android-tests-in-gcloud.sh \
-                << parameters.testapp-dir >>/build/outputs/apk/<< parameters.sdk-test-type >>/testapp-<< parameters.sdk-test-type >>.apk \
-                << parameters.testapp-dir >>/build/outputs/apk/androidTest/<< parameters.sdk-test-type >>/testapp-<< parameters.sdk-test-type >>-androidTest.apk \
+                << parameters.testapp-dir >>/build/outputs/apk/<< parameters.sdk-test-type >>/sync-testapp-java-<< parameters.sdk-test-type >>.apk \
+                << parameters.testapp-dir >>/build/outputs/apk/androidTest/<< parameters.sdk-test-type >>/sync-testapp-java-<< parameters.sdk-test-type >>-androidTest.apk \
                 -<< parameters.sdk-test-type >> \
       - store_artifacts:
           name: Uploading FTL tests artifacts
@@ -1383,6 +1383,14 @@ workflows:
           requires:
             - prepare-android-environment
             - prepare-dependencies-android
+      - test-sdk-android:
+          <<: *any-branch-or-sync-android-rc-tag-filter
+          name: test-native-sync-sdk-android-java
+          testapp-dir: *android_sync_testapp_dir
+          sdk-test-type: release
+          context: rtd-ci-testing
+          requires:
+            - build-native-sync-sdk-android
       - test-native-sync-sdk-android:
           <<: *any-branch-or-sync-android-rc-tag-filter
           context: rtd-ci-testing
@@ -1419,6 +1427,7 @@ workflows:
             - test-twilsock-kotlin-ios
             - test-shared-internal-android
             - test-native-sync-sdk-android
+            - test-native-sync-sdk-android-java
             - test-native-sync-sdk-kotlin-ios
             - test-native-sync-lib-kotlin-ios
             - build-sync-docs-android
