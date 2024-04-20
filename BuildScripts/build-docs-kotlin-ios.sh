@@ -14,7 +14,7 @@ HOSTING_BASE_PATH=$2
 
 MONOREPO_DIR=`git rev-parse --show-toplevel`
 
-cd "$MONOREPO_DIR/root-projects/ios/$PROJECT_NAME"
+cd "$MONOREPO_DIR/ios/$PROJECT_NAME"
 
 xcodebuild docbuild -scheme $PROJECT_NAME \
    -destination "generic/platform=iOS" \

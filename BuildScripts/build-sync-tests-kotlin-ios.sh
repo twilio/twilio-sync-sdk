@@ -4,16 +4,15 @@ set -e
 set -x
 
 MONOREPO_DIR=`git rev-parse --show-toplevel`
-IOS_SCRIPTS_DIR="$MONOREPO_DIR/sdk/ios/Scripts"
+IOS_PROVISION_PROFILE="a6ad9352-2b60-48ca-9cb2-76cc2d5e0002"
 FOLDER_WITH_TEST_OUTPUT="DerivedData"
 
-cd "$MONOREPO_DIR/root-projects/ios/TwilioSync"
+cd "$MONOREPO_DIR/ios/TwilioSync"
 rm -rf "$FOLDER_WITH_TEST_OUTPUT"
 
 # Set manual signing only for TestHost target
 if [ ! -z "$CIRCLECI" ]; then
-    source "$IOS_SCRIPTS_DIR/env-common.sh"
-    $IOS_SCRIPTS_DIR/set-manual-signing.rb "TestHost" $IOS_PROVISION_PROFILE TwilioSync.xcodeproj
+    $MONOREPO_DIR/BuildScripts/set-manual-signing.rb "TestHost" $IOS_PROVISION_PROFILE TwilioSync.xcodeproj
 fi
 
 $MONOREPO_DIR/BuildScripts/generate-test-constants-kotlin-ios.sh
