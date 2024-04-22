@@ -804,6 +804,9 @@ jobs:
       - checkout
       - attach_workspace:
           at: *workspace
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:phNm6Lf1PJvwJmDzzP2atd84yiDL/jvh+lquogInhrc"
       - install_ios_certificates
       - gem_install_xcodeproj
       - restore_cache_kmm_ios
