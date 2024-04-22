@@ -230,18 +230,6 @@ commands:
           name: Decode Google Cloud key.json
           command: echo "$GCLOUD_SETTINGS" | base64 --decode > rtd-shared-lib-a27041a3fda9.json
       - run:
-          name: Install gcloud if necessary
-          command: |
-            which gcloud >/dev/null 2>&1 && exit 0
-
-            # See: https://cloud.google.com/sdk/docs/install#linux
-            curl -O --output-dir ~/ https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-472.0.0-linux-x86_64.tar.gz
-            tar -xf ~/google-cloud-cli-472.0.0-linux-x86_64.tar.gz -C ~/
-            ~/google-cloud-sdk/install.sh --path-update true --quiet
-            ln -s ~/google-cloud-sdk/bin/gcloud ~/bin/gcloud
-            ln -s ~/google-cloud-sdk/bin/gsutil ~/bin/gsutil
-            gcloud components install beta --quiet
-      - run:
           name: Set Google Cloud target project
           command: |
             source ~/.bashrc
