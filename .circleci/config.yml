@@ -22,6 +22,8 @@ aliases:
     sdk/shared/shared-public/build/libs
   - &android_shared_internal_output
     sdk/shared/shared-internal/build/outputs
+  - &android_shared_internal_sources_jar
+    sdk/shared/shared-internal/build/libs
   - &android_native_sync_sdk_output
     sdk/sync/sync-android-kt/build/outputs
   - &android_native_sync_java_sdk_output
@@ -52,32 +54,6 @@ aliases:
   # Aliases: Parameters
   #============================================================================
 
-  - platform-parameter: &platform-parameter
-      platform:
-        description: "Platform to build"
-        type: enum
-        enum: ["android", "ios"]
-  - product-parameter: &product-parameter
-      product:
-        description: "Product to build"
-        type: enum
-        enum: ["convo", "sync",  "TwilsockLib", "cpp-tests-convo"]
-  - build-type-parameter: &build-type-parameter
-      build-type:
-        description: "Build type to build"
-        type: enum
-        enum: ["release", "debug"]
-  - build-arch-parameter: &build-arch-parameter
-      build-arch:
-        description: "Build architecture to build"
-        type: enum
-        enum: ["all", "x86_64", "x86", "armeabi-v7a", "arm64-v8a", "i386", "armv7", "arm64"]
-        default: "all"
-  - cpp-test-name-parameter: &cpp-test-name-parameter
-      cpp-test-name:
-        description: "Cpp-lib name to test"
-        type: enum
-        enum: ["MsgConversationsLib", "RtdSharedLib", "RtdSyncLib"]
   - source-dir-parameter: &source-dir-parameter
       source-dir:
         description: "SDK source directory"
@@ -86,11 +62,6 @@ aliases:
       dest-dir:
         description: "destination directory"
         type: string
-  - sdk-build-type-parameter: &sdk-build-type-parameter
-      sdk-build-type:
-        description: "Sdk build type"
-        type: enum
-        enum: ["Release", "Debug", "ReleaseWithSymbols"]
   - sdk-test-type-parameter: &sdk-test-type-parameter
       sdk-test-type:
         description: "Test type to run"
@@ -104,25 +75,11 @@ aliases:
       token-service-url:
         description: "Access token service url"
         type: string
-  - test-media-service-url-parameter: &test-media-service-url-parameter
-      test-media-service-url:
-        description: "Test media service url"
-        type: string
-        default: ""
-  - test-media-set-service-url-parameter: &test-media-set-service-url-parameter
-      test-media-set-service-url:
-        description: "Test media service url"
-        type: string
-        default: ""
   - test-twilsock-service-url-parameter: &test-twilsock-service-url-parameter
       test-twilsock-service-url:
         description: "Test twilsock service url"
         type: string
         default: ""
-  - sms-proxy-number-parameter: &sms-proxy-number-parameter
-      sms-proxy-number:
-        description: "Conversations sms proxy number"
-        type: string
   - gradle-project-dir-parameter: &gradle-project-dir-parameter
       gradle-project-dir:
         description: "Gradle project directory"
@@ -140,194 +97,50 @@ aliases:
       input-file:
         description: "Input file"
         type: string
-  - ios-build-sim-parameter: &ios-build-sim-parameter
-      build-sim:
-        description: "Build simulator target"
-        type: boolean
-        default: false
-  - ios-mac-catalyst-parameter: &ios-mac-catalyst-parameter
-      mac-catalyst:
-        description: "Use Mac Catalyst as target"
-        type: boolean
-        default: false
-  - sdk-type-parameter: &sdk-type-parameter
-      sdk-type:
-        description: "SDK Type"
-        type: enum
-        enum: ["sync", "convo",  "TwilsockLib"]
-  - ios-tests-group-parameter: &ios-tests-group-parameter
-      ios-tests-group:
-        description: "iOS tests group"
-        type: enum
-        enum: ["SyncLib", "ConvoLib", "SharedLibs", "TwilsockLib", "sync", "convo", "Convo"]
   - upload-type-parameter: &upload-type-parameter
       upload-type:
         description: "Upload type"
         type: enum
         enum: ["stage", "prod"]
-  - pre-persist-steps-parameter: &pre-persist-steps-parameter
-      pre-persist-steps:
-        description: "Steps that will be executed before persisting workspace"
-        type: steps
-        default: []
-  - steps-to-run-parameter: &steps-to-run-parameter
-        steps-to-run:
-          description: "Steps that will be executed"
-          type: steps
-          default: []
 
   #============================================================================
   # Aliases: Tag & Branch Filters
   #============================================================================
 
-  - any-branch-or-android-rc-tag-filter: &any-branch-or-android-rc-tag-filter
+  - any-branch-or-rc-tag-filter: &any-branch-or-rc-tag-filter
       filters:
         tags:
           only:
-            - /^release-(convo|sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
-            - /^release-convo-android-\d+\.\d+\.\d+-rc\d+-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
-            - /^release-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+-convo-android-\d+\.\d+\.\d+-rc\d+$/
-            - /^release-(convo|sync)-kotlin-ios-\d+\.\d+\.\d+-rc\d+$/
-  - any-branch-or-convo-android-rc-tag-filter: &any-branch-or-convo-android-rc-tag-filter
-      filters:
-        tags:
-          only: 
-            - /^release-convo-android-\d+\.\d+\.\d+-rc\d+$/
-            - /^release-convo-android-\d+\.\d+\.\d+-rc\d+-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
-            - /^release-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+-convo-android-\d+\.\d+\.\d+-rc\d+$/
-  - any-branch-or-sync-android-rc-tag-filter: &any-branch-or-sync-android-rc-tag-filter
-      filters:
-        tags:
-          only: 
-            - /^release-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
-            - /^release-convo-android-\d+\.\d+\.\d+-rc\d+-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
-            - /^release-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+-convo-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-native-sync-android-\d+\.\d+\.\d+-rc\d+$/
             - /^release-sync-kotlin-ios-\d+\.\d+\.\d+-rc\d+$/
   - android-rc-tag-filter: &android-rc-tag-filter
       filters:
         tags:
           only: 
-            - /^release-(convo|sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
-            - /^release-convo-android-\d+\.\d+\.\d+-rc\d+-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+$/
-            - /^release-(sync|native-sync)-android-\d+\.\d+\.\d+-rc\d+-convo-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-native-sync-android-\d+\.\d+\.\d+-rc\d+$/
         branches:
           ignore: /.*/
   - release-android-tag-filter: &release-android-tag-filter
       filters:
         tags:
-          only: #native-sync RC is uploaded to sonatype with same artifact names as old c++ sync. 
-                #So just use regular sync tags to promote it to release
-            - /^release-(convo|sync)-android-\d+\.\d+\.\d+$/
-            - /^release-convo-android-\d+\.\d+\.\d+-sync-android-\d+\.\d+\.\d+$/
-            - /^release-sync-android-\d+\.\d+\.\d+-convo-android-\d+\.\d+\.\d+$/
+          only: 
+            - /^release-sync-android-\d+\.\d+\.\d+$/
         branches:
           ignore: /.*/
   - kotlin-ios-rc-tag-filter: &kotlin-ios-rc-tag-filter
       filters:
         tags:
           only: 
-            - /^release-(convo|sync)-kotlin-ios-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-sync-kotlin-ios-\d+\.\d+\.\d+-rc\d+$/
         branches:
           ignore: /.*/
   - release-kotlin-ios-tag-filter: &release-kotlin-ios-tag-filter
       filters:
         tags:
           only:
-            - /^release-(convo|sync)-kotlin-ios-\d+\.\d+\.\d+$/
+            - /^release-sync-kotlin-ios-\d+\.\d+\.\d+$/
         branches:
           ignore: /.*/
-  - any-branch-or-ios-rc-tag-filter: &any-branch-or-ios-rc-tag-filter
-      filters:
-        tags:
-          only:
-            - /^release-(sync|convo|twilsock)-ios-\d+\.\d+\.\d+-rc\d+$/
-  - ios-rc-tag-filter: &ios-rc-tag-filter
-      filters:
-        tags:
-          only:
-            - /^release-(sync|convo|twilsock)-ios-\d+\.\d+\.\d+-rc\d+$/
-        branches:
-          ignore: /.*/
-  - any-branch-or-sync-ios-rc-tag-filter: &any-branch-or-sync-ios-rc-tag-filter
-      filters:
-        tags:
-          only:
-            - /^release-sync-ios-\d+\.\d+\.\d+-rc\d+$/
-  - ios-convo-or-sync-rc-tag-filter: &ios-convo-or-sync-rc-tag-filter
-      filters:
-        tags:
-          only:
-            - /^release-(convo|sync)-ios-\d+\.\d+\.\d+-rc\d+$/
-        branches:
-          ignore: /.*/
-  - any-branch-or-convo-or-sync-ios-rc-tag-filter: &any-branch-or-convo-or-sync-ios-rc-tag-filter
-      filters:
-        tags:
-          only:
-            - /^release-(convo|sync)-ios-\d+\.\d+\.\d+-rc\d+$/
-  - any-branch-or-convo-ios-rc-tag-filter: &any-branch-or-convo-ios-rc-tag-filter
-      filters:
-        tags:
-          only:
-            - /^release-convo-ios-\d+\.\d+\.\d+-rc\d+$/
-  - any-branch-or-twilsock-ios-rc-tag-filter: &any-branch-or-twilsock-ios-rc-tag-filter
-      filters:
-        tags:
-          only:
-            - /^release-twilsock-ios-\d+\.\d+\.\d+-rc\d+$/
-  - ios-sync-rc-tag-filter: &ios-sync-rc-tag-filter
-      filters:
-        tags:
-          only:
-            - /^release-sync-ios-\d+\.\d+\.\d+-rc\d+$/
-        branches:
-          ignore: /.*/
-  - ios-convo-rc-tag-filter: &ios-convo-rc-tag-filter
-      filters:
-        tags:
-          only:
-            - /^release-convo-ios-\d+\.\d+\.\d+-rc\d+$/
-        branches:
-          ignore: /.*/
-  - ios-twilsock-rc-tag-filter: &ios-twilsock-rc-tag-filter
-      filters:
-        tags:
-          only:
-            - /^release-twilsock-ios-\d+\.\d+\.\d+-rc\d+$/
-        branches:
-          ignore: /.*/
-  - release-ios-tag-filter: &release-ios-tag-filter
-      filters:
-        tags:
-          only: /^release-(sync|convo|twilsock)-ios-\d+\.\d+\.\d+$/
-        branches:
-          ignore: /.*/
-  - release-sync-ios-tag-filter: &release-sync-ios-tag-filter
-      filters:
-        tags:
-          only: /^release-sync-ios-\d+\.\d+\.\d+$/
-        branches:
-          ignore: /.*/
-  - release-convo-ios-tag-filter: &release-convo-ios-tag-filter
-      filters:
-        tags:
-          only: /^release-convo-ios-\d+\.\d+\.\d+$/
-        branches:
-          ignore: /.*/
-  - release-twilsock-ios-tag-filter: &release-twilsock-ios-tag-filter
-      filters:
-        tags:
-          only: /^release-twilsock-ios-\d+\.\d+\.\d+$/
-        branches:
-          ignore: /.*/
-
-  - release-branch-filter: &release-branch-filter
-      filters:
-        tags:
-          ignore: /.*/
-        branches:
-          only:
-            - /^release\/.*$/
 
 #============================================================================
 # Executors
@@ -342,8 +155,6 @@ executors:
            password: $DOCKER_HUB_PASSWORD
     resource_class: xlarge
     working_directory: *workspace
-    environment:
-      CMAKE_BUILD_PARALLEL_LEVEL: 2
   linux-generic-executor:
     docker:
       - image: cimg/base:2023.04
@@ -364,12 +175,6 @@ executors:
       # (on m1 executor deviceId is different than specified in the doc above (the doc is for x86_64). 
       # Run `xcrun simctl list` on a circleci node to get full device ids list)
       IOS_SIMULATOR_DEVICE_ID: A2CD73C7-D03C-47CA-858B-94C0D2A9475A
-
-  macos-ios-executor:
-    macos:
-      xcode: "14.3.1" # TODO: on change check `install_ios_certificates` step and remove fastlane downgrade if needed
-    resource_class: macos.x86.medium.gen2
-    working_directory: *workspace
   small-linux-android-executor:
     docker:
       - image: cibuilderbot/docker-circleci-linux-android
@@ -383,13 +188,6 @@ executors:
       - image: cimg/android:2023.11.1
     resource_class: small
     working_directory: *workspace
-  android-with-emulator-executor:
-    machine:
-      image: android:2023.10.1
-      resource_class: large
-    working_directory: *workspace
-    environment:
-      SYNC_ROOT: *android_sync_root_project_dir
 
 commands:
 
@@ -411,14 +209,6 @@ commands:
             source ~/.bashrc
             rm -rf << parameters.dir >>/tmp
             ./BuildScripts/clean-build-outputs.sh << parameters.dir >>
-
-  brew_update:
-    description: "Update Homebrew"
-    steps:
-      - run:
-          name: "Update Homebrew"
-          command: |
-            HOMEBREW_NO_ANALYTICS=1 brew update
 
   # This step is still used in one place - in Android release.
   prepare_release_tool:
@@ -507,47 +297,6 @@ commands:
   # Commands: iOS
   #============================================================================
 
-  brew_prepare_build_cpp:
-    description: "Prepare environment for MacOS and iOS builds (cache enabled)"
-    steps:
-      - brew_update
-      - run:
-          name: "Install CMake, Go through Homebrew"
-          command: |
-            HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake go
-
-  brew_install_xcresultparser:
-    steps:
-      - run:
-          name: Install xcresultparser to generate HTML coverage report by *.xcresult
-          command: |
-            brew tap a7ex/homebrew-formulae
-            brew install xcresultparser
-
-  brew_install_xchtmlreport:
-    steps:
-      - run:
-          name: Install XCTestHtmlReport
-          command: brew install XCTestHtmlReport/xchtmlreport/xchtmlreport
-
-  linux_install_gh:
-    steps:
-      - run:
-          name: Install gh
-          command: which gh >/dev/null || ( sudo apt update; sudo apt install -y gh; )
-
-  linux_install_jq:
-    steps:
-      - run:
-          name: Install jq
-          command: which jq >/dev/null || ( sudo apt update; sudo apt install -y jq; )
-
-  linux_install_rsync:
-    steps:
-      - run:
-          name: Install rsync
-          command: which rsync >/dev/null || ( sudo apt update; sudo apt install -y rsync; )
-
   gem_install_xcodeproj:
     steps:
       - run:
@@ -559,8 +308,6 @@ commands:
 
   install_ios_certificates:
     description: "Install certificates"
-    parameters:
-      <<: *ios-mac-catalyst-parameter
     steps:
       - run: # recommendation from CircleCI to get rid of certificates installations problems
           name: Set fastlane version to 2.210.1
@@ -570,8 +317,6 @@ commands:
       - run:
           name: Install certificates
           command: ./BuildScripts/install-ios-certificates.sh
-          environment:
-            MAC_CATALYST: <<# parameters.mac-catalyst >>1<</ parameters.mac-catalyst >>
 
   distribute_sdk_ios:
     description: Distribute << parameters.sdk-type >> iOS SDK to << parameters.upload-type >>
@@ -629,22 +374,6 @@ commands:
           command: |
               echo ACCESS_TOKEN_SERVICE_URL=<< parameters.token-service-url >> >> gradle.properties
               echo TEST_TWILSOCK_SERVICE_URL=<< parameters.test-twilsock-service-url >> >> gradle.properties
-          working_directory: << parameters.gradle-project-dir >>
-      - persist_to_workspace:
-          root: .
-          paths:
-            - << parameters.gradle-project-dir >>/gradle.properties
-
-  prepare-sms-proxy-number-android:
-    description: "Setup SMS_PROXY_NUMBER"
-    parameters:
-      <<: *gradle-project-dir-parameter
-      <<: *sms-proxy-number-parameter
-    steps:
-      - run:
-          name: "Setup SMS_PROXY_NUMBER: << parameters.gradle-project-dir >>"
-          command: |
-              echo SMS_PROXY_NUMBER=<< parameters.sms-proxy-number >> >> gradle.properties
           working_directory: << parameters.gradle-project-dir >>
       - persist_to_workspace:
           root: .
@@ -1007,6 +736,8 @@ jobs:
             - sdk/shared/shared-internal/build/*
       - store_artifacts:
           path: *android_shared_internal_output
+      - store_artifacts:
+          path: *android_shared_internal_sources_jar
       - print_sha256:
           source-dir: *android_shared_internal_output
           input-file: aar/*
@@ -1037,14 +768,12 @@ jobs:
           input-file: aar/*
 
   wait-tests-passed-android:
-    executor: macos-ios-executor
-    description: "All << parameters.product >> tests passed"
-    parameters:
-      <<: *product-parameter
+    executor: macos-kotlin-ios-executor-x86
+    description: "All tests passed"
     steps:
       - run:
-          name: All << parameters.product >> tests passed
-          command: echo "All << parameters.product >> tests passed"
+          name: All tests passed
+          command: echo "All tests passed"
 
   build-native-sync-sdk-android:
     executor: linux-android-executor
@@ -1294,7 +1023,7 @@ jobs:
   #================================================================
 
   distribute-sdk-ios:
-    executor: macos-ios-executor # doc generation requires macOS executor
+    executor: macos-kotlin-ios-executor-x86 # doc generation requires macOS executor
     parameters:
       <<: *upload-type-parameter
     steps:
@@ -1318,63 +1047,63 @@ workflows:
   android:
     jobs:
       - prepare-dependencies-android:
-          <<: *any-branch-or-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context:
             - rtd-ci-tokens
             - rtd-ci-test-instance-config
             - rtd-ci-build-publish-snapshot
             - rtd-android-chat-demo-app-release
       - build-shared-internal-android:
-          <<: *any-branch-or-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies-android
       - build-shared-public-android:
-          <<: *any-branch-or-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies-android
       - build-twilsock-android:
-          <<: *any-branch-or-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies-android
       - build-testables-twilsock-kotlin-ios:
-          <<: *any-branch-or-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies-android
       - test-twilsock-android:
-          <<: *any-branch-or-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-twilsock-android
             - build-native-sync-sdk-android # for testapp.apk
       - test-twilsock-kotlin-ios:
-          <<: *any-branch-or-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-testables-twilsock-kotlin-ios
       - test-shared-internal-android:
-          <<: *any-branch-or-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-shared-internal-android
             - build-native-sync-sdk-android # for testapp.apk
       - build-native-sync-sdk-android:
-          <<: *any-branch-or-sync-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies-android
       - build-native-sync-sdk-kotlin-ios:
-          <<: *any-branch-or-sync-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context:
             - rtd-ci-tokens
             - rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies-android
       - test-sdk-android:
-          <<: *any-branch-or-sync-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           name: test-native-sync-sdk-android-java
           testapp-dir: *android_sync_testapp_dir
           sdk-test-type: release
@@ -1382,34 +1111,33 @@ workflows:
           requires:
             - build-native-sync-sdk-android
       - test-native-sync-sdk-android:
-          <<: *any-branch-or-sync-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-native-sync-sdk-android
       - test-native-sync-sdk-kotlin-ios:
-          <<: *any-branch-or-sync-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-native-sync-sdk-kotlin-ios
       - build-testables-native-sync-lib-kotlin-ios:
-          <<: *any-branch-or-sync-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies-android
       - test-native-sync-lib-kotlin-ios:
-          <<: *any-branch-or-sync-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-testables-native-sync-lib-kotlin-ios
       - build-sync-docs-android:
-          <<: *any-branch-or-sync-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies-android
       - wait-tests-passed-android:
-          <<: *any-branch-or-sync-android-rc-tag-filter
+          <<: *any-branch-or-rc-tag-filter
           name: wait-tests-sync-android
-          product: sync
           requires:
             - test-twilsock-android
             - test-twilsock-kotlin-ios
