@@ -22,11 +22,11 @@ aliases:
     sdk/shared/shared-internal/build/outputs
   - &android_shared_internal_sources_jar
     sdk/shared/shared-internal/build/libs
-  - &android_native_sync_sdk_output
+  - &android_sync_sdk_output
     sdk/sync/sync-android-kt/build/outputs
-  - &android_native_sync_java_sdk_output
+  - &android_sync_java_sdk_output
     sdk/sync/sync-android-java/build/outputs
-  - &android_native_sync_shared_sdk_output
+  - &android_sync_shared_sdk_output
     sdk/sync/sync-android-shared/build/outputs
   - &android_sync_sdk_tests_output
     sdk/sync/sync-testapp-java/build/outputs
@@ -34,11 +34,11 @@ aliases:
     build/libs
   - &android_sync_sdk_docs_html_output
     build/dokka/htmlMultiModule
-  - &android_native_sync_sdk_jar_output
+  - &android_sync_sdk_jar_output
     sdk/sync/sync-android-kt/build/libs
-  - &android_native_sync_java_sdk_jar_output
+  - &android_sync_java_sdk_jar_output
     sdk/sync/sync-android-java/build/libs
-  - &android_native_sync_shared_jar_output
+  - &android_sync_shared_jar_output
     sdk/sync/sync-android-shared/build/libs
   - &test_results_folder
     /tmp/junit
@@ -524,7 +524,7 @@ jobs:
           at: *workspace
       - cdn_pin_android
 
-  prepare-dependencies-android:
+  prepare-dependencies:
     executor: linux-android-executor
     description: "Fetch SDK Dependendencies"
     steps:
@@ -746,7 +746,7 @@ jobs:
           name: All tests passed
           command: echo "All tests passed"
 
-  build-native-sync-sdk-android:
+  build-sync-sdk-android:
     executor: linux-android-executor
     description: "Build"
     steps:
@@ -783,21 +783,21 @@ jobs:
             - sdk/sync/sync-android-shared/build/*
             - sdk/sync/sync-testapp-java/build/*
       - store_artifacts:
-          path: *android_native_sync_sdk_output
+          path: *android_sync_sdk_output
       - store_artifacts:
-          path: *android_native_sync_java_sdk_output
+          path: *android_sync_java_sdk_output
       - store_artifacts:
-          path: *android_native_sync_shared_sdk_output
+          path: *android_sync_shared_sdk_output
       - store_artifacts:
           path: *android_sync_sdk_tests_output
       - print_sha256:
-          source-dir: *android_native_sync_sdk_output
+          source-dir: *android_sync_sdk_output
           input-file: aar/*
       - print_sha256:
-          source-dir: *android_native_sync_java_sdk_output
+          source-dir: *android_sync_java_sdk_output
           input-file: aar/*
 
-  build-native-sync-sdk-kotlin-ios:
+  build-sync-sdk-swift-ios:
     executor: macos-kotlin-ios-executor-x86
     description: "Build"
     steps:
@@ -843,7 +843,7 @@ jobs:
       - store_artifacts:
           path: ios/TwilioSync/DerivedData/Build/Products/TwilioSyncTests.zip
 
-  test-native-sync-sdk-android:
+  test-sync-sdk-android:
     executor: small-linux-generic-executor
     description: "Test"
     steps:
@@ -852,7 +852,7 @@ jobs:
           at: *workspace
       - generate_gcloud_settings
       - run:
-          name: Run native-sync-sdk android tests in Firebase Test Lab
+          name: Run sync-sdk android tests in Firebase Test Lab
           command: |
             TESTAPP="$SYNC_TESTAPP_DIR/build/outputs/apk/release/sync-testapp-java-release.apk"
             ./BuildScripts/run-sdk-android-tests-in-gcloud.sh \
@@ -868,7 +868,7 @@ jobs:
       - store_test_results:
           path: *test_results_folder
 
-  test-native-sync-sdk-kotlin-ios:
+  test-sync-sdk-swift-ios:
     executor: small-linux-generic-executor
     description: "Test"
     steps:
@@ -877,7 +877,7 @@ jobs:
           at: *workspace
       - generate_gcloud_settings
       - run:
-          name: Run native-sync-sdk kotlin-ios tests in Firebase Test Lab
+          name: Run sync-sdk kotlin-ios tests in Firebase Test Lab
           command: ./BuildScripts/run-tests-in-gcloud-kotlin-ios.sh "$TEST_ARCHIVE" "$RESULTS_DIR" "$ARTIFACTS_DIR"
           environment:
             TEST_ARCHIVE: ios/TwilioSync/DerivedData/Build/Products/TwilioSyncTests.zip
@@ -890,7 +890,7 @@ jobs:
       - store_test_results:
           path: *test_results_folder
 
-  build-testables-native-sync-lib-kotlin-ios:
+  build-testables-sync-kotlin-ios:
     executor: macos-kotlin-ios-executor-x86
     description: "Build"
     steps:
@@ -912,7 +912,7 @@ jobs:
           path: sdk/sync/sync-android-kt/build/bin
           destination: bin
 
-  test-native-sync-lib-kotlin-ios:
+  test-sync-sdk-kotlin-ios:
     executor: macos-kotlin-ios-executor-m1
     description: "Test"
     steps:
@@ -920,7 +920,7 @@ jobs:
       - attach_workspace:
           at: *workspace
       - run: 
-          name: Run kotlin native-sync lib ios tests on iOS Simulator
+          name: Run sync kotlin-ios tests on iOS Simulator
           command: |
             ./BuildScripts/run-tests-kotlin-ios.rb sdk/sync/sync-android-kt/build/bin/iosSimulatorArm64/debugTest/test.kexe
 
@@ -939,17 +939,17 @@ jobs:
           root: .
           paths:
             -  build/*
-            - *android_native_sync_sdk_jar_output
-            - *android_native_sync_java_sdk_jar_output
-            - *android_native_sync_shared_jar_output
+            - *android_sync_sdk_jar_output
+            - *android_sync_java_sdk_jar_output
+            - *android_sync_shared_jar_output
       - store_artifacts:
           path: *android_sync_sdk_docs_html_output
       - store_artifacts:
-          path: *android_native_sync_sdk_jar_output
+          path: *android_sync_sdk_jar_output
       - store_artifacts:
-          path: *android_native_sync_java_sdk_jar_output
+          path: *android_sync_java_sdk_jar_output
       - store_artifacts:
-          path: *android_native_sync_shared_jar_output
+          path: *android_sync_shared_jar_output
 
   publish-sdk-android:
     executor: small-linux-generic-executor
@@ -1017,7 +1017,7 @@ workflows:
 
   android:
     jobs:
-      - prepare-dependencies-android:
+      - prepare-dependencies:
           <<: *any-branch-or-rc-tag-filter
           context:
             - rtd-ci-tokens
@@ -1028,28 +1028,28 @@ workflows:
           <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
-            - prepare-dependencies-android
+            - prepare-dependencies
       - build-shared-public-android:
           <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
-            - prepare-dependencies-android
+            - prepare-dependencies
       - build-twilsock-android:
           <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
-            - prepare-dependencies-android
+            - prepare-dependencies
       - build-testables-twilsock-kotlin-ios:
           <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
-            - prepare-dependencies-android
+            - prepare-dependencies
       - test-twilsock-android:
           <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-twilsock-android
-            - build-native-sync-sdk-android # for testapp.apk
+            - build-sync-sdk-android # for testapp.apk
       - test-twilsock-kotlin-ios:
           <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-testing
@@ -1060,52 +1060,52 @@ workflows:
           context: rtd-ci-testing
           requires:
             - build-shared-internal-android
-            - build-native-sync-sdk-android # for testapp.apk
-      - build-native-sync-sdk-android:
+            - build-sync-sdk-android # for testapp.apk
+      - build-sync-sdk-android:
           <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
-            - prepare-dependencies-android
-      - build-native-sync-sdk-kotlin-ios:
+            - prepare-dependencies
+      - build-sync-sdk-swift-ios:
           <<: *any-branch-or-rc-tag-filter
           context:
             - rtd-ci-tokens
             - rtd-ci-build-publish-snapshot
           requires:
-            - prepare-dependencies-android
+            - prepare-dependencies
       - test-sdk-android:
           <<: *any-branch-or-rc-tag-filter
-          name: test-native-sync-sdk-android-java
+          name: test-sync-sdk-android-java
           testapp-dir: *android_sync_testapp_dir
           sdk-test-type: release
           context: rtd-ci-testing
           requires:
-            - build-native-sync-sdk-android
-      - test-native-sync-sdk-android:
+            - build-sync-sdk-android
+      - test-sync-sdk-android:
           <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-testing
           requires:
-            - build-native-sync-sdk-android
-      - test-native-sync-sdk-kotlin-ios:
+            - build-sync-sdk-android
+      - test-sync-sdk-swift-ios:
           <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-testing
           requires:
-            - build-native-sync-sdk-kotlin-ios
-      - build-testables-native-sync-lib-kotlin-ios:
+            - build-sync-sdk-swift-ios
+      - build-testables-sync-kotlin-ios:
           <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
-            - prepare-dependencies-android
-      - test-native-sync-lib-kotlin-ios:
+            - prepare-dependencies
+      - test-sync-sdk-kotlin-ios:
           <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-testing
           requires:
-            - build-testables-native-sync-lib-kotlin-ios
+            - build-testables-sync-kotlin-ios
       - build-sync-docs-android:
           <<: *any-branch-or-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
-            - prepare-dependencies-android
+            - prepare-dependencies
       - wait-tests-passed-android:
           <<: *any-branch-or-rc-tag-filter
           name: wait-tests-sync-android
@@ -1113,10 +1113,10 @@ workflows:
             - test-twilsock-android
             - test-twilsock-kotlin-ios
             - test-shared-internal-android
-            - test-native-sync-sdk-android
-            - test-native-sync-sdk-android-java
-            - test-native-sync-sdk-kotlin-ios
-            - test-native-sync-lib-kotlin-ios
+            - test-sync-sdk-android
+            - test-sync-sdk-android-java
+            - test-sync-sdk-swift-ios
+            - test-sync-sdk-kotlin-ios
             - build-sync-docs-android
             - build-shared-public-android
       - publish-sdk-android:
@@ -1144,7 +1144,7 @@ workflows:
       - prepare-release-tool:
           <<: *release-android-tag-filter
           context: rtd-cdn-upload
-      - prepare-dependencies-android:
+      - prepare-dependencies:
           <<: *release-android-tag-filter
           context:
             - rtd-ci-tokens
@@ -1157,7 +1157,7 @@ workflows:
           context: rtd-sdk-slack-secrets
           requires:
             - prepare-release-tool
-            - prepare-dependencies-android
+            - prepare-dependencies
           mentions: "@msgsdk-team"
       - approve-release-android:
           <<: *release-android-tag-filter
