@@ -3,6 +3,7 @@
 //
 //  Copyright © Twilio, Inc. All rights reserved.
 //
+@file:JvmName("PreferencesKt")
 package com.twilio.util
 
 import android.content.Context.MODE_PRIVATE

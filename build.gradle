@@ -121,6 +121,10 @@ if (needPublishTwilsock) {
             twilsockRelease(MavenPublication) {
                 from project(":twilsock").components.release
 
+                artifact("${project(":twilsock").buildDir}/libs/twilsock-$twilsockVersion-sources.jar") {
+                    classifier 'sources'
+                }
+
                 groupId = "com.twilio"
                 artifactId = "twilsock"
                 version = twilsockVersion // updated manually in twilsockVersion.gradle
@@ -152,6 +156,10 @@ if (needPublishSharedInternal) {
         publications {
             sharedInternalRelease(MavenPublication) {
                 from project(":shared-internal").components.release
+
+                artifact("${project(":shared-internal").buildDir}/libs/shared-internal-$sharedInternalVersion-sources.jar") {
+                    classifier 'sources'
+                }
 
                 groupId = "com.twilio"
                 artifactId = "shared-internal"

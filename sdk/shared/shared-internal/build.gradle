@@ -88,3 +88,13 @@ tasks.withType(KotlinCompile).configureEach {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }
+
+task packageSources(type: Jar) {
+    archiveClassifier.set("sources")
+    from(kotlin.sourceSets.commonMain.kotlin.srcDirs)
+    from(kotlin.sourceSets.androidMain.kotlin.srcDirs)
+}
+
+task packageDocs() {
+    dependsOn 'packageSources'
+}

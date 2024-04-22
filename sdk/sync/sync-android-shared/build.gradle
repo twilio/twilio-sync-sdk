@@ -81,13 +81,7 @@ dokkaHtmlPartial {
 
 task packageSources(type: Jar) {
     archiveClassifier.set("sources")
-    from(kotlin.sourceSets.commonMain.kotlin.srcDirs) {
-        include 'com/twilio/util/SyncAccountDescriptor.kt'
-        include 'com/twilio/util/Configuration.kt'
-        include 'com/twilio/util/ConnectionState.kt'
-        include 'com/twilio/util/QueryOrder.kt'
-        include 'com/twilio/util/LogLevel.kt'
-    }
+    from(kotlin.sourceSets.commonMain.kotlin.srcDirs)
 }
 
 task packageDocs() {

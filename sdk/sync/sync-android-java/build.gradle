@@ -70,26 +70,8 @@ android {
 task packageSources(type: Jar) {
     mustRunAfter "preparePackageInfo" // Not really. Just to make gradle happy.
     archiveClassifier.set("sources")
-    from(kotlin.sourceSets.commonMain.kotlin.srcDirs) {
-        include 'com/twilio/sync/client/java/AccountDescriptorJava.kt'
-        include 'com/twilio/sync/client/java/SyncClientJava.kt'
-        include 'com/twilio/sync/client/java/DocumentsJava.kt'
-        include 'com/twilio/sync/client/java/StreamsJava.kt'
-        include 'com/twilio/sync/client/java/MapsJava.kt'
-        include 'com/twilio/sync/client/java/ListsJava.kt'
-        include 'com/twilio/sync/client/java/SyncDocumentJava.kt'
-        include 'com/twilio/sync/client/java/SyncStreamJava.kt'
-        include 'com/twilio/sync/client/java/SyncMapJava.kt'
-        include 'com/twilio/sync/client/java/SyncListJava.kt'
-        include 'com/twilio/sync/client/java/utils/ConfigurationJava.kt'
-        include 'com/twilio/sync/client/java/utils/SuccessListener.kt'
-        include 'com/twilio/sync/client/java/utils/CancellationToken.kt'
-        include 'com/twilio/sync/client/java/utils/SyncMutator.kt'
-        include 'com/twilio/sync/client/java/utils/TokenProvider.kt'
-    }
-    from(kotlin.sourceSets.androidMain.kotlin.srcDirs) {
-        include 'com/twilio/sync/client/java/SyncClientFactory.kt'
-    }
+    from(kotlin.sourceSets.commonMain.kotlin.srcDirs)
+    from(kotlin.sourceSets.androidMain.kotlin.srcDirs)
 }
 
 dokkaHtmlPartial {
@@ -130,16 +112,7 @@ task preparePackageInfo(type: Copy) {
     into projectDir
 }
 
-task packageDokka(type: Jar, dependsOn: 'dokkaHtml') {
-    archiveClassifier.set('dokka')
-    from "${buildDir}/dokka/html/"
-    doLast {
-        println "Dokka docs generated"
-    }
-}
-
 task packageDocs() {
-    dependsOn 'packageDokka'
     dependsOn 'packageSources'
 }
 

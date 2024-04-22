@@ -73,11 +73,7 @@ dokkaHtmlPartial {
 
 task packageSources(type: Jar) {
     archiveClassifier.set("sources")
-    from(kotlin.sourceSets.commonMain.kotlin.srcDirs) {
-        include 'com/twilio/util/AccountDescriptor.kt'
-        include 'com/twilio/util/ErrorInfo.kt'
-        include 'com/twilio/util/TwilioException.kt'
-    }
+    from(kotlin.sourceSets.commonMain.kotlin.srcDirs)
 }
 
 task packageDocs() {

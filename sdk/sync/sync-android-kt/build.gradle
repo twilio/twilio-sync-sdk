@@ -166,24 +166,8 @@ sqldelight {
 task packageSources(type: Jar) {
     mustRunAfter "preparePackageInfo" // Not really. Just to make gradle happy.
     archiveClassifier.set("sources")
-    from(kotlin.sourceSets.commonMain.kotlin.srcDirs) {
-        include 'com/twilio/sync/client/SyncClient.kt'
-        include 'com/twilio/sync/client/Documents.kt'
-        include 'com/twilio/sync/client/Streams.kt'
-        include 'com/twilio/sync/client/Maps.kt'
-        include 'com/twilio/sync/client/Lists.kt'
-        include 'com/twilio/sync/entities/SyncDocument.kt'
-        include 'com/twilio/sync/entities/SyncStream.kt'
-        include 'com/twilio/sync/entities/SyncMap.kt'
-        include 'com/twilio/sync/entities/SyncList.kt'
-        include 'com/twilio/sync/utils/Configuration.kt'
-        include 'com/twilio/sync/utils/SyncAccountDescriptor.kt'
-    }
-    from(kotlin.sourceSets.androidMain.kotlin.srcDirs) {
-        include 'com/twilio/sync/client/SyncClientFactoryAndroid.kt'
-        include 'com/twilio/sync/client/SyncClientExtensionsAndroid.kt'
-        include 'com/twilio/sync/utils/SyncExtensions.kt'
-    }
+    from(kotlin.sourceSets.commonMain.kotlin.srcDirs)
+    from(kotlin.sourceSets.androidMain.kotlin.srcDirs)
 }
 
 dokkaHtmlPartial {
@@ -225,16 +209,7 @@ task preparePackageInfo(type: Copy) {
     into projectDir
 }
 
-task packageDokka(type: Jar, dependsOn: 'dokkaHtml') {
-    archiveClassifier.set('dokka')
-    from "${buildDir}/dokka/html/"
-    doLast {
-        println "Dokka docs generated"
-    }
-}
-
 task packageDocs() {
-    dependsOn 'packageDokka'
     dependsOn 'packageSources'
 }
 
