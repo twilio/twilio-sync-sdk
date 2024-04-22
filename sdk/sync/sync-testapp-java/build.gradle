@@ -23,6 +23,7 @@ android {
 
         buildConfigField "String", "ACCESS_TOKEN_SERVICE_URL", "\"${findProperty("ACCESS_TOKEN_SERVICE_URL") ?: ""}\""
 
+        testBuildType "release"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
