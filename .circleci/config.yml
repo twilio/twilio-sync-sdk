@@ -1,9 +1,7 @@
 version: 2.1
 
 orbs:
-  android: circleci/android@2.0.3
   slack: circleci/slack@4.12.5
-  macos: circleci/macos@2.3.4
 
 aliases:
   - &workspace
@@ -149,15 +147,13 @@ aliases:
 executors:
   linux-android-executor:
     docker:
-      - image: cibuilderbot/docker-circleci-linux-android
-        auth:
-           username: $DOCKER_HUB_USERNAME
-           password: $DOCKER_HUB_PASSWORD
+      - image: cimg/android:2024.01.1
     resource_class: xlarge
     working_directory: *workspace
-  linux-generic-executor:
+  small-linux-generic-executor:
     docker:
-      - image: cimg/base:2023.04
+      - image: cimg/gcp:2024.03
+    resource_class: small
     working_directory: *workspace
   macos-kotlin-ios-executor-x86:
     macos:
@@ -175,26 +171,12 @@ executors:
       # (on m1 executor deviceId is different than specified in the doc above (the doc is for x86_64). 
       # Run `xcrun simctl list` on a circleci node to get full device ids list)
       IOS_SIMULATOR_DEVICE_ID: A2CD73C7-D03C-47CA-858B-94C0D2A9475A
-  small-linux-android-executor:
-    docker:
-      - image: cibuilderbot/docker-circleci-linux-android
-        auth:
-           username: $DOCKER_HUB_USERNAME
-           password: $DOCKER_HUB_PASSWORD
-    resource_class: small
-    working_directory: *workspace
-  android-small-executor:
-    docker:
-      - image: cimg/android:2023.11.1
-    resource_class: small
-    working_directory: *workspace
-
-commands:
 
   #============================================================================
   # Commands: All
   #============================================================================
 
+commands:
   clean_build_outputs:
     description: "Clean"
     parameters:
@@ -253,11 +235,12 @@ commands:
             which gcloud >/dev/null 2>&1 && exit 0
 
             # See: https://cloud.google.com/sdk/docs/install#linux
-            curl -O --output-dir ~/ https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-466.0.0-linux-x86_64.tar.gz
-            tar -xf ~/google-cloud-cli-466.0.0-linux-x86_64.tar.gz -C ~/
+            curl -O --output-dir ~/ https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-472.0.0-linux-x86_64.tar.gz
+            tar -xf ~/google-cloud-cli-472.0.0-linux-x86_64.tar.gz -C ~/
             ~/google-cloud-sdk/install.sh --path-update true --quiet
             ln -s ~/google-cloud-sdk/bin/gcloud ~/bin/gcloud
             ln -s ~/google-cloud-sdk/bin/gsutil ~/bin/gsutil
+            gcloud components install beta --quiet
       - run:
           name: Set Google Cloud target project
           command: |
@@ -533,7 +516,7 @@ jobs:
   #============================================================================
 
   prepare-release-tool:
-    executor: linux-generic-executor
+    executor: small-linux-generic-executor
     steps:
       - checkout
       - prepare_release_tool
@@ -543,7 +526,7 @@ jobs:
   #============================================================================
 
   pin-sdk-android:
-    executor: android-small-executor
+    executor: small-linux-generic-executor
     description: "Pin to CDN"
     steps:
       - checkout
@@ -554,7 +537,7 @@ jobs:
       - cdn_pin_android
 
   prepare-dependencies-android:
-    executor: small-linux-android-executor
+    executor: linux-android-executor
     description: "Fetch SDK Dependendencies"
     steps:
       - checkout
@@ -573,7 +556,7 @@ jobs:
       - save_gradle_cache
 
   test-sdk-android:
-    executor: small-linux-android-executor
+    executor: small-linux-generic-executor
     description: "Test"
     parameters:
       <<: *testapp-dir-parameter
@@ -626,7 +609,7 @@ jobs:
           input-file: aar/*
 
   test-shared-internal-android:
-    executor: small-linux-android-executor
+    executor: small-linux-generic-executor
     description: "Test"
     steps:
       - checkout
@@ -654,7 +637,7 @@ jobs:
           path: *test_results_folder
 
   test-twilsock-android:
-    executor: small-linux-android-executor
+    executor: small-linux-generic-executor
     description: "Test"
     steps:
       - checkout
@@ -873,7 +856,7 @@ jobs:
           path: ios/TwilioSync/DerivedData/Build/Products/TwilioSyncTests.zip
 
   test-native-sync-sdk-android:
-    executor: small-linux-android-executor
+    executor: small-linux-generic-executor
     description: "Test"
     steps:
       - checkout
@@ -898,7 +881,7 @@ jobs:
           path: *test_results_folder
 
   test-native-sync-sdk-kotlin-ios:
-    executor: small-linux-android-executor
+    executor: small-linux-generic-executor
     description: "Test"
     steps:
       - checkout
@@ -981,7 +964,7 @@ jobs:
           path: *android_native_sync_shared_jar_output
 
   publish-sdk-android:
-    executor: small-linux-android-executor
+    executor: small-linux-generic-executor
     description: "Publish"
     steps:
       - checkout
@@ -999,7 +982,7 @@ jobs:
           input-file: gradle-output.log
 
   promote-to-release-sdk-android:
-    executor: small-linux-android-executor
+    executor: small-linux-generic-executor
     description: "Promote to release"
     steps:
       - checkout
