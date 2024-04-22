@@ -164,7 +164,7 @@ sqldelight {
 }
 
 task packageSources(type: Jar) {
-    dependsOn("preparePackageInfo") // Not really. Just to make gradle happy.
+    mustRunAfter "preparePackageInfo" // Not really. Just to make gradle happy.
     archiveClassifier.set("sources")
     from(kotlin.sourceSets.commonMain.kotlin.srcDirs) {
         include 'com/twilio/sync/client/SyncClient.kt'
@@ -186,7 +186,7 @@ task packageSources(type: Jar) {
     }
 }
 
-dokkaHtml {
+dokkaHtmlPartial {
     dependsOn "preparePackageInfo"
     moduleName = "Sync Android SDK"
     suppressInheritedMembers = true

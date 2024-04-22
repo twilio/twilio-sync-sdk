@@ -21,6 +21,7 @@ plugins {
     id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
 }
 
+apply plugin: "org.jetbrains.dokka"
 apply plugin: "signing"
 apply from: "${project(":utils").projectDir}/binary-compatibility-validator.gradle"
 apply from: "${project(":utils").projectDir}/prepare-version-names.gradle"
@@ -61,6 +62,32 @@ subprojects {
             ])
         }
     }
+}
+
+tasks.named("dokkaHtmlMultiModule") {
+    moduleName = "Sync Android SDK"
+
+    pluginsMapConfiguration.set(
+            ["org.jetbrains.dokka.base.DokkaBase": """{
+                "customStyleSheets" : ["${file("logo-styles.css")}"],
+                "customAssets" : ["${file("twilio-logo.svg")}"],
+                "footerMessage" : "COPYRIGHT © TWILIO INC."
+                }"""
+            ]
+    )
+}
+
+task packageDokka(type: Jar, dependsOn: 'dokkaHtmlMultiModule') {
+    archiveClassifier.set('dokka')
+    from "${buildDir}/dokka/htmlMultiModule/"
+    doLast {
+        println "Dokka docs generated"
+    }
+}
+
+task packageDocs() {
+    dependsOn 'dokkaHtmlMultiModule'
+    dependsOn 'packageDokka'
 }
 
 def needPublishTwilsock = needPublishTwilsock(twilsockVersion)

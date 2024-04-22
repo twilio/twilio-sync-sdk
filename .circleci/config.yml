@@ -857,6 +857,8 @@ jobs:
       <<: *sdk-test-type-parameter
     steps:
       - checkout
+      - attach_workspace:
+          at: *workspace
       - generate_gcloud_settings
       - run:
           name: Run androidTest in Firebase Test Lab
@@ -1246,6 +1248,8 @@ jobs:
             - *android_native_sync_sdk_jar_output
             - *android_native_sync_java_sdk_jar_output
             - *android_native_sync_shared_jar_output
+      - store_artifacts:
+          path: *android_sync_sdk_docs_html_output
       - store_artifacts:
           path: *android_native_sync_sdk_jar_output
       - store_artifacts:
