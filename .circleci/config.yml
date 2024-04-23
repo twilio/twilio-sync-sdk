@@ -14,6 +14,8 @@ aliases:
     sdk/sync/sync-testapp-java
   - &android_twilsock_output
     sdk/twilsock/build/outputs
+  - &android_twilsock_sources_jar
+    sdk/twilsock/build/libs
   - &android_shared_public_output
     sdk/shared/shared-public/build/outputs
   - &android_shared_public_sources_jar
@@ -578,7 +580,7 @@ jobs:
       - restore_gradle_cache
       - run_gradle_target:
           gradle-project-dir: *android_sync_root_project_dir
-          gradle-target: twilsock:assembleRelease twilsock:assembleAndroidTest
+          gradle-target: twilsock:assembleRelease twilsock:assembleAndroidTest twilsock:packageSources
       - run_gradle_target:
           gradle-project-dir: *android_sync_root_project_dir
           gradle-target: twilsock:testReleaseUnitTest
@@ -592,6 +594,8 @@ jobs:
             - sdk/twilsock/build/*
       - store_artifacts:
           path: *android_twilsock_output
+      - store_artifacts:
+          path: *android_twilsock_sources_jar
       - print_sha256:
           source-dir: *android_twilsock_output
           input-file: aar/*
@@ -693,7 +697,7 @@ jobs:
       - restore_gradle_cache
       - run_gradle_target:
           gradle-project-dir: *android_sync_root_project_dir
-          gradle-target: shared-internal:assembleRelease shared-internal:assembleAndroidTest
+          gradle-target: shared-internal:assembleRelease shared-internal:assembleAndroidTest shared-internal:packageSources
       - run_gradle_target:
           gradle-project-dir: *android_sync_root_project_dir
           gradle-target: shared-internal:testReleaseUnitTest
