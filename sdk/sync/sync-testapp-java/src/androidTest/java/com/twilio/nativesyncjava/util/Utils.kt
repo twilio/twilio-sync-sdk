@@ -27,10 +27,7 @@ fun requestToken(
         appendQueryParameter("identity", identity)
         ttl?.inWholeSeconds?.let { appendQueryParameter("ttl", "$it") }
     }
-    Log.i(TAG, "url: $url")
 
     val token = URL("$url").readText()
-    Log.i(TAG, "token: $token")
-
     return token
 }
