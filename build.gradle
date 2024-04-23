@@ -28,7 +28,12 @@ apply from: "${project(":utils").projectDir}/prepare-version-names.gradle"
 apply from: "./need-publish-module.gradle"
 apply from: "./prepare-pom-xml.gradle"
 apply from: "./dependency-constraints.gradle"
-//apply from: "./disable-metadata-subtasks.gradle" // TODO: cannot just unconditionally disable anymore. Add flag for that?
+
+if (project.hasProperty('disable-metadata-subtasks')) {
+    // Disable only from publish-sdk-android circleci job
+    apply from: "./disable-metadata-subtasks.gradle"
+}
+
 
 nexusPublishing {
     repositories {
@@ -99,10 +104,10 @@ println "need to publish shared-internal: $needPublishSharedInternal"
 def needPublishSharedPublic = needPublishSharedPublic(sharedPublicVersion)
 println "need to publish shared-public: $needPublishSharedPublic"
 
-def (isNativeSyncReleaseCandidate, nativeSyncVersion) = generatePublishVersionNames(gitHash, gitTag)
+def (isSyncReleaseCandidate, syncVersion) = generatePublishVersionNames(gitHash, gitTag)
 
-println "publishing isNativeSyncReleaseCandidate?: $isNativeSyncReleaseCandidate"
-println "publishing nativeSyncVersion: $nativeSyncVersion"
+println "publishing isSyncReleaseCandidate?: $isSyncReleaseCandidate"
+println "publishing syncVersion: $syncVersion"
 println()
 
 signing {
@@ -133,18 +138,16 @@ if (needPublishTwilsock) {
                     prepareTwilioPom(owner, project(":twilsock"))
 
                     name = 'Twilio twilsock client'
-                    description = 'An internal library which is used by Twilio Conversations SDK'
+                    description = 'An internal library which is used by by Twilio mobile SDK'
                     url = 'https://www.twilio.com/docs/conversations'
-
-                    scm {
-                        connection = 'scm:git:git://github.com:twilio/twilio-conversations-demo-kotlin.git'
-                        developerConnection = 'scm:git:ssh://github.com:twilio/twilio-conversations-demo-kotlin.git'
-                        url = 'https://github.com/twilio/twilio-conversations-demo-kotlin/tree/main'
-                    }
                 }
             }
         }
     }
+
+    // Following dependencies just to make gradle 8 happy
+    tasks['publishTwilsockReleasePublicationToSonatypeRepository'].mustRunAfter(':twilsock:reZipReleaseAar')
+    tasks['generateMetadataFileForTwilsockReleasePublication'].mustRunAfter(':twilsock:reZipReleaseAar')
 }
 
 if (needPublishSharedInternal) {
@@ -171,16 +174,14 @@ if (needPublishSharedInternal) {
                     name = 'Twilio Shared Internal Library'
                     description = 'An internal library which is used by Twilio mobile SDK'
                     url = 'https://www.twilio.com/docs/conversations'
-
-                    scm {
-                        connection = 'scm:git:git://github.com:twilio/twilio-conversations-demo-kotlin.git'
-                        developerConnection = 'scm:git:ssh://github.com:twilio/twilio-conversations-demo-kotlin.git'
-                        url = 'https://github.com/twilio/twilio-conversations-demo-kotlin/tree/main'
-                    }
                 }
             }
         }
     }
+
+    // Following dependencies just to make gradle 8 happy
+    tasks['publishSharedInternalReleasePublicationToSonatypeRepository'].mustRunAfter(':shared-internal:reZipReleaseAar')
+    tasks['generateMetadataFileForSharedInternalReleasePublication'].mustRunAfter(':shared-internal:reZipReleaseAar')
 }
 
 if (needPublishSharedPublic) {
@@ -207,38 +208,33 @@ if (needPublishSharedPublic) {
                     name = 'Twilio Shared Public Library'
                     description = 'An public utility library which is used by Twilio mobile SDK'
                     url = 'https://www.twilio.com/docs/conversations'
-
-                    scm {
-                        connection = 'scm:git:git://github.com:twilio/twilio-conversations-demo-kotlin.git'
-                        developerConnection = 'scm:git:ssh://github.com:twilio/twilio-conversations-demo-kotlin.git'
-                        url = 'https://github.com/twilio/twilio-conversations-demo-kotlin/tree/main'
-                    }
                 }
             }
         }
     }
+
+    // Following dependencies just to make gradle 8 happy
+    tasks['publishSharedPublicReleasePublicationToSonatypeRepository'].mustRunAfter(':shared-public:reZipReleaseAar')
+    tasks['generateMetadataFileForSharedPublicReleasePublication'].mustRunAfter(':shared-public:reZipReleaseAar')
 }
 
-if (isNativeSyncReleaseCandidate) {
+if (isSyncReleaseCandidate) {
     // this line is parsed on circleci. don't touch it!
     // see: $MONOREPO/BuildScripts/push-sonatype-git-tag.sh
-    println "Publishing sync v$nativeSyncVersion"
+    println "Publishing sync v$syncVersion"
 
     publishing {
         publications {
-            nativeSyncRelease(MavenPublication) {
+            syncRelease(MavenPublication) {
                 from project(":sync-android-kt").components.release
 
-                artifact("${project(":sync-android-kt").buildDir}/libs/sync-android-kt-$nativeSyncVersion-dokka.jar") {
-                    classifier 'dokka'
-                }
-                artifact("${project(":sync-android-kt").buildDir}/libs/sync-android-kt-$nativeSyncVersion-sources.jar") {
+                artifact("${project(":sync-android-kt").buildDir}/libs/sync-android-kt-$syncVersion-sources.jar") {
                     classifier 'sources'
                 }
 
                 groupId = "com.twilio"
                 artifactId = "sync-android-kt"
-                version = nativeSyncVersion
+                version = syncVersion
 
                 pom {
                     prepareTwilioPom(owner, project(":sync-android-kt"))
@@ -246,27 +242,18 @@ if (isNativeSyncReleaseCandidate) {
                     name = 'Sync SDK for Android'
                     description = 'An Android library for synchronization mobile apps with a single source of state in the cloud.'
                     url = 'https://www.twilio.com/docs/sync'
-
-                    scm {
-                        connection = 'scm:git:git@github.com:twilio/sync-quickstart-android.git'
-                        developerConnection = 'scm:git:ssh://github.com:twilio/sync-quickstart-android.git'
-                        url = 'https://github.com/twilio/sync-quickstart-android/tree/master'
-                    }
                 }
             }
-            nativeSyncJavaRelease(MavenPublication) {
+            syncJavaRelease(MavenPublication) {
                 from project(":sync-android-java").components.release
 
-                artifact("${project(":sync-android-java").buildDir}/libs/sync-android-java-$nativeSyncVersion-dokka.jar") {
-                    classifier 'dokka'
-                }
-                artifact("${project(":sync-android-java").buildDir}/libs/sync-android-java-$nativeSyncVersion-sources.jar") {
+                artifact("${project(":sync-android-java").buildDir}/libs/sync-android-java-$syncVersion-sources.jar") {
                     classifier 'sources'
                 }
 
                 groupId = "com.twilio"
                 artifactId = "sync-android-java"
-                version = nativeSyncVersion
+                version = syncVersion
 
                 pom {
                     prepareTwilioPom(owner, project(":sync-android-java"))
@@ -274,24 +261,18 @@ if (isNativeSyncReleaseCandidate) {
                     name = 'Sync Android SDK for Java'
                     description = 'An Android library for synchronization mobile apps with a single source of state in the cloud.'
                     url = 'https://www.twilio.com/docs/sync'
-
-                    scm {
-                        connection = 'scm:git:git@github.com:twilio/sync-quickstart-android.git'
-                        developerConnection = 'scm:git:ssh://github.com:twilio/sync-quickstart-android.git'
-                        url = 'https://github.com/twilio/sync-quickstart-android/tree/master'
-                    }
                 }
             }
-            nativeSyncSharedRelease(MavenPublication) {
+            syncSharedRelease(MavenPublication) {
                 from project(":sync-android-shared").components.release
 
-                artifact("${project(":sync-android-shared").buildDir}/libs/sync-android-shared-$nativeSyncVersion-sources.jar") {
+                artifact("${project(":sync-android-shared").buildDir}/libs/sync-android-shared-$syncVersion-sources.jar") {
                     classifier 'sources'
                 }
 
                 groupId = "com.twilio"
                 artifactId = "sync-android-shared"
-                version = nativeSyncVersion
+                version = syncVersion
 
                 pom {
                     prepareTwilioPom(owner, project(":sync-android-shared"))
@@ -299,16 +280,18 @@ if (isNativeSyncReleaseCandidate) {
                     name = 'Twilio Sync Shared Library'
                     description = 'An public utility library which is used by Twilio mobile SDK'
                     url = 'https://www.twilio.com/docs/sync'
-
-                    scm {
-                        connection = 'scm:git:git@github.com:twilio/sync-quickstart-android.git'
-                        developerConnection = 'scm:git:ssh://github.com:twilio/sync-quickstart-android.git'
-                        url = 'https://github.com/twilio/sync-quickstart-android/tree/master'
-                    }
                 }
             }
         }
     }
+
+    // Following dependencies just to make gradle 8 happy
+    tasks['publishSyncReleasePublicationToSonatypeRepository'].mustRunAfter(':sync-android-kt:reZipReleaseAar')
+    tasks['generateMetadataFileForSyncReleasePublication'].mustRunAfter(':sync-android-kt:reZipReleaseAar')
+    tasks['publishSyncJavaReleasePublicationToSonatypeRepository'].mustRunAfter(':sync-android-java:reZipReleaseAar')
+    tasks['generateMetadataFileForSyncJavaReleasePublication'].mustRunAfter(':sync-android-java:reZipReleaseAar')
+    tasks['publishSyncSharedReleasePublicationToSonatypeRepository'].mustRunAfter(':sync-android-shared:reZipReleaseAar')
+    tasks['generateMetadataFileForSyncSharedReleasePublication'].mustRunAfter(':sync-android-shared:reZipReleaseAar')
 }
 
 tasks['publishToSonatype'].with {
@@ -338,7 +321,7 @@ task checkReleaseVersionMatchesRC {
 
 def findRCTag() {
     def isRcTag = { tag ->
-        (tag =~ /^release(-(sync|native-sync|convo)-android-\d+\.\d+\.\d+-rc\d+){1,2}$/).find()
+        (tag =~ /^release-sync-android-\d+\.\d+\.\d+-rc\d+$/).find()
     }
 
     def rcTags = getGitTagList(gitHash)

@@ -4,7 +4,7 @@
 // So if convoSDK and syncSDK in the same app have binary incompatible transitive dependencies -
 // gradle will notify customer at compile time.
 
-def (_, nativeSyncVersion) = generateNativeSyncVersionNames(gitHash, gitTag)
+def (_, syncVersion) = generateSyncVersionNames(gitHash, gitTag)
 
 subprojects {
     afterEvaluate {
@@ -39,8 +39,8 @@ subprojects {
                     println("Adding dependency constraints for sync-android-kt")
                     implementation("com.twilio:sync-android-kt") {
                         version {
-                            strictly untilNextMajorVersion(nativeSyncVersion)
-                            prefer nativeSyncVersion
+                            strictly untilNextMajorVersion(syncVersion)
+                            prefer syncVersion
                         }
                     }
                 }
@@ -49,8 +49,8 @@ subprojects {
                     println("Adding dependency constraints for sync-android-shared")
                     implementation("com.twilio:sync-android-shared") {
                         version {
-                            strictly untilNextMajorVersion(nativeSyncVersion)
-                            prefer nativeSyncVersion
+                            strictly untilNextMajorVersion(syncVersion)
+                            prefer syncVersion
                         }
                     }
                 }

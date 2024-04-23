@@ -5,7 +5,7 @@ orbs:
 
 aliases:
   - &workspace
-    ~/rtd-sdk-monorepo
+    ~/twilio-sync-sdk
   - &build_output
     target/build
   - &android_sync_root_project_dir
@@ -111,13 +111,23 @@ aliases:
       filters:
         tags:
           only:
-            - /^release-native-sync-android-\d+\.\d+\.\d+-rc\d+$/
-            - /^release-sync-kotlin-ios-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-sync-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-sync-ios-\d+\.\d+\.\d+-rc\d+$/
+  - any-branch-or-android-rc-tag-filter: &any-branch-or-android-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-sync-android-\d+\.\d+\.\d+-rc\d+$/
+  - any-branch-or-ios-rc-tag-filter: &any-branch-or-ios-rc-tag-filter
+      filters:
+        tags:
+          only:
+            - /^release-sync-ios-\d+\.\d+\.\d+-rc\d+$/
   - android-rc-tag-filter: &android-rc-tag-filter
       filters:
         tags:
           only: 
-            - /^release-native-sync-android-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-sync-android-\d+\.\d+\.\d+-rc\d+$/
         branches:
           ignore: /.*/
   - release-android-tag-filter: &release-android-tag-filter
@@ -127,18 +137,18 @@ aliases:
             - /^release-sync-android-\d+\.\d+\.\d+$/
         branches:
           ignore: /.*/
-  - kotlin-ios-rc-tag-filter: &kotlin-ios-rc-tag-filter
+  - ios-rc-tag-filter: &ios-rc-tag-filter
       filters:
         tags:
           only: 
-            - /^release-sync-kotlin-ios-\d+\.\d+\.\d+-rc\d+$/
+            - /^release-sync-ios-\d+\.\d+\.\d+-rc\d+$/
         branches:
           ignore: /.*/
-  - release-kotlin-ios-tag-filter: &release-kotlin-ios-tag-filter
+  - release-ios-tag-filter: &release-ios-tag-filter
       filters:
         tags:
           only:
-            - /^release-sync-kotlin-ios-\d+\.\d+\.\d+$/
+            - /^release-sync-ios-\d+\.\d+\.\d+$/
         branches:
           ignore: /.*/
 
@@ -369,11 +379,16 @@ commands:
             echo "signing.secretKeyRingFile=`pwd`/secring.gpg" >> gradle.properties
             echo "$SONATYPE_KEY_RING_FILE" | base64 --decode > secring.gpg
 
-            echo "buildNumber=$CIRCLE_BUILD_NUM" >> gradle.properties
             echo "gitHash=$CIRCLE_SHA1" >> gradle.properties
-            echo "gitBranch=$CIRCLE_BRANCH" >> gradle.properties
             echo "gitTag=$CIRCLE_TAG" >> gradle.properties
+
+            echo "org.gradle.daemon=false" >> gradle.properties
           working_directory: << parameters.gradle-project-dir >>
+      - persist_to_workspace:
+          root: .
+          paths:
+            - << parameters.gradle-project-dir >>/gradle.properties
+            - << parameters.gradle-project-dir >>/secring.gpg
 
   cdn_pin_android:
     description: "Pin to CDN"
@@ -742,8 +757,8 @@ jobs:
           source-dir: *android_shared_public_output
           input-file: aar/*
 
-  wait-tests-passed-android:
-    executor: macos-kotlin-ios-executor-x86
+  wait-tests-passed:
+    executor: small-linux-generic-executor
     description: "All tests passed"
     steps:
       - run:
@@ -810,7 +825,7 @@ jobs:
           at: *workspace
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:phNm6Lf1PJvwJmDzzP2atd84yiDL/jvh+lquogInhrc"
+            - "SHA256:phNm6Lf1PJvwJmDzzP2atd84yiDL/jvh+lquogInhrc" # Access to the https://github.com/twilio/rtd-build-settings
       - install_ios_certificates
       - gem_install_xcodeproj
       - restore_cache_kmm_ios
@@ -959,30 +974,26 @@ jobs:
           path: *android_sync_shared_jar_output
 
   publish-sdk-android:
-    executor: small-linux-generic-executor
+    executor: linux-android-executor
     description: "Publish"
     steps:
       - checkout
-      - generate_project_settings_gradle:
-          gradle-project-dir: *android_sync_root_project_dir
       - attach_workspace:
           at: *workspace
       - restore_gradle_cache
       - run_gradle_target:
           gradle-project-dir: *android_sync_root_project_dir
-          gradle-target: publishToSonatype closeSonatypeStagingRepository
+          gradle-target: publishToSonatype closeSonatypeStagingRepository -Pdisable-metadata-subtasks
           output-file: gradle-output.log
       - push_sonatype_git_tag:
           gradle-project-dir: *android_sync_root_project_dir
           input-file: gradle-output.log
 
   promote-to-release-sdk-android:
-    executor: small-linux-generic-executor
+    executor: linux-android-executor
     description: "Promote to release"
     steps:
       - checkout
-      - generate_project_settings_gradle:
-          gradle-project-dir: *android_sync_root_project_dir
       - attach_workspace:
           at: *workspace
       - restore_gradle_cache
@@ -1019,10 +1030,10 @@ workflows:
   version: 2.1
 
   #=========================================================================
-  # Workflows: Android Build, Test & Publish Snapshot
+  # Workflows: Build, Test & Publish Snapshot
   #=========================================================================
 
-  android:
+  build-and-test:
     jobs:
       - prepare-dependencies:
           <<: *any-branch-or-rc-tag-filter
@@ -1032,56 +1043,56 @@ workflows:
             - rtd-ci-build-publish-snapshot
             - rtd-android-chat-demo-app-release
       - build-shared-internal-android:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-android-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies
       - build-shared-public-android:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-android-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies
       - build-twilsock-android:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-android-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies
       - build-testables-twilsock-kotlin-ios:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-ios-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies
       - test-twilsock-android:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-android-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-twilsock-android
             - build-sync-sdk-android # for testapp.apk
       - test-twilsock-kotlin-ios:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-ios-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-testables-twilsock-kotlin-ios
       - test-shared-internal-android:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-android-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-shared-internal-android
             - build-sync-sdk-android # for testapp.apk
       - build-sync-sdk-android:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-android-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies
       - build-sync-sdk-swift-ios:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-ios-rc-tag-filter
           context:
             - rtd-ci-tokens
             - rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies
       - test-sdk-android:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-android-rc-tag-filter
           name: test-sync-sdk-android-java
           testapp-dir: *android_sync_testapp_dir
           sdk-test-type: release
@@ -1089,33 +1100,33 @@ workflows:
           requires:
             - build-sync-sdk-android
       - test-sync-sdk-android:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-android-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-sync-sdk-android
       - test-sync-sdk-swift-ios:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-ios-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-sync-sdk-swift-ios
       - build-testables-sync-kotlin-ios:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-ios-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies
       - test-sync-sdk-kotlin-ios:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-ios-rc-tag-filter
           context: rtd-ci-testing
           requires:
             - build-testables-sync-kotlin-ios
       - build-sync-docs-android:
-          <<: *any-branch-or-rc-tag-filter
+          <<: *any-branch-or-android-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies
-      - wait-tests-passed-android:
+      - wait-tests-passed:
           <<: *any-branch-or-rc-tag-filter
-          name: wait-tests-sync-android
+          name: wait-tests-sync
           requires:
             - test-twilsock-android
             - test-twilsock-kotlin-ios
@@ -1130,9 +1141,9 @@ workflows:
           <<: *android-rc-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
-            - wait-tests-sync-android
+            - wait-tests-sync
       - distribute-sdk-ios:
-          <<: *kotlin-ios-rc-tag-filter
+          <<: *ios-rc-tag-filter
           name: distribute-sdk-kotlin-ios-stage
           upload-type: stage
           context:
@@ -1140,7 +1151,7 @@ workflows:
             - rtd-ci-build-publish-snapshot
             - rtd-sdk-slack-secrets
           requires:
-            - wait-tests-sync-android
+            - wait-tests-sync
 
   #=========================================================================
   # Workflows: Promote RC to public Release
@@ -1182,10 +1193,10 @@ workflows:
           requires:
             - pin-sdk-android
 
-  promote-to-release-kotlin-ios:
+  promote-to-release-ios:
     jobs:
       - distribute-sdk-ios:
-          <<: *release-kotlin-ios-tag-filter
+          <<: *release-ios-tag-filter
           name: distribute-sdk-kotlin-ios-prod
           upload-type: prod
           context:
