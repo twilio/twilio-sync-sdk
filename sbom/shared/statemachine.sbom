@@ -1,0 +1,5 @@
+[dependency]
+name = "Tinder State Machine"
+homepage = "https://github.com/Tinder/StateMachine"
+license = { url = "https://raw.githubusercontent.com/Tinder/StateMachine/main/LICENSE" }
+spdx = "BSD 3-Clause"

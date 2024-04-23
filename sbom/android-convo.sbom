@@ -1,0 +1,6 @@
+[product]
+name = "Android Conversations SDK"
+
+[links]
+sync = "android-sync.sbom"
+ktor = "android/ktor.sbom"

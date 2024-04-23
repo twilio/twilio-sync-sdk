@@ -1,0 +1,5 @@
+[dependency]
+name = "SQLDelight generates typesafe Kotlin APIs from your SQL statements."
+homepage = "https://github.com/cashapp/sqldelight"
+license = { url = "https://raw.githubusercontent.com/cashapp/sqldelight/master/LICENSE.txt" }
+spdx = "Apache-2.0"

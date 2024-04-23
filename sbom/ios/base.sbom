@@ -1,0 +1,6 @@
+[product]
+name = "iOS SDKs base dependencies"
+
+[links]
+shared = "../shared/shared-lib.sbom"
+reachability = "reachability.sbom"

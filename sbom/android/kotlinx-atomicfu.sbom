@@ -1,0 +1,5 @@
+[dependency]
+name = "Jetbrains KotlinX Atomicfu"
+homepage = "https://github.com/Kotlin/kotlinx.atomicfu"
+license = { url = "https://raw.githubusercontent.com/Kotlin/kotlinx-atomicfu/master/LICENSE.txt" }
+spdx = "Apache-2.0"

@@ -1,0 +1,16 @@
+[product]
+name = "Android Sync SDK"
+
+[links]
+websocket = "android/nv-websocket-client.sbom"
+slf4j = "android/slf4j.sbom"
+annotations = "android/annotations.sbom"
+kotlin = "android/kotlin-stdlib.sbom"
+atomicfu = "android/kotlinx-atomicfu.sbom"
+coro = "android/kotlinx-coroutines-android.sbom"
+ser = "android/kotlinx-serialization-json.sbom"
+statemachine = "shared/statemachine.sbom"
+datetime = "android/kotlinx-datetime.sbom"
+sqldelight = "android/sqldelight.sbom"
+ktor = "android/ktor.sbom"
+skie = "android/skie.sbom"

@@ -1,0 +1,9 @@
+[product]
+name = "Twilio libraries"
+
+[links]
+boost = "boost.sbom"
+spdlog = "spdlog.sbom"
+json = "nlohmann-json.sbom"
+json2 = "dropbox-json11.sbom"
+tfm = "tinyformat.sbom"

@@ -1,0 +1,55 @@
+_default:
+    @just --list
+
+all:
+    just android
+    just ios
+
+android:
+    just android-sync
+    just android-native-sync
+    just android-convo
+
+ios:
+    just ios-sync
+    just ios-native-sync
+    just ios-convo
+    just ios-twilsockLib
+    just ios-stateMachine
+    just ios-commonLib
+
+android-sync:
+    # Build Android Sync SBoM
+    cargo run -- ../../sbom/android-sync.sbom
+
+android-native-sync:
+    # Build Android Native Sync SBoM
+    cargo run -- ../../sbom/android-native-sync.sbom
+
+android-convo:
+    # Build Android Convo SBoM
+    cargo run -- ../../sbom/android-convo.sbom
+
+ios-sync:
+    # Build iOS Sync SBoM
+    cargo run -- ../../sbom/ios-sync.sbom
+
+ios-native-sync:
+    # Build iOS Sync SBoM
+    cargo run -- ../../sbom/ios-native-sync.sbom
+
+ios-convo:
+    # Build iOS Convo SBoM
+    cargo run -- ../../sbom/ios-conversations.sbom
+
+ios-twilsockLib:
+    # Build iOS TwilsockLib SBoM
+    cargo run -- ../../sbom/ios-twilsock.sbom
+
+ios-stateMachine:
+    # Build Tinder State Machine SBoM
+    cargo run -- ../../sbom/ios-stateMachine.sbom
+
+ios-commonLib:
+    # Build iOS CommonLib SBoM
+    cargo run -- ../../sbom/ios-commonLib.sbom

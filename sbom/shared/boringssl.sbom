@@ -1,0 +1,8 @@
+ERROR: You must not reference boringssl.sbom anywhere, it is not used in published SDKs and should not be used.
+If you added this dependency - remove it at once.
+
+[dependency]
+name = "BoringSSL libraries"
+homepage = "https://boringssl.googlesource.com/boringssl/"
+license = { file = "cpp/boringssl-lib/LICENSE" }
+spdx = "OpenSSL AND MIT"

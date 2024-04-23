@@ -1,0 +1,5 @@
+[dependency]
+name = "json11"
+homepage = "https://github.com/dropbox/json11"
+license = { url = "https://raw.githubusercontent.com/dropbox/json11/master/LICENSE.txt" }
+spdx = "MIT"

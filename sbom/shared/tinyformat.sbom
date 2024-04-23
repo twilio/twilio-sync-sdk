@@ -1,0 +1,6 @@
+[dependency]
+name = "tinyformat"
+homepage = "https://github.com/c42f/tinyformat"
+license = { url = "https://www.boost.org/LICENSE_1_0.txt" }
+addons = [{ text = "Copyright (C) 2011, Chris Foster [chris42f (at) gmail (d0t) com]" }]
+spdx = "BSL-1.0"

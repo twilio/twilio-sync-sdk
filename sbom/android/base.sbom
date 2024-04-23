@@ -1,0 +1,15 @@
+[product]
+name = "Android SDKs base dependencies"
+
+[links]
+shared = "../shared/shared-lib.sbom"
+jnimate = "jni-mate.sbom"
+relinker = "relinker.sbom"
+websocket = "nv-websocket-client.sbom"
+slf4j = "slf4j.sbom"
+annotations = "annotations.sbom"
+kotlin = "kotlin-stdlib.sbom"
+atomicfu = "kotlinx-atomicfu.sbom"
+coro = "kotlinx-coroutines-android.sbom"
+ser = "kotlinx-serialization-json.sbom"
+statemachine = "../shared/statemachine.sbom"
