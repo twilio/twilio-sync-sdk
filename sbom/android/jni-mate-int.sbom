@@ -1,5 +1,0 @@
-[dependency]
-name = "jni_mate helper libraries"
-homepage = "twilio internal"
-license = { file = "../../cpp/jni-mate/LICENSE" } # paths are relative to current file
-spdx = "MIT"

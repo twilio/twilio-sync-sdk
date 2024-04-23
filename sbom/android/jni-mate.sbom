@@ -1,6 +1,0 @@
-[product]
-name = "jni-mate"
-
-[links]
-internals = "jni-mate-int.sbom"
-mapbox = "mapbox-jni.sbom"

@@ -1,5 +1,0 @@
-[dependency]
-name = "JSON for Modern C++"
-homepage = "https://github.com/nlohmann/json"
-license = { url = "https://raw.githubusercontent.com/nlohmann/json/develop/LICENSE.MIT" }
-spdx = "MIT"

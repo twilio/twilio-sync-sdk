@@ -1,5 +1,0 @@
-[product]
-name = "iOS Common Lib"
-
-[links]
-reachability = "ios/reachability.sbom"

@@ -1,5 +1,0 @@
-[product]
-name = "Android Sync SDK"
-
-[links]
-all = "android/base.sbom"

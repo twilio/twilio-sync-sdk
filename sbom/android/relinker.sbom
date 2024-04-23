@@ -1,5 +1,0 @@
-[dependency]
-name = "relinker"
-homepage = "https://github.com/KeepSafe/ReLinker"
-license = { url = "https://raw.githubusercontent.com/KeepSafe/ReLinker/master/LICENSE" }
-spdx = "Apache-2.0"

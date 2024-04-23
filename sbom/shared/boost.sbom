@@ -1,5 +1,0 @@
-[dependency]
-name = "Boost libraries (boost.asio, boost.beast, boost.signals2, boost.msm, boost.algorithm, etc)"
-homepage = "https://boost.org/"
-license = { url = "https://www.boost.org/LICENSE_1_0.txt" }
-spdx = "BSL-1.0"

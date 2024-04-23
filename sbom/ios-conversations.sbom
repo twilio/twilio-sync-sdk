@@ -1,5 +1,0 @@
-[product]
-name = "iOS Conversations"
-
-[links]
-sync = "ios-sync.sbom"

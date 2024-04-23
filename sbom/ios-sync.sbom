@@ -1,5 +1,0 @@
-[product]
-name = "iOS Sync SDK"
-
-[links]
-all = "ios/base.sbom"

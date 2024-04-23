@@ -1,5 +1,0 @@
-[dependency]
-name = "mapbox jni helper libraries"
-homepage = "https://github.com/mapbox/jni.hpp"
-license = { file = "../../cpp/jni-mate/jni-mate/src/main/jni/mapbox/LICENSE.txt" } # paths are relative to current file
-spdx = "ISC"

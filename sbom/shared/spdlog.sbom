@@ -1,5 +1,0 @@
-[dependency]
-name = "spdlog"
-homepage = "https://github.com/gabime/spdlog"
-license = { url = "https://raw.githubusercontent.com/gabime/spdlog/v1.x/LICENSE" }
-spdx = "MIT"

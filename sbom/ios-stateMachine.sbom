@@ -1,5 +1,0 @@
-[product]
-name = "Tinder State Machine"
-
-[links]
-statemachine = "shared/statemachine.sbom"
