@@ -6,15 +6,15 @@ all:
     just ios
 
 android:
-    just android-native-sync
+    just android-sync
 
 ios:
-    just ios-native-sync
+    just ios-sync
 
-android-native-sync:
+android-sync:
     # Build Android Native Sync SBoM
-    cargo run -- ../../sbom/android-native-sync.sbom
+    cargo run -- ../../sbom/android-sync.sbom
 
-ios-native-sync:
+ios-sync:
     # Build iOS Sync SBoM
-    cargo run -- ../../sbom/ios-native-sync.sbom
+    cargo run -- ../../sbom/ios-sync.sbom
