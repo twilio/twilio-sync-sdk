@@ -10,6 +10,7 @@ plugins {
 apply plugin: 'signing'
 apply from: "${project(":utils").projectDir}/generate-constants.gradle"
 apply from: "${project(":utils").projectDir}/fix-mockk-dependency.gradle"
+apply from: "${project(":utils").projectDir}/add-file-to-aar.gradle"
 
 kotlin {
     androidTarget()
@@ -156,3 +157,6 @@ task packageSources(type: Jar) {
 task packageDocs() {
     dependsOn 'packageSources'
 }
+
+def noticesFile = file("${rootProject.projectDir}/sbom/generated/twilsock.NOTICES.txt")
+addFileToAar("release", noticesFile)

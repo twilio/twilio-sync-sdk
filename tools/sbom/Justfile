@@ -6,13 +6,33 @@ all:
     just ios
 
 android:
+    just shared-internal
+    just shared-public
+    just twilsock
+    just shared-sync
     just android-sync
 
 ios:
     just ios-sync
 
+shared-internal:
+    # Build SharedInternal SBoM
+    cargo run -- ../../sbom/shared-internal.sbom
+
+shared-public:
+    # Build SharedPublic SBoM
+    cargo run -- ../../sbom/shared-public.sbom
+
+twilsock:
+    # Build Twilsock SBoM
+    cargo run -- ../../sbom/twilsock.sbom
+
+shared-sync:
+    # Build SharedSync SBoM
+    cargo run -- ../../sbom/shared-sync.sbom
+
 android-sync:
-    # Build Android Native Sync SBoM
+    # Build Android Sync SBoM
     cargo run -- ../../sbom/android-sync.sbom
 
 ios-sync:

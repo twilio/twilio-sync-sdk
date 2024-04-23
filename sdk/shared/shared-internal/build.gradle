@@ -8,6 +8,7 @@ plugins {
 }
 
 apply plugin: 'signing'
+apply from: "${project(":utils").projectDir}/add-file-to-aar.gradle"
 
 kotlin {
     androidTarget()
@@ -98,3 +99,6 @@ task packageSources(type: Jar) {
 task packageDocs() {
     dependsOn 'packageSources'
 }
+
+def noticesFile = file("${rootProject.projectDir}/sbom/generated/shared-internal.NOTICES.txt")
+addFileToAar("release", noticesFile)

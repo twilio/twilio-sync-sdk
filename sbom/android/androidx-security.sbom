@@ -1,0 +1,5 @@
+[dependency]
+name = "AndroidX Security"
+homepage = "https://developer.android.com/jetpack/androidx"
+license = { url = "http://www.apache.org/licenses/LICENSE-2.0.txt" }
+spdx = "Apache-2.0"

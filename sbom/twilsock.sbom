@@ -1,0 +1,13 @@
+[product]
+name = "Twilio Twilsock Library"
+
+[links]
+shared-public = "shared-public.sbom"
+shared-internal = "shared-internal.sbom"
+kotlin = "shared/kotlin-stdlib.sbom"
+coro = "shared/kotlinx-coroutines.sbom"
+ser = "shared/kotlinx-serialization-json.sbom"
+atomicfu = "shared/kotlinx-atomicfu.sbom"
+ktor = "shared/ktor.sbom"
+websocket = "android/nv-websocket-client.sbom"
+statemachine = "shared/statemachine.sbom"

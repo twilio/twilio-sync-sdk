@@ -9,6 +9,7 @@ plugins {
 
 apply plugin: 'signing'
 apply from: "${project(":utils").projectDir}/prepare-version-names.gradle"
+apply from: "${project(":utils").projectDir}/add-file-to-aar.gradle"
 
 kotlin {
     androidTarget()
@@ -93,3 +94,6 @@ tasks.withType(KotlinCompile).configureEach {
         jvmTarget.set(JvmTarget.JVM_1_8)
     }
 }
+
+def noticesFile = file("${rootProject.projectDir}/sbom/generated/shared-sync.NOTICES.txt")
+addFileToAar("release", noticesFile)
