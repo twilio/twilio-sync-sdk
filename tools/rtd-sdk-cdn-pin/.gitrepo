@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:twilio/rtd-sdk-cdn-pin
+	branch = master
+	commit = 96d9ab8873440a6e6c2de9e300862b3afc31b687
+	parent = c77c88e9180d319e9c0d003fd5ced51b8a9a6357
+	method = merge
+	cmdver = 0.4.0

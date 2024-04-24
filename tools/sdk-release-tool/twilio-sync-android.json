@@ -1,0 +1,22 @@
+{
+  "variables": {
+    "platform": "android",
+    "product": "sync"
+  },
+  "major_minor_versions": "sdk/{platform}/{product}/",
+  "versions": "sdk/{platform}/{product}/releases/",
+  "artifacts": {
+    "sdk/build/outputs/aar/sdk-release.aar": "sdk/{platform}/{product}/releases/{version}/twilio-{product}-{platform}-{version}.aar",
+    "sdk/build/docs/dokka/": "sdk/{platform}/{product}/releases/{version}/docs/"
+  },
+  "pin": {
+    "sdk/{platform}/{product}/v{major}.{minor}/docs": "sdk/{platform}/{product}/releases/{version}/docs/sync-android",
+    "sdk/{platform}/{product}/v{major}.{minor}/docs/index.html": "sdk/{platform}/{product}/releases/{version}/docs/sync-android",
+    "sdk/{platform}/{product}/v{major}.{minor}/twilio-{product}-{platform}.aar": "sdk/{platform}/{product}/releases/{version}/twilio-{product}-{platform}-{version}.aar"
+  },
+  "latest": {
+    "sdk/{platform}/{product}/latest/docs": "sdk/{platform}/{product}/releases/{version}/docs/sync-android",
+    "sdk/{platform}/{product}/latest/docs/index.html": "sdk/{platform}/{product}/releases/{version}/docs/sync-android",
+    "sdk/{platform}/{product}/latest/twilio-{product}-{platform}.aar": "sdk/{platform}/{product}/releases/{version}/twilio-{product}-{platform}-{version}.aar"
+  }
+}

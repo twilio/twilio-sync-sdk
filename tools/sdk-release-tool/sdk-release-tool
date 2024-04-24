@@ -1,0 +1,3 @@
+#!/bin/bash -x
+. ./venv/bin/activate
+python3 -msdk_release_tools "$@"
