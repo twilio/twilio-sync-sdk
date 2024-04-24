@@ -17,6 +17,6 @@ function fetchFromSonatype() {
 
   mvn dependency:get -settings sonatype-settings.xml -DremoteRepositories=$REMOTE_REPOSITORY  -Dartifact=com.twilio:${SONATYPE_ARTIFACT_ID}:${SONATYPE_RELEASE_VERSION}:jar:dokka -Dtransitive=false -Ddest="$RESULT_ARTIFACTS_DIR/sdk/build/outputs/lib/sdk-dokka.jar" || exit 1
 
-  mkdir -p "$RESULT_ARTIFACTS_DIR/sdk/build/docs/dokka"
-  unzip "$RESULT_ARTIFACTS_DIR/sdk/build/outputs/lib/sdk-dokka.jar" -d "$RESULT_ARTIFACTS_DIR/sdk/build/docs/dokka"
+  mkdir -p "$RESULT_ARTIFACTS_DIR/sdk/build/docs/dokka/$SONATYPE_ARTIFACT_ID"
+  unzip "$RESULT_ARTIFACTS_DIR/sdk/build/outputs/lib/sdk-dokka.jar" -d "$RESULT_ARTIFACTS_DIR/sdk/build/docs/dokka/$SONATYPE_ARTIFACT_ID"
 }
