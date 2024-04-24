@@ -1,0 +1,38 @@
+import kotlinx.datetime.Instant;
+import kotlinx.serialization.json.JsonObject;
+
+CREATE TABLE documentCacheMetadata (
+  sid TEXT PRIMARY KEY,
+  uniqueName TEXT,
+  dateCreated INTEGER AS Instant NOT NULL,
+  dateUpdated INTEGER AS Instant NOT NULL,
+  dateExpires INTEGER AS Instant,
+  revision TEXT NOT NULL,
+  lastEventId INTEGER NOT NULL,
+  documentData TEXT AS JsonObject NOT NULL
+);
+
+CREATE UNIQUE INDEX documentUniqueName ON documentCacheMetadata(uniqueName);
+
+selectCount:
+SELECT COUNT(*) FROM documentCacheMetadata;
+
+selectBySid:
+SELECT * FROM documentCacheMetadata WHERE sid = ?;
+
+selectByUniqueName:
+SELECT * FROM documentCacheMetadata WHERE uniqueName = ?;
+
+upsert:
+INSERT OR REPLACE INTO documentCacheMetadata VALUES ?;
+
+deleteBySid:
+DELETE FROM documentCacheMetadata WHERE sid = ?;
+
+deleteBySidOrUniqueName:
+DELETE FROM documentCacheMetadata WHERE sid = :sidOrUniqueName OR uniqueName = :sidOrUniqueName;
+
+cleanupWithLimit:
+DELETE FROM documentCacheMetadata WHERE rowid IN (
+  SELECT rowid FROM documentCacheMetadata ORDER BY rowid LIMIT ?
+);

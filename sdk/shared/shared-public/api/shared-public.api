@@ -1,0 +1,148 @@
+public final class com/twilio/shared_public/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public fun <init> ()V
+}
+
+public final class com/twilio/util/AccountDescriptor {
+	public static final field Companion Lcom/twilio/util/AccountDescriptor$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/Map;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;)Lcom/twilio/util/AccountDescriptor;
+	public static synthetic fun copy$default (Lcom/twilio/util/AccountDescriptor;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lcom/twilio/util/AccountDescriptor;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAccountSid ()Ljava/lang/String;
+	public final fun getIdentity ()Ljava/lang/String;
+	public final fun getInstanceSids ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/util/AccountDescriptor$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/twilio/util/AccountDescriptor$$serializer;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/twilio/util/AccountDescriptor;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/twilio/util/AccountDescriptor;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/twilio/util/AccountDescriptor$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/twilio/util/ErrorInfo {
+	public static final field Companion Lcom/twilio/util/ErrorInfo$Companion;
+	public fun <init> ()V
+	public fun <init> (IILjava/lang/String;)V
+	public fun <init> (IILjava/lang/String;Ljava/lang/String;)V
+	public fun <init> (ILjava/lang/String;)V
+	public fun <init> (Lcom/twilio/util/ErrorReason;IILjava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Lcom/twilio/util/ErrorReason;IILjava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/twilio/util/ErrorReason;
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun copy (Lcom/twilio/util/ErrorReason;IILjava/lang/String;Ljava/lang/String;)Lcom/twilio/util/ErrorInfo;
+	public static synthetic fun copy$default (Lcom/twilio/util/ErrorInfo;Lcom/twilio/util/ErrorReason;IILjava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/twilio/util/ErrorInfo;
+	public fun equals (Ljava/lang/Object;)Z
+	public static final fun getCANNOT_GET_MESSAGE_BY_INDEX ()I
+	public static final fun getCLIENT_ERROR ()I
+	public static final fun getCONVERSATION_NOT_FOUND ()I
+	public static final fun getCONVERSATION_NOT_SYNCHRONIZED ()I
+	public final fun getCode ()I
+	public final fun getDescription ()Ljava/lang/String;
+	public static final fun getMEDIA_UPLOAD_ERROR ()I
+	public static final fun getMISMATCHING_TOKEN_UPDATE ()I
+	public final fun getMessage ()Ljava/lang/String;
+	public final fun getReason ()Lcom/twilio/util/ErrorReason;
+	public final fun getStatus ()I
+	public static final fun getTOO_MANY_ATTACHMENTS ()I
+	public static final fun getUNSUPPORTED_EMAIL_BODY_CONTENT_TYPE ()I
+	public static final fun getUNSUPPORTED_EMAIL_HISTORY_CONTENT_TYPE ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/twilio/util/ErrorInfo$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/twilio/util/ErrorInfo$$serializer;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/twilio/util/ErrorInfo;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/twilio/util/ErrorInfo;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/twilio/util/ErrorInfo$Companion {
+	public final fun getCANNOT_GET_MESSAGE_BY_INDEX ()I
+	public final fun getCLIENT_ERROR ()I
+	public final fun getCONVERSATION_NOT_FOUND ()I
+	public final fun getCONVERSATION_NOT_SYNCHRONIZED ()I
+	public final fun getMEDIA_UPLOAD_ERROR ()I
+	public final fun getMISMATCHING_TOKEN_UPDATE ()I
+	public final fun getTOO_MANY_ATTACHMENTS ()I
+	public final fun getUNSUPPORTED_EMAIL_BODY_CONTENT_TYPE ()I
+	public final fun getUNSUPPORTED_EMAIL_HISTORY_CONTENT_TYPE ()I
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/twilio/util/ErrorReason : java/lang/Enum {
+	public static final field Cancelled Lcom/twilio/util/ErrorReason;
+	public static final field CannotParse Lcom/twilio/util/ErrorReason;
+	public static final field ClientShutdown Lcom/twilio/util/ErrorReason;
+	public static final field CloseMessageReceived Lcom/twilio/util/ErrorReason;
+	public static final field CommandPermanentError Lcom/twilio/util/ErrorReason;
+	public static final field CommandRecoverableError Lcom/twilio/util/ErrorReason;
+	public static final field ContentMediaDownloadError Lcom/twilio/util/ErrorReason;
+	public static final field ContentTemplatesFetchError Lcom/twilio/util/ErrorReason;
+	public static final field CreateClientError Lcom/twilio/util/ErrorReason;
+	public static final field HostnameUnverified Lcom/twilio/util/ErrorReason;
+	public static final field IteratorError Lcom/twilio/util/ErrorReason;
+	public static final field MediaFetchError Lcom/twilio/util/ErrorReason;
+	public static final field MediaUploadError Lcom/twilio/util/ErrorReason;
+	public static final field MismatchedLastUserAccount Lcom/twilio/util/ErrorReason;
+	public static final field MutateCollectionItemNotFound Lcom/twilio/util/ErrorReason;
+	public static final field MutateOperationAborted Lcom/twilio/util/ErrorReason;
+	public static final field NetworkBecameUnreachable Lcom/twilio/util/ErrorReason;
+	public static final field NoContentSid Lcom/twilio/util/ErrorReason;
+	public static final field OpenCollectionError Lcom/twilio/util/ErrorReason;
+	public static final field OpenDocumentError Lcom/twilio/util/ErrorReason;
+	public static final field OpenStreamError Lcom/twilio/util/ErrorReason;
+	public static final field RetrierReachedMaxAttempsCount Lcom/twilio/util/ErrorReason;
+	public static final field RetrierReachedMaxTime Lcom/twilio/util/ErrorReason;
+	public static final field SslHandshakeError Lcom/twilio/util/ErrorReason;
+	public static final field Timeout Lcom/twilio/util/ErrorReason;
+	public static final field TokenExpired Lcom/twilio/util/ErrorReason;
+	public static final field TokenUpdatedLocally Lcom/twilio/util/ErrorReason;
+	public static final field TooManyAttachments Lcom/twilio/util/ErrorReason;
+	public static final field TooManyRequests Lcom/twilio/util/ErrorReason;
+	public static final field TransportDisconnected Lcom/twilio/util/ErrorReason;
+	public static final field Unauthorized Lcom/twilio/util/ErrorReason;
+	public static final field Unknown Lcom/twilio/util/ErrorReason;
+	public static final field UnsupportedEmailBodyContentType Lcom/twilio/util/ErrorReason;
+	public static final field UnsupportedEmailHistoryContentType Lcom/twilio/util/ErrorReason;
+	public static final field UpdateTokenError Lcom/twilio/util/ErrorReason;
+	public final fun getDescription ()Ljava/lang/String;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()I
+	public static fun valueOf (Ljava/lang/String;)Lcom/twilio/util/ErrorReason;
+	public static fun values ()[Lcom/twilio/util/ErrorReason;
+}
+
+public abstract interface annotation class com/twilio/util/InternalTwilioApi : java/lang/annotation/Annotation {
+}
+
+public final class com/twilio/util/TwilioException : java/lang/Exception {
+	public fun <init> (Lcom/twilio/util/ErrorInfo;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Lcom/twilio/util/ErrorInfo;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getErrorInfo ()Lcom/twilio/util/ErrorInfo;
+}
+

@@ -1,0 +1,33 @@
+import kotlin.Boolean;
+import kotlinx.datetime.Instant;
+import kotlinx.serialization.json.JsonObject;
+
+CREATE TABLE mapItemCacheData (
+  mapSid TEXT NOT NULL,
+  key TEXT NOT NULL,
+  dateCreated INTEGER AS Instant NOT NULL,
+  dateUpdated INTEGER AS Instant NOT NULL,
+  dateExpires INTEGER AS Instant,
+  revision TEXT NOT NULL,
+  lastEventId INTEGER NOT NULL,
+  itemData TEXT AS JsonObject NOT NULL,
+  isLeftBound INTEGER AS Boolean NOT NULL,
+  isRightBound INTEGER AS Boolean NOT NULL,
+  isRemoved INTEGER AS Boolean NOT NULL,
+  PRIMARY KEY (mapSid, key)
+);
+
+selectOne:
+SELECT * FROM mapItemCacheData WHERE mapSid = ? AND key = ?;
+
+selectNext:
+SELECT * FROM mapItemCacheData WHERE mapSid = ? AND key > ? ORDER BY key ASC LIMIT 1;
+
+selectPrev:
+SELECT * FROM mapItemCacheData WHERE mapSid = ? AND key < ? ORDER BY key DESC LIMIT 1;
+
+upsert:
+INSERT OR REPLACE INTO mapItemCacheData VALUES ?;
+
+deleteAllByMapSid:
+DELETE FROM mapItemCacheData WHERE mapSid = ?;

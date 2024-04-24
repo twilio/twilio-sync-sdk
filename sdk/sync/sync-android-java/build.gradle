@@ -1,0 +1,163 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform'
+    id 'com.android.library'
+    id "org.jetbrains.dokka"
+}
+
+apply from: "${project(":utils").projectDir}/prepare-version-names.gradle"
+apply from: "${project(":utils").projectDir}/add-file-to-aar.gradle"
+
+kotlin {
+    androidTarget()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api project(":shared-public")
+                api project(":sync-android-shared")
+
+                implementation project(":shared-internal")
+                implementation project(":twilsock")
+                implementation project(":sync-android-kt")
+
+                implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+                implementation "org.jetbrains.kotlinx:atomicfu:$kotlinAtomicfuVersion"
+            }
+        }
+        androidMain {
+            dependencies {
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+            }
+        }
+    }
+}
+
+def (fullVersionName, shortVersionName) = generateNativeSyncVersionNames(gitHash, gitTag)
+println "sync-android-java fullVersionName: $fullVersionName"
+println "sync-android-java shortVersionName: $shortVersionName"
+
+group = 'com.twilio'
+version = shortVersionName
+
+android {
+    namespace 'com.twilio.sync.client.java'
+    compileSdk androidCompileSdkVersion
+
+    defaultConfig {
+        minSdk androidMinSdkVersion
+        targetSdk androidCompileSdkVersion
+        multiDexEnabled true
+
+        buildConfigField "String", "VERSION_NAME", "\"$fullVersionName\""
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+        coordinated {
+            initWith(debug)
+            matchingFallbacks = ['debug']
+            isDefault = true
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+task packageSources(type: Jar) {
+    mustRunAfter("preparePackageInfo") // Not really. Just to make gradle happy.
+    archiveClassifier.set("sources")
+    from(kotlin.sourceSets.commonMain.kotlin.srcDirs) {
+        include 'com/twilio/sync/client/java/AccountDescriptorJava.kt'
+        include 'com/twilio/sync/client/java/SyncClientJava.kt'
+        include 'com/twilio/sync/client/java/DocumentsJava.kt'
+        include 'com/twilio/sync/client/java/StreamsJava.kt'
+        include 'com/twilio/sync/client/java/MapsJava.kt'
+        include 'com/twilio/sync/client/java/ListsJava.kt'
+        include 'com/twilio/sync/client/java/SyncDocumentJava.kt'
+        include 'com/twilio/sync/client/java/SyncStreamJava.kt'
+        include 'com/twilio/sync/client/java/SyncMapJava.kt'
+        include 'com/twilio/sync/client/java/SyncListJava.kt'
+        include 'com/twilio/sync/client/java/utils/ConfigurationJava.kt'
+        include 'com/twilio/sync/client/java/utils/SuccessListener.kt'
+        include 'com/twilio/sync/client/java/utils/CancellationToken.kt'
+        include 'com/twilio/sync/client/java/utils/SyncMutator.kt'
+        include 'com/twilio/sync/client/java/utils/TokenProvider.kt'
+    }
+    from(kotlin.sourceSets.androidMain.kotlin.srcDirs) {
+        include 'com/twilio/sync/client/java/SyncClientFactory.kt'
+    }
+}
+
+dokkaHtml {
+    dependsOn "preparePackageInfo"
+    moduleName = "Sync Android SDK for Java"
+    suppressInheritedMembers = true
+
+    dependencies {
+        dokkaHtmlPlugin("org.jetbrains.dokka:android-documentation-plugin:$dokkaVersion")
+    }
+
+    dokkaSourceSets {
+
+        configureEach {
+            // suppress all default source sets in order to hide tags ("android", "common" etc)
+            suppress.set(true)
+        }
+
+        custom {
+            suppress.set(false)
+            noAndroidSdkLink.set(false)
+            noStdlibLink.set(false)
+
+            includes.from("package-info.md")
+            platform.set(org.jetbrains.dokka.Platform.jvm)
+
+            sourceRoots.from(kotlin.sourceSets.commonMain.kotlin.srcDirs)
+        }
+    }
+}
+
+task preparePackageInfo(type: Copy) {
+    def options = {
+        rename { "package-info.md" }
+        expand(ANDROID_MIN_SDK_VERSION: androidMinSdkVersion)
+    }
+    from file("$projectDir/package-info.md.in"), options
+    into projectDir
+}
+
+task packageDokka(type: Jar, dependsOn: 'dokkaHtml') {
+    archiveClassifier.set('dokka')
+    from "${buildDir}/dokka/html/"
+    doLast {
+        println "Dokka docs generated"
+    }
+}
+
+task packageDocs() {
+    dependsOn 'packageDokka'
+    dependsOn 'packageSources'
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
+        freeCompilerArgs = ['-Xjvm-default=all']
+    }
+}
+
+def noticesFile = file("$projectDir/../../../sbom/generated/android-native-sync.NOTICES.txt")
+addFileToAar("release", noticesFile)

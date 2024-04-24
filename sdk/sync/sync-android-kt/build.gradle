@@ -1,0 +1,275 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'com.android.library'
+    id 'com.squareup.sqldelight'
+    id "org.jetbrains.dokka"
+    id "co.touchlab.skie" version "$skieVersion"
+}
+
+apply from: "${project(":utils").projectDir}/prepare-version-names.gradle"
+apply from: "${project(":utils").projectDir}/add-file-to-aar.gradle"
+apply from: "${project(":utils").projectDir}/generate-constants.gradle"
+apply from: "${project(":utils").projectDir}/generate-versions.gradle"
+apply from: "${project(":utils").projectDir}/fix-mockk-dependency.gradle"
+
+kotlin {
+    applyDefaultHierarchyTemplate()
+
+    androidTarget {
+        instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
+        unitTestVariant.sourceSetTree.set(KotlinSourceSetTree.unitTest)
+    }
+
+    def xcf = new XCFrameworkConfig(project, "TwilioSyncLib")
+
+    [iosArm64(), iosSimulatorArm64()].forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "TwilioSyncLib"
+            binaryOption("bundleId", "com.twilio.sync")
+            linkerOpts.add("-lsqlite3")
+            xcf.add(it)
+        }
+    }
+
+    sourceSets {
+        configureEach {
+            languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
+        }
+        commonMain {
+            dependencies {
+                api project(":shared-public")
+                api project(":sync-android-shared")
+
+                api "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerialisationVersion"
+                api "org.jetbrains.kotlinx:kotlinx-datetime:$kotlinDateTimeVersion"
+
+                implementation project(":twilsock")
+                implementation project(":shared-internal")
+
+                implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+                implementation "org.jetbrains.kotlinx:atomicfu:$kotlinAtomicfuVersion"
+                implementation "com.squareup.sqldelight:coroutines-extensions:$sqldelightVersion"
+                implementation "io.ktor:ktor-client-core:$ktorVersion"
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation project(':shared-test')
+                implementation kotlin('test')
+                implementation kotlin('reflect')
+            }
+        }
+        androidMain {
+            dependencies {
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+                implementation "com.squareup.sqldelight:android-driver:$sqldelightVersion"
+            }
+        }
+        androidUnitTest {
+            dependencies {
+                implementation project(':shared-test')
+                implementation kotlin('test')
+                implementation "com.squareup.sqldelight:sqlite-driver:$sqldelightVersion"
+                implementation "io.mockk:mockk:$mockkVersion"
+            }
+        }
+        androidInstrumentedTest {
+            dependencies {
+                implementation project(':sync-android')
+                implementation kotlin('test')
+                implementation "androidx.test:runner:$androidXTestRunnerVersion"
+                implementation "junit:junit:$junitVersion"
+                implementation "io.mockk:mockk-android:$mockkVersion"
+            }
+        }
+        iosMain {
+            dependencies {
+                implementation "com.squareup.sqldelight:native-driver:$sqldelightVersion"
+            }
+        }
+    }
+}
+
+def (fullVersionName, shortVersionName) = generateNativeSyncVersionNames(gitHash, gitTag)
+println "sync-android-kt fullVersionName: $fullVersionName"
+println "sync-android-kt shortVersionName: $shortVersionName"
+
+group = 'com.twilio'
+version = shortVersionName
+
+android {
+    namespace "com.twilio.sync.client"
+    compileSdk androidCompileSdkVersion
+
+    defaultConfig {
+        minSdk androidMinSdkVersion
+        targetSdk androidCompileSdkVersion
+        multiDexEnabled true
+
+        buildConfigField "String", "VERSION_NAME", "\"$fullVersionName\""
+
+        def testBuildTypeValue = findProperty('testBuildType') ?: System.getProperty('testBuildType', 'debug').uncapitalize()
+        println "nativesync testBuildType: $testBuildTypeValue"
+        testBuildType testBuildTypeValue == "releaseWithSymbols" ? "release" : testBuildTypeValue
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    sourceSets {
+        androidTest {
+            java.srcDirs += ["src/androidInstrumentedTest/kotlin"]
+            manifest.srcFile "src/androidInstrumentedTest/AndroidManifest.xml"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+        coordinated {
+            initWith(debug)
+            matchingFallbacks = ['debug']
+            isDefault = true
+        }
+    }
+
+    compileOptions {
+        // required by kotlinx-datetime:0.4.0 on API below 26
+        // https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
+        coreLibraryDesugaringEnabled true
+
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        unitTests.all {
+            testLogging {
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen {false}
+                showStandardStreams = true
+            }
+        }
+    }
+}
+
+dependencies {
+    // required by kotlinx-datetime:0.4.0 on API below 26
+    // https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugarJdkLibsVersion"
+}
+
+sqldelight {
+    SyncDatabase { // TODO: move to the shared-internal module as the SyncDatabase generated as public
+        packageName = "com.twilio.sync.cache.persistent"
+    }
+}
+
+task packageSources(type: Jar) {
+    dependsOn("preparePackageInfo") // Not really. Just to make gradle happy.
+    archiveClassifier.set("sources")
+    from(kotlin.sourceSets.commonMain.kotlin.srcDirs) {
+        include 'com/twilio/sync/client/SyncClient.kt'
+        include 'com/twilio/sync/client/Documents.kt'
+        include 'com/twilio/sync/client/Streams.kt'
+        include 'com/twilio/sync/client/Maps.kt'
+        include 'com/twilio/sync/client/Lists.kt'
+        include 'com/twilio/sync/entities/SyncDocument.kt'
+        include 'com/twilio/sync/entities/SyncStream.kt'
+        include 'com/twilio/sync/entities/SyncMap.kt'
+        include 'com/twilio/sync/entities/SyncList.kt'
+        include 'com/twilio/sync/utils/Configuration.kt'
+        include 'com/twilio/sync/utils/SyncAccountDescriptor.kt'
+    }
+    from(kotlin.sourceSets.androidMain.kotlin.srcDirs) {
+        include 'com/twilio/sync/client/SyncClientFactoryAndroid.kt'
+        include 'com/twilio/sync/client/SyncClientExtensionsAndroid.kt'
+        include 'com/twilio/sync/utils/SyncExtensions.kt'
+    }
+}
+
+dokkaHtml {
+    dependsOn "preparePackageInfo"
+    moduleName = "Sync Android SDK"
+    suppressInheritedMembers = true
+
+    dependencies {
+        dokkaHtmlPlugin("org.jetbrains.dokka:android-documentation-plugin:$dokkaVersion")
+    }
+
+    dokkaSourceSets {
+
+        configureEach {
+            // suppress all default source sets in order to hide tags ("android", "common" etc)
+            suppress.set(true)
+        }
+
+        custom {
+            suppress.set(false)
+            noAndroidSdkLink.set(false)
+            noStdlibLink.set(false)
+
+            includes.from("package-info.md")
+            platform.set(org.jetbrains.dokka.Platform.jvm)
+
+            sourceRoots.from(kotlin.sourceSets.androidMain.kotlin.srcDirs)
+            sourceRoots.from(kotlin.sourceSets.commonMain.kotlin.srcDirs)
+        }
+    }
+}
+
+task preparePackageInfo(type: Copy) {
+    def options = {
+        rename { "package-info.md" }
+        expand(ANDROID_MIN_SDK_VERSION: androidMinSdkVersion)
+    }
+    from file("$projectDir/package-info.md.in"), options
+    into projectDir
+}
+
+task packageDokka(type: Jar, dependsOn: 'dokkaHtml') {
+    archiveClassifier.set('dokka')
+    from "${buildDir}/dokka/html/"
+    doLast {
+        println "Dokka docs generated"
+    }
+}
+
+task packageDocs() {
+    dependsOn 'packageDokka'
+    dependsOn 'packageSources'
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked" //<< "-Xdiags:verbose"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
+
+if (project.hasProperty("iosDeviceId")) {
+    // Fixes certs issue in iOS simulator tests
+    // See: https://youtrack.jetbrains.com/issue/KT-38317
+    tasks.withType(org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest).configureEach {
+        standalone.set(false)
+        device.set(project.property("iosDeviceId"))
+    }
+}
+
+def noticesFile = file("$projectDir/../../../sbom/generated/android-native-sync.NOTICES.txt")
+addFileToAar("release", noticesFile)
+
+def versionsPackageName = "com.twilio.sync.utils"
+def versionsFilePath = "$projectDir/src/commonMain/kotlin/com/twilio/sync/utils"
+generateVersionsKt(versionsFilePath, versionsPackageName, fullVersionName, shortVersionName)

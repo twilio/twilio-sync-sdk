@@ -1,0 +1,24 @@
+CREATE TABLE links (
+  id INTEGER PRIMARY KEY CHECK (id = 0),
+  subscriptions TEXT NOT NULL,
+  documents TEXT NOT NULL,
+  document TEXT NOT NULL,
+  maps TEXT NOT NULL,
+  map TEXT NOT NULL,
+  mapItems TEXT NOT NULL,
+  mapItem TEXT NOT NULL,
+  lists TEXT NOT NULL,
+  list TEXT NOT NULL,
+  listItems TEXT NOT NULL,
+  listItem TEXT NOT NULL,
+  streams TEXT NOT NULL,
+  stream TEXT NOT NULL,
+  streamMessages TEXT NOT NULL,
+  insightsItems TEXT NOT NULL
+);
+
+get:
+SELECT * FROM links WHERE id = 0;
+
+upsert:
+INSERT OR REPLACE INTO links VALUES ?;
