@@ -292,6 +292,9 @@ commands:
   install_ios_certificates:
     description: "Install certificates"
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:phNm6Lf1PJvwJmDzzP2atd84yiDL/jvh+lquogInhrc" # Access to certs in the https://github.com/twilio/rtd-build-settings
       - run: # recommendation from CircleCI to get rid of certificates installations problems
           name: Set fastlane version to 2.210.1
           command: |
@@ -447,6 +450,9 @@ commands:
       <<: *gradle-project-dir-parameter
       <<: *input-file-parameter
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:S2ePnorqFC8o6n1TqIbzRLAA/rokvvahy2HH6HclUIc" # key with write access to push the tag
       - run:
           name: "Push sonatype git tag"
           command: |
@@ -823,9 +829,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: *workspace
-      - add_ssh_keys:
-          fingerprints:
-            - "SHA256:phNm6Lf1PJvwJmDzzP2atd84yiDL/jvh+lquogInhrc" # Access to the https://github.com/twilio/rtd-build-settings
       - install_ios_certificates
       - gem_install_xcodeproj
       - restore_cache_kmm_ios
