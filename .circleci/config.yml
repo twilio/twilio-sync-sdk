@@ -963,6 +963,8 @@ jobs:
       - store_artifacts:
           path: *android_sdk_docs_html_output
           destination: sync-sdk-java
+      - store_artifacts:
+          path: *android_sdk_docs_jar_output
       - persist_to_workspace:
           root: .
           paths:
