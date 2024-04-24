@@ -39,23 +39,33 @@ exec_command "Booting simulator:", "xcrun simctl boot #{IOS_SIMULATOR_DEVICE_ID}
 cmd_run_tests = "xcrun simctl spawn #{IOS_SIMULATOR_DEVICE_ID} #{TEST_BINARY}"
 output = exec_command "Running tests:", cmd_run_tests, fail_on_error: false
 
+regexp_ran = /\[==========\] (\d+) tests from \d+ test cases ran\. \(\d+ ms total\)/
+ran_count = output.map { |line| line.match(regexp_ran)&.captures&.first }.compact.first
+
+if ran_count.nil?
+    puts "Tests execution error: Output doesn't contain passed tests count"
+    exit 1
+end
+
 regexp_failed = /\[  FAILED  \] (.*) \(\d* ms\)/
 failed_tests = output.map { |line| line.match(regexp_failed)&.captures&.first }.compact
 flaky_tests = failed_tests
 
+puts "#{ran_count} tests ran. #{failed_tests.size} failed."
+
 MAX_RETRIES.times do |k|
     break if failed_tests.empty?
 
-    puts "#{failed_tests.size} tests failed. Rerun flaky tests: try #{k + 1}, Failed tests:"
+    puts "Rerun flaky tests: try #{k + 1}, Failed tests:"
     failed_tests.each { |test| puts test }
 
     # Rerun only failed tests
     cmd_run_failed_tests = "#{cmd_run_tests} --ktest_filter=#{failed_tests.join(':')}"
     output = exec_command "Running tests:", cmd_run_failed_tests, fail_on_error: false
 
-    regexp_passed = /\[       OK \] (.*) \(\d* ms\)/
-    passed_tests = output.map { |line| line.match(regexp_passed)&.captures&.first }.compact
-    failed_tests -= passed_tests
+    regexp_ok = /\[       OK \] (.*) \(\d* ms\)/
+    ok_tests = output.map { |line| line.match(regexp_ok)&.captures&.first }.compact
+    failed_tests -= ok_tests
 end
 
 # If any tests are still failed, remove them from the flaky tests list
