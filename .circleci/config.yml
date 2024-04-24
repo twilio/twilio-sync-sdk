@@ -32,16 +32,10 @@ aliases:
     sdk/sync/sync-android-shared/build/outputs
   - &android_sync_sdk_tests_output
     sdk/sync/sync-testapp-java/build/outputs
-  - &android_sync_sdk_docs_jar_output
-    build/libs
-  - &android_sync_sdk_docs_html_output
+  - &android_sdk_docs_html_output
     build/dokka/htmlMultiModule
-  - &android_sync_sdk_jar_output
-    sdk/sync/sync-android-kt/build/libs
-  - &android_sync_java_sdk_jar_output
-    sdk/sync/sync-android-java/build/libs
-  - &android_sync_shared_jar_output
-    sdk/sync/sync-android-shared/build/libs
+  - &android_sdk_docs_jar_output
+    build/distributions
   - &test_results_folder
     /tmp/junit
   - &release-tool-dir
@@ -959,22 +953,20 @@ jobs:
       - restore_gradle_cache
       - run_gradle_target:
           gradle-project-dir: *android_sync_root_project_dir
-          gradle-target: packageDocs
+          gradle-target: packageDocs -PdocsSyncKotlin
+      - store_artifacts:
+          path: *android_sdk_docs_html_output
+          destination: sync-sdk-kotlin
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: packageDocs -PdocsSyncJava
+      - store_artifacts:
+          path: *android_sdk_docs_html_output
+          destination: sync-sdk-java
       - persist_to_workspace:
           root: .
           paths:
-            -  build/*
-            - *android_sync_sdk_jar_output
-            - *android_sync_java_sdk_jar_output
-            - *android_sync_shared_jar_output
-      - store_artifacts:
-          path: *android_sync_sdk_docs_html_output
-      - store_artifacts:
-          path: *android_sync_sdk_jar_output
-      - store_artifacts:
-          path: *android_sync_java_sdk_jar_output
-      - store_artifacts:
-          path: *android_sync_shared_jar_output
+            - *android_sdk_docs_jar_output
 
   publish-sdk-android:
     executor: linux-android-executor

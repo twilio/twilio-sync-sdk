@@ -80,18 +80,33 @@ tasks.named("dokkaHtmlMultiModule") {
                 }"""
             ]
     )
+
+    // Split docs for kotlin and java
+    if (project.hasProperty("docsSyncKotlin")) {
+        println("Generating docs for kotlin sync")
+        removeChildTasks([project(":sync-android-java")])
+    } else if (project.hasProperty("docsSyncJava")) {
+        println("Generating docs for java sync")
+        removeChildTasks([project(":sync-android-kt")])
+    }
 }
 
 task packageDokka(type: Jar, dependsOn: 'dokkaHtmlMultiModule') {
     archiveClassifier.set('dokka')
     from "${buildDir}/dokka/htmlMultiModule/"
+
+    if (project.hasProperty("docsSyncKotlin")) {
+        archiveFileName = "sync-sdk-kotlin-dokka.jar"
+    } else if (project.hasProperty("docsSyncJava")) {
+        archiveFileName = "sync-sdk-java-dokka.jar"
+    }
+
     doLast {
         println "Dokka docs generated"
     }
 }
 
-task packageDocs() {
-    dependsOn 'dokkaHtmlMultiModule'
+task packageDocs {
     dependsOn 'packageDokka'
 }
 
@@ -228,6 +243,9 @@ if (isSyncReleaseCandidate) {
             syncRelease(MavenPublication) {
                 from project(":sync-android-kt").components.release
 
+                artifact("$buildDir/distributions/sync-sdk-kotlin-dokka.jar") {
+                    classifier 'dokka'
+                }
                 artifact("${project(":sync-android-kt").buildDir}/libs/sync-android-kt-$syncVersion-sources.jar") {
                     classifier 'sources'
                 }
@@ -247,6 +265,9 @@ if (isSyncReleaseCandidate) {
             syncJavaRelease(MavenPublication) {
                 from project(":sync-android-java").components.release
 
+                artifact("$buildDir/distributions/sync-sdk-java-dokka.jar") {
+                    classifier 'dokka'
+                }
                 artifact("${project(":sync-android-java").buildDir}/libs/sync-android-java-$syncVersion-sources.jar") {
                     classifier 'sources'
                 }
