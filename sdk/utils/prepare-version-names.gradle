@@ -1,0 +1,42 @@
+ext.generateVersionNames = { gitHash, gitTag ->
+    println "=== generateVersionName ==="
+    println "Git tag: '$gitTag'"
+    println "Git Hash: '$gitHash'"
+    println()
+
+    def shortHashStream = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', gitHash
+        standardOutput = shortHashStream
+    }
+    def gitShortHash = shortHashStream.toString().trim()
+
+    if (gitShortHash == "") {
+        throw new GradleException('Generating version name failed')
+    }
+
+    def isNativeSyncReleaseCandidate = false
+    def nativeSyncVersion = "SNAPSHOT"
+
+    def nativeSyncReleaseTag = (gitTag =~ /^release-native-sync-android-((\d+\.\d+\.\d+)-rc(\d+))$/)
+    if (nativeSyncReleaseTag.find()) {
+        isNativeSyncReleaseCandidate = true
+        nativeSyncVersion = nativeSyncReleaseTag.group(2)
+    }
+
+    def nativeSyncFullVersion = "$nativeSyncVersion-$gitShortHash"
+
+    return [isNativeSyncReleaseCandidate, nativeSyncVersion, nativeSyncFullVersion]
+}
+
+ext.generateNativeSyncVersionNames = { gitHash, gitTag ->
+    def (isNativeSyncReleaseCandidate,  nativeSyncVersion,  nativeSyncFullVersion) = generateVersionNames(gitHash, gitTag)
+
+    return [nativeSyncFullVersion, nativeSyncVersion]
+}
+
+ext.generatePublishVersionNames = { gitHash, gitTag ->
+    def (isNativeSyncReleaseCandidate,  nativeSyncVersion,  nativeSyncFullVersion) = generateVersionNames(gitHash, gitTag)
+
+    return [isNativeSyncReleaseCandidate,  nativeSyncVersion]
+}

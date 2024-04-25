@@ -13,12 +13,14 @@
 		6100F1D52B6071E30045C050 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6100F1D42B6071E30045C050 /* Preview Assets.xcassets */; };
 		6100F1D92B6071FD0045C050 /* TwilioSync.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61F2AA812B5FB941008C5D9B /* TwilioSync.framework */; };
 		6100F1DA2B6071FD0045C050 /* TwilioSync.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61F2AA812B5FB941008C5D9B /* TwilioSync.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		6100F1DE2B6072010045C050 /* TwilioSyncLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61F2AA9C2B5FB99A008C5D9B /* TwilioSyncLib.xcframework */; };
-		6100F1DF2B6072010045C050 /* TwilioSyncLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 61F2AA9C2B5FB99A008C5D9B /* TwilioSyncLib.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6100F1E42B61203B0045C050 /* RequestToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6100F1E32B61203B0045C050 /* RequestToken.swift */; };
 		6100F1E72B6154000045C050 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6100F1E62B6154000045C050 /* Extensions.swift */; };
 		610B1B532BA9BB2000708DFF /* ConnectivityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610B1B522BA9BB2000708DFF /* ConnectivityMonitor.swift */; };
 		614144B92B6A626300E1976C /* TwilioData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614144B82B6A626300E1976C /* TwilioData.swift */; };
+		6142EAF62BD29853003458E3 /* TwilioSyncLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6142EAF52BD29853003458E3 /* TwilioSyncLib.xcframework */; };
+		6142EAF92BD29866003458E3 /* TwilioSyncLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6142EAF52BD29853003458E3 /* TwilioSyncLib.xcframework */; };
+		6142EAFA2BD29866003458E3 /* TwilioSyncLib.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6142EAF52BD29853003458E3 /* TwilioSyncLib.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6142EAFC2BD29888003458E3 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6142EAFB2BD29882003458E3 /* libsqlite3.tbd */; };
 		614472DC2B6A9E7000D10D3C /* TwilioSyncStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614472DB2B6A9E7000D10D3C /* TwilioSyncStreamTests.swift */; };
 		614472DE2B6AA3E600D10D3C /* TwilioSubscriptionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614472DD2B6AA3E600D10D3C /* TwilioSubscriptionState.swift */; };
 		614B59D02B617ECF0099F626 /* TestConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614B59CF2B617ECF0099F626 /* TestConstants.swift */; };
@@ -48,8 +50,6 @@
 		61F2AA8C2B5FB941008C5D9B /* TwilioSync.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61F2AA812B5FB941008C5D9B /* TwilioSync.framework */; };
 		61F2AA912B5FB941008C5D9B /* TwilioSyncClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F2AA902B5FB941008C5D9B /* TwilioSyncClientTests.swift */; };
 		61F2AA922B5FB941008C5D9B /* TwilioSync.h in Headers */ = {isa = PBXBuildFile; fileRef = 61F2AA842B5FB941008C5D9B /* TwilioSync.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		61F2AA9E2B5FB9AF008C5D9B /* TwilioSyncLib.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61F2AA9C2B5FB99A008C5D9B /* TwilioSyncLib.xcframework */; };
-		61F2AAA42B5FBA05008C5D9B /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 61F2AAA32B5FB9F9008C5D9B /* libsqlite3.tbd */; };
 		61F2AAA82B5FBA56008C5D9B /* TwilioSyncClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F2AAA72B5FBA56008C5D9B /* TwilioSyncClient.swift */; };
 /* End PBXBuildFile section */
 
@@ -84,7 +84,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				6100F1DF2B6072010045C050 /* TwilioSyncLib.xcframework in Embed Frameworks */,
+				6142EAFA2BD29866003458E3 /* TwilioSyncLib.xcframework in Embed Frameworks */,
 				6100F1DA2B6071FD0045C050 /* TwilioSync.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -102,6 +102,8 @@
 		6100F1E62B6154000045C050 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		610B1B522BA9BB2000708DFF /* ConnectivityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityMonitor.swift; sourceTree = "<group>"; };
 		614144B82B6A626300E1976C /* TwilioData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwilioData.swift; sourceTree = "<group>"; };
+		6142EAF52BD29853003458E3 /* TwilioSyncLib.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = TwilioSyncLib.xcframework; path = "../../../sdk/sync/sync-android-kt/build/XCFrameworks/release/TwilioSyncLib.xcframework"; sourceTree = "<group>"; };
+		6142EAFB2BD29882003458E3 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/usr/lib/libsqlite3.tbd; sourceTree = DEVELOPER_DIR; };
 		614472DB2B6A9E7000D10D3C /* TwilioSyncStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwilioSyncStreamTests.swift; sourceTree = "<group>"; };
 		614472DD2B6AA3E600D10D3C /* TwilioSubscriptionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwilioSubscriptionState.swift; sourceTree = "<group>"; };
 		614B59CF2B617ECF0099F626 /* TestConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestConstants.swift; sourceTree = "<group>"; };
@@ -132,8 +134,6 @@
 		61F2AA852B5FB941008C5D9B /* TwilioSync.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TwilioSync.docc; sourceTree = "<group>"; };
 		61F2AA8B2B5FB941008C5D9B /* TwilioSyncTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwilioSyncTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		61F2AA902B5FB941008C5D9B /* TwilioSyncClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwilioSyncClientTests.swift; sourceTree = "<group>"; };
-		61F2AA9C2B5FB99A008C5D9B /* TwilioSyncLib.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = TwilioSyncLib.xcframework; path = "../../../../sdk/android/sync-android-kt/build/XCFrameworks/release/TwilioSyncLib.xcframework"; sourceTree = "<group>"; };
-		61F2AAA32B5FB9F9008C5D9B /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk/usr/lib/libsqlite3.tbd; sourceTree = DEVELOPER_DIR; };
 		61F2AAA72B5FBA56008C5D9B /* TwilioSyncClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwilioSyncClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -142,7 +142,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6100F1DE2B6072010045C050 /* TwilioSyncLib.xcframework in Frameworks */,
+				6142EAF92BD29866003458E3 /* TwilioSyncLib.xcframework in Frameworks */,
 				6100F1D92B6071FD0045C050 /* TwilioSync.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -151,8 +151,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				61F2AAA42B5FBA05008C5D9B /* libsqlite3.tbd in Frameworks */,
-				61F2AA9E2B5FB9AF008C5D9B /* TwilioSyncLib.xcframework in Frameworks */,
+				6142EAFC2BD29888003458E3 /* libsqlite3.tbd in Frameworks */,
+				6142EAF62BD29853003458E3 /* TwilioSyncLib.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,8 +273,8 @@
 		61F2AA9B2B5FB94D008C5D9B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				61F2AAA32B5FB9F9008C5D9B /* libsqlite3.tbd */,
-				61F2AA9C2B5FB99A008C5D9B /* TwilioSyncLib.xcframework */,
+				6142EAFB2BD29882003458E3 /* libsqlite3.tbd */,
+				6142EAF52BD29853003458E3 /* TwilioSyncLib.xcframework */,
 			);
 			path = Frameworks;
 			sourceTree = "<group>";
@@ -433,11 +433,12 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"",
+				"$(PROJECT_DIR)/TwilioSyncTests/utils/TestConstants.swift",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "../../../BuildScripts/generate-test-constants-kotlin-ios.sh\n";
-			showEnvVarsInLog = 0;
+			shellScript = "../../BuildScripts/generate-test-constants-kotlin-ios.sh\n";
 		};
 		61F2AADF2B6050EA008C5D9B /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -455,7 +456,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ../../android/sync\n./gradlew sync-android-kt:assembleTwilioSyncLibReleaseXCFramework\n";
+			shellScript = "cd ../..\n./gradlew sync-android-kt:assembleTwilioSyncLibReleaseXCFramework\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -794,7 +795,6 @@
 		61F2AA992B5FB941008C5D9B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7HS255F6G5;
@@ -814,7 +814,6 @@
 		61F2AA9A2B5FB941008C5D9B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7HS255F6G5;

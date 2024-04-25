@@ -14,7 +14,6 @@ buildscript {
 android {
     namespace "com.twilio.sync.testapp"
     compileSdk androidCompileSdkVersion
-    ndkVersion androidNdkVersion
 
     defaultConfig {
         applicationId "com.twilio.sync.testapp"
@@ -24,10 +23,7 @@ android {
 
         buildConfigField "String", "ACCESS_TOKEN_SERVICE_URL", "\"${findProperty("ACCESS_TOKEN_SERVICE_URL") ?: ""}\""
 
-        def testBuildTypeValue = findProperty('testBuildType') ?: System.getProperty('testBuildType', 'debug').uncapitalize()
-        println "testapp testBuildType: $testBuildTypeValue"
-        testBuildType testBuildTypeValue
-
+        testBuildType "release"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -35,18 +31,9 @@ android {
         debug {
             testCoverageEnabled true
         }
-        coordinated {
-            initWith(debug)
-            matchingFallbacks = ['debug']
-            isDefault = true
-        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
-        }
-        releaseWithSymbols {
-            initWith(release)
-            matchingFallbacks = ['release']
         }
     }
 
@@ -65,7 +52,6 @@ android {
 }
 
 dependencies {
-    implementation project(":$sdkProjectName")
     implementation project(":shared-internal")
     implementation project(":shared-public")
     implementation project(":sync-android-java")

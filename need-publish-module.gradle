@@ -1,0 +1,41 @@
+apply from: "./check-module-version-exists.gradle"
+apply from: "./check-module-changes.gradle"
+
+ext.needPublishTwilsock = { twilsockVersion ->
+    def twilsockExists =
+            checkVersionExists("com/twilio/twilsock/$twilsockVersion/twilsock-${twilsockVersion}.pom")
+
+    println "twilsockExists: $twilsockExists"
+
+    if (twilsockExists) {
+        ensureNoChanges(twilsockVersion, "twilsock", "${project(":utils").projectDir}/twilsock-version.gradle")
+    }
+
+    return !twilsockExists
+}
+
+ext.needPublishSharedInternal = { sharedInternalVersion ->
+    def sharedInternalExists =
+            checkVersionExists("com/twilio/shared-internal/$sharedInternalVersion/shared-internal-${sharedInternalVersion}.pom")
+
+    println "shared-internal exists : $sharedInternalExists"
+
+    if (sharedInternalExists) {
+        ensureNoChanges(sharedInternalVersion, "shared-internal", "${project(":utils").projectDir}/shared-internal-version.gradle")
+    }
+
+    return !sharedInternalExists
+}
+
+ext.needPublishSharedPublic = { sharedPublicVersion ->
+    def sharedPublicExists =
+            checkVersionExists("com/twilio/shared-public/$sharedPublicVersion/shared-public-${sharedPublicVersion}.pom")
+
+    println "shared-public exists : $sharedPublicExists"
+
+    if (sharedPublicExists) {
+        ensureNoChanges(sharedPublicVersion, "shared-public", "${project(":utils").projectDir}/shared-public-version.gradle")
+    }
+
+    return !sharedPublicExists
+}

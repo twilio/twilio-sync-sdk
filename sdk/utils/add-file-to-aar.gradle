@@ -1,0 +1,40 @@
+ext.addFileToAar = { buildType, fileToAdd ->
+    // Gradle is an advanced build system. For this reason alone, it is not possible to "just"
+    // include a license file into the built AAR package.
+    // Apply [advanced gradle scripting](https://stackoverflow.com/questions/45846957/android-how-can-i-include-a-licence-txt-file-in-aar) instead.
+
+    def outputAarDir = file("${buildDir}/outputs/aar")
+    def outputAarUnzippedDir = file("${buildDir}/outputs/aar/unzipped-${buildType}")
+    def aarReleaseFile = file("${buildDir}/outputs/aar/${project.name}-${buildType}.aar")
+
+    tasks.register("unzip${buildType.capitalize()}Aar", Copy) {
+        dependsOn "bundle${buildType.capitalize()}Aar"
+        from zipTree(aarReleaseFile)
+        into outputAarUnzippedDir
+    }
+
+    tasks.register("addLicenseFileInUnzipped${buildType.capitalize()}Aar", Copy) {
+        dependsOn "unzip${buildType.capitalize()}Aar"
+        from fileToAdd, {
+            rename { "NOTICES.txt" }
+        }
+        into outputAarUnzippedDir
+    }
+
+    tasks.register("reZip${buildType.capitalize()}Aar", Zip) {
+        dependsOn "addLicenseFileInUnzipped${buildType.capitalize()}Aar"
+        from outputAarUnzippedDir
+        include '**'
+        archiveFileName = aarReleaseFile.name
+        destinationDirectory = outputAarDir
+    }
+
+    tasks.register("deleteUnzipped${buildType.capitalize()}Aar", Delete) {
+        dependsOn "reZip${buildType.capitalize()}Aar"
+        delete outputAarUnzippedDir
+    }
+
+    afterEvaluate {
+        tasks.findByName("bundle${buildType.capitalize()}Aar").finalizedBy("deleteUnzipped${buildType.capitalize()}Aar")
+    }
+}

@@ -1,0 +1,12 @@
+def copyTestConstantsOpt = {
+    rename { "testConstants.kt" }
+    expand(
+            ACCESS_TOKEN_SERVICE_URL: ACCESS_TOKEN_SERVICE_URL.replace("\$", "\\\$"),
+            TEST_TWILSOCK_SERVICE_URL: TEST_TWILSOCK_SERVICE_URL,
+    )
+}
+
+copy {
+    from "${project(':utils').projectDir}/testConstantsKt.in", copyTestConstantsOpt
+    into "${project(':shared-test').projectDir}/src/commonMain/kotlin/com/twilio/test/util"
+}
