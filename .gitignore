@@ -24,3 +24,4 @@ sdk/**/package-info.md
 sdk/sync/sync-android-kt/src/commonMain/kotlin/com/twilio/sync/utils/Versions.kt
 ios/TwilioSync/TwilioSyncTests/utils/TestConstants.swift
 ios/TwilioSync/output/
+tools/sbom/target/

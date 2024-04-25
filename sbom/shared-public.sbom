@@ -1,0 +1,8 @@
+[product]
+name = "Twilio Shared Public Library"
+
+[links]
+kotlin = "shared/kotlin-stdlib.sbom"
+coro = "shared/kotlinx-coroutines.sbom"
+ser = "shared/kotlinx-serialization-json.sbom"
+annotations = "shared/annotations.sbom"

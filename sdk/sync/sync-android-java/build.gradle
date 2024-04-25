@@ -126,5 +126,5 @@ tasks.withType(KotlinCompile).configureEach {
     }
 }
 
-def noticesFile = file("$projectDir/../../../sbom/generated/android-native-sync.NOTICES.txt")
+def noticesFile = file("${rootProject.projectDir}/sbom/generated/android-sync.NOTICES.txt")
 addFileToAar("release", noticesFile)

@@ -1,0 +1,11 @@
+[product]
+name = "Twilio Shared Internal Library"
+
+[links]
+shared-public = "shared-public.sbom"
+ser = "shared/kotlinx-serialization-json.sbom"
+atomicfu = "shared/kotlinx-atomicfu.sbom"
+datetime = "shared/kotlinx-datetime.sbom"
+ktor = "shared/ktor.sbom"
+security = "android/androidx-security.sbom"
+coro = "shared/kotlinx-coroutines.sbom"

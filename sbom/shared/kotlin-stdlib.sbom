@@ -1,0 +1,5 @@
+[dependency]
+name = "Jetbrains Kotlin Stdlib"
+homepage = "https://kotlinlang.org"
+license = { url = "https://www.apache.org/licenses/LICENSE-2.0.txt" }
+spdx = "Apache-2.0"

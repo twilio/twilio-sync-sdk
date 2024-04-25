@@ -1,0 +1,5 @@
+[dependency]
+name = "Jetbrains KotlinX Coroutines"
+homepage = "https://github.com/Kotlin/kotlinx.coroutines/"
+license = { url = "https://raw.githubusercontent.com/Kotlin/kotlinx.coroutines/master/LICENSE.txt" }
+spdx = "Apache-2.0"

@@ -1,0 +1,5 @@
+[dependency]
+name = "SKIE - Swift Kotlin Interface Enhancer."
+homepage = "https://github.com/touchlab/SKIE"
+license = { url = "https://raw.githubusercontent.com/touchlab/SKIE/main/LICENSE" }
+spdx = "Apache-2.0"
