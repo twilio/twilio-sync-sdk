@@ -28,7 +28,7 @@ ext.ensureNoChanges = { libVersion, moduleName, libVersionGradlePath ->
     println "$moduleName diffCount: $diffCount"
 
     if (diffCount > 0) {
-        throw new GradleException("Changes in $moduleName found since bumping version to $libVersion:\n" +
+        throw new GradleException("Changes in $moduleName found since bumping version to $libVersion (commit: $bumpVersionCommit):\n" +
                 diffPaths.join("\n"))
     }
 }
