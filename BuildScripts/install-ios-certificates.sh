@@ -1,7 +1,7 @@
 set -x
 
 [ -z "$CIRCLECI" ] && echo "Nothing to do on non-circleci node" && exit 0
-[ -z "$MATCH_FILE "] && echo "MATCH_FILE env var is undefined. Add proper circleci context" && exit 1
+[ -z "$MATCH_FILE" ] && echo "MATCH_FILE env var is undefined. Add proper circleci context" && exit 1
 
 pushd `dirname $0`
 
