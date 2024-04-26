@@ -30,6 +30,12 @@ aliases:
     sdk/sync/sync-android-java/build/outputs
   - &android_sync_shared_sdk_output
     sdk/sync/sync-android-shared/build/outputs
+  - &android_sync_sdk_sources_jar
+    sdk/sync/sync-android-kt/build/libs
+  - &android_sync_java_sdk_sources_jar
+    sdk/sync/sync-android-java/build/libs
+  - &android_sync_shared_sources_jar
+    sdk/sync/sync-android-shared/build/libs
   - &android_sync_sdk_tests_output
     sdk/sync/sync-testapp-java/build/outputs
   - &android_sdk_docs_html_output
@@ -969,6 +975,9 @@ jobs:
           root: .
           paths:
             - *android_sdk_docs_jar_output
+            - *android_sync_sdk_sources_jar
+            - *android_sync_java_sdk_sources_jar
+            - *android_sync_shared_sources_jar
 
   publish-sdk-android:
     executor: linux-android-executor
