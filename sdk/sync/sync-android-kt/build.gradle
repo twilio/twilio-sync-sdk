@@ -194,8 +194,8 @@ dokkaHtmlPartial {
             includes.from("package-info.md")
             platform.set(org.jetbrains.dokka.Platform.jvm)
 
-            sourceRoots.from(kotlin.sourceSets.androidMain.kotlin.srcDirs)
-            sourceRoots.from(kotlin.sourceSets.commonMain.kotlin.srcDirs)
+            sourceRoots.from("$projectDir/src/androidMain/kotlin/")
+            sourceRoots.from("$projectDir/src/commonMain/kotlin/")
         }
     }
 }
