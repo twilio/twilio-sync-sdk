@@ -1,0 +1,23 @@
+{
+  "name": "release-pipeline",
+  "private": true,
+  "dependencies": {
+    "@types/node": "^20.11.0",
+    "@types/semver": "^7.5.6",
+    "child_process": "^1.0.2",
+    "dotenv": "^16.3.1",
+    "minimist": "^1.2.8",
+    "mustache": "^4.2.0",
+    "octokit": "^3.1.2",
+    "semver": "^7.5.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "scripts": {
+    "release":"npx esrun ./index.ts"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.5",
+    "@types/mustache": "^4.2.5"
+  }
+}

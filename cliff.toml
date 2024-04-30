@@ -1,0 +1,74 @@
+# git-cliff ~ default configuration file
+# https://git-cliff.org/docs/configuration
+
+[changelog]
+header = ""
+body = """
+{% for group, commits in commits | group_by(attribute="group") %}
+    ***{{ group | upper_first }}***
+    {% for commit in commits %}
+        - {{ commit.message | upper_first }}\
+    {% endfor %}
+{% endfor %}\n
+"""
+footer = ""
+trim = true
+postprocessors = [
+  # { pattern = '<REPO>', replace = "https://github.com/orhun/git-cliff" }, # replace repository URL
+]
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+split_commits = false
+
+commit_preprocessors = [
+  # Replace issue numbers
+  { pattern = 'RTDSDK-[0-9]+', replace = ""},
+  { pattern = '\(RTDSDK-[0-9]+\)', replace = ""},
+  { pattern = " +", replace = " " },
+  # Check spelling of the commit with https://github.com/crate-ci/typos
+  # If the spelling is incorrect, it will be automatically fixed.
+  #{ pattern = '.*', replace_command = 'typos --write-changes -' },
+  #{ pattern = '[Cc]lose[sd]?:.+', replace = "" },
+  #{ pattern = '[Ff]ix(e[sd])?:.+', replace = "" },
+  #{ pattern = '[Rr]esolve[sd]?:.+', replace = "" },
+]
+
+commit_parsers = [
+  { message = '^.+\!:', group = "💔 Breaking changes" },
+  { body = "BREAKING CHANGE", group = "💔 Breaking changes" },
+  { message = "^feat", group = "✨ Features" },
+  { message = "^fix", group = "🐛 Fixes" },
+  { message = "^doc", group = "📚 Documentation" },
+  { message = "^perf", group = "🚀 Performance" },
+  { message = ".*deprecated", body = ".*deprecated", group = "⛔️ Deprecated" },
+  { message = "^deprecate", group = "⛔️ Deprecated" },
+  { message = "^remove", group = "❌ Removed" },
+  { message = "^security", group = "🔐 Security" },
+  { body = ".*security", group = "🔐 Security" },
+
+  { message = '^fix\(internal\)', skip = true },
+  { message = "^refactor", skip = true },
+  { message = "^style", skip = true },
+  { message = "^test", skip = true },
+  { message = "^chore|ci", skip = true },
+  { message = "^revert", skip = true },
+]
+
+# protect breaking changes from being skipped due to matching a skipping commit_parser.
+# we have a history of forgetting to include breaking changse in the changelog, so this setting forces it.
+protect_breaking_commits = true
+filter_commits = true
+
+# the tag pattern is per-product...
+# just ignore this
+tag_pattern = "v[0-9].*"
+
+skip_tags = ""
+ignore_tags = ""
+
+# sort the tags topologically
+topo_order = false
+# sort the commits inside sections by oldest/newest order
+sort_commits = "oldest"
