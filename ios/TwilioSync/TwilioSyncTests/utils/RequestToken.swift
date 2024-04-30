@@ -13,7 +13,6 @@ extension String: Error {}
 
 func requestToken(identity: String = "kotlin-ios-test", ttl: Int = 3600) async throws -> String {
     let tokenUrl = "\(SYNC_ACCESS_TOKEN_SERVICE_URL)&identity=\(identity)&ttl=\(ttl)"
-    print("tokenUrl: \(tokenUrl)")
     
     let (data, response) = try await URLSession.shared.data(from: URL(string: tokenUrl)!)
     
@@ -23,6 +22,5 @@ func requestToken(identity: String = "kotlin-ios-test", ttl: Int = 3600) async t
         throw "Failed to get token with response \(response)"
     }
 
-    print("token: \(token)")
     return token
 }

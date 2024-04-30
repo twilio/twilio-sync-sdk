@@ -96,7 +96,7 @@ kotlin {
     }
 }
 
-def (fullVersionName, shortVersionName) = generateNativeSyncVersionNames(gitHash, gitTag)
+def (fullVersionName, shortVersionName) = generateSyncVersionNames(gitHash, gitTag)
 println "sync-android-kt fullVersionName: $fullVersionName"
 println "sync-android-kt shortVersionName: $shortVersionName"
 
