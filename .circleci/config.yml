@@ -537,7 +537,7 @@ jobs:
   #============================================================================
 
   pin-sdk-android:
-    executor: small-linux-generic-executor
+    executor: linux-android-executor
     description: "Pin to CDN"
     steps:
       - checkout
