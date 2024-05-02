@@ -1150,7 +1150,7 @@ workflows:
             - wait-tests-sync
       - distribute-sdk-ios:
           <<: *ios-rc-tag-filter
-          name: distribute-sdk-kotlin-ios-stage
+          name: distribute-sdk-ios-stage
           upload-type: stage
           context:
             - rtd-github-api
@@ -1203,7 +1203,7 @@ workflows:
     jobs:
       - distribute-sdk-ios:
           <<: *release-ios-tag-filter
-          name: distribute-sdk-kotlin-ios-prod
+          name: distribute-sdk-ios-prod
           upload-type: prod
           context:
             - rtd-github-api
