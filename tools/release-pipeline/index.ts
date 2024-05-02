@@ -48,13 +48,8 @@ const validateGitContext = async () => {
 //-------------------------------------------------------------------------------------------------
 const generateInternetShortcut = async (filename, artifact) => {
   const repoByArtifact = {
-    "convo": rcVersionPublish ? "conversations-ios-internal" : "conversations-ios",
-    "sync": rcVersionPublish ? "twilio-sync-ios-internal" : "twilio-sync-ios",
     "sync-kotlin": rcVersionPublish ? "twilio-sync-ios-internal" : "twilio-sync-ios",
     "sync-lib-kotlin": rcVersionPublish ? "twilio-sync-ios-internal" : "twilio-sync-ios",
-    "CommonLib": rcVersionPublish ? "twilsock-ios-internal" : "twilsock-ios",
-    "StateMachine": rcVersionPublish ? "twilsock-ios-internal" : "twilsock-ios",
-    "TwilsockLib": rcVersionPublish ? "twilsock-ios-internal" : "twilsock-ios",
   };
   const repo = repoByArtifact[artifact];
   await fs.promises.writeFile(filename, `[InternetShortcut]\nURL=https://github.com/twilio/${repo}/releases/tag/v${releaseVersion}`);
@@ -75,7 +70,7 @@ const helpText = `Usage:
   npx esrun tools/release-pipeline/index.ts <release-version-tag>
 
 Example:
-  npx esrun tools/release-pipeline/index.ts release-convo-ios-4.0.0-rc555`;
+  npx esrun tools/release-pipeline/index.ts release-sync-ios-4.0.0-rc555`;
 
 const args = minimist(process.argv.slice(2));
 
@@ -103,14 +98,8 @@ const parseTag = (tag: string): { product: string, version: string } => {
 };
 
 const repoMap = {
-  "convo-ios": "conversations-ios",
-  "convo-ios-rc": "conversations-ios-internal",
   "sync-ios": "twilio-sync-ios",
   "sync-ios-rc": "twilio-sync-ios-internal",
-  "twilsock-ios": "twilsock-ios",
-  "twilsock-ios-rc": "twilsock-ios-internal",
-  "sync-kotlin-ios": "twilio-sync-ios",
-  "sync-kotlin-ios-rc": "twilio-sync-ios-internal",
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -143,7 +132,7 @@ const packagesDir = `${localDir}/Package`;
 // Local directory for downloaded rc artifacts
 const downloadsDir = `${localDir}/Downloads`;
 // Directory with pre-built xcframeworks
-const xcFrameworkDir = `${monorepoDir}/sdk/ios/Local/Products`;
+const xcFrameworkDir = `${monorepoDir}/ios/Local/Products`;
 
 fs.rmSync(localDir, { recursive: true, force: true });
 fs.mkdirSync(localDir, { recursive: true });
@@ -352,14 +341,8 @@ await execAsync(`git checkout ${releaseBranch}`);
 // but using Octokit:
 
 const releaseTitles = {
-  "convo-ios": "Twilio Conversations Client",
-  "convo-ios-rc": "Twilio Conversations Client",
   "sync-ios": "Twilio Sync Client",
   "sync-ios-rc": "Twilio Sync Client",
-  "twilsock-ios": "Twilsock Library",
-  "twilsock-ios-rc": "Twilsock Library",
-  "sync-kotlin-ios": "Twilio Sync Client",
-  "sync-kotlin-ios-rc": "Twilio Sync Client",
 };
 
 // Create release
@@ -410,216 +393,6 @@ const makeDownloadUrl = (packageArchive: string, apiUrl: string): string =>
     : `https://github.com/twilio/${publishRepo}/releases/download/v${releaseVersion}/${packageArchive}`;
 
 //-------------------------------------------------------------------------------------------------
-// Prepare zip file to attach to the release.
-// - put xcframework in zip file in specific folder
-// - generate and place documentation in package and for gh-pages publishing
-// - return checksum
-//-------------------------------------------------------------------------------------------------
-const packageSingle = async (PACKAGE_NAME: string, PACKAGE_FILE: string): string => {
-  console.debug(`packageSingle: ${PACKAGE_NAME}`);
-
-  const PACKAGE_DIR = `${packagesDir}/${PACKAGE_NAME}`;
-  const PROJECT_PATH = `${monorepoDir}/sdk/ios/${PACKAGE_NAME}`;
-  const DOCUMENTABLE_TARGETS = ["sync", "convo"];
-
-  const xcFrameworkMap = {
-    "convo": "TwilioConversationsClient.xcframework",
-    "sync": "TwilioSyncClient.xcframework",
-    "CommonLib": "TwilioCommonLib.xcframework",
-    "StateMachine": "TwilioStateMachine.xcframework",
-    "TwilsockLib": "TwilioTwilsockLib.xcframework"
-  };
-  const XCFRAMEWORK_NAME = xcFrameworkMap[PACKAGE_NAME];
-  console.debug(`xcFrameworkDir: ${xcFrameworkDir}`);
-
-  fs.mkdirSync(PACKAGE_DIR, { recursive: true });
-
-  if (DOCUMENTABLE_TARGETS.includes(PACKAGE_NAME)) {
-    // Generate documentation
-    await execAsync(`${monorepoDir}/sdk/ios/Scripts/gen-appledoc.sh ${PACKAGE_NAME}`, { cwd: monorepoDir });
-
-    // Copy documentation into PACKAGE_DIR
-    fs.mkdirSync(`${PACKAGE_DIR}/Documentation`, { recursive: true });
-    fs.cpSync(`${PROJECT_PATH}/Documentation/html`, `${PACKAGE_DIR}/Documentation`, { recursive: true });
-
-    // Also put documentation to gh-pages branch of release repo -- just save to a special dir here,
-    // so we can pick it up later in the gh-pages publishing step in release repo.
-    fs.cpSync(`${PROJECT_PATH}/Documentation/html`, docsDir, { recursive: true });
-  }
-
-  await generateInternetShortcut(`${PACKAGE_DIR}/changelog.url`, PACKAGE_NAME);
-
-  // Copy xcframework into PACKAGE_DIR
-  fs.cpSync(`${xcFrameworkDir}/${XCFRAMEWORK_NAME}`, `${PACKAGE_DIR}/${XCFRAMEWORK_NAME}`, { recursive: true });
-
-  // Copy license notices
-  const noticesFiles = {
-    "convo": "ios-conversations.NOTICES.txt",
-    "sync": "ios-sync.NOTICES.txt",
-    "CommonLib": "ios-commonLib.NOTICES.txt",
-    "StateMachine": "ios-stateMachine.NOTICES.txt",
-    "TwilsockLib": "ios-twilsock.NOTICES.txt",
-  }
-  fs.cpSync(`${monorepoDir}/sbom/generated/${noticesFiles[PACKAGE_NAME]}`, `${PACKAGE_DIR}/NOTICE.txt`);
-
-  // Archive framework package
-  await execAsync(`zip -yr ${packagesDir}/${PACKAGE_FILE} .`, { cwd: PACKAGE_DIR })
-
-  // Calculate and remember checksum
-  const CHECKSUM = (await execAsync(`shasum -a 256 ${packagesDir}/${PACKAGE_FILE} | awk '{print $1}'`)).stdout.trim();
-  validateHashFormat(PACKAGE_NAME, CHECKSUM);
-
-  return CHECKSUM;
-};
-
-//-------------------------------------------------------------------------------------------------
-// Create Package.swift for Twilsock
-// Package all necessary libraries, get their hashes and create package URLs.
-//-------------------------------------------------------------------------------------------------
-const packageTwilsock = async () => {
-  const commonLibPackage = "twilio-commonLib-ios-" + releaseVersion + ".zip";
-  const stateMachinePackage = "twilio-stateMachine-ios-" + releaseVersion + ".zip";
-  const twilsockPackage = "twilio-twilsock-ios-" + releaseVersion + ".zip";
-
-  const COMMONLIB_CHECKSUM = await packageSingle("CommonLib", commonLibPackage);
-  const STATEMACHINE_CHECKSUM = await packageSingle("StateMachine", stateMachinePackage);
-  const TWILSOCK_CHECKSUM = await packageSingle("TwilsockLib", twilsockPackage);
-
-  const commonLibAsset = await uploadAssetToRelease(commonLibPackage);
-  const stateMachineAsset = await uploadAssetToRelease(stateMachinePackage);
-  const twilsockAsset = await uploadAssetToRelease(twilsockPackage);
-
-  const COMMONLIB_URL = makeDownloadUrl(commonLibPackage, commonLibAsset.data.url);
-  const STATEMACHINE_URL = makeDownloadUrl(stateMachinePackage, stateMachineAsset.data.url);
-  const TWILSOCK_URL = makeDownloadUrl(twilsockPackage, twilsockAsset.data.url);
-
-  const template = await fs.promises.readFile(path.resolve(__dirname, "template-Package.swift"), 'UTF-8');
-  const packageSwift = mustache.render(template,
-    { TWILSOCK_URL, TWILSOCK_CHECKSUM, COMMONLIB_URL, COMMONLIB_CHECKSUM, STATEMACHINE_URL, STATEMACHINE_CHECKSUM,
-    twilsock: true
-  });
-  
-  await fs.promises.writeFile("Package.swift", packageSwift);
-};
-
-const twilsockRepo = (rc: boolean): string =>
-  rc ? "https://github.com/twilio/twilsock-ios-internal" : "https://github.com/twilio/twilsock-ios";
-
-const ensureUrlExists = async (url: string, errorMessage: string) => {
-  try {
-    await execAsync(`curl --silent --head ${url} | grep "HTTP/.* 200"`);
-  } catch (e) {
-    bail(`URL ${url} does not exist: ${errorMessage}`);
-  }
-};
-
-const ensureReleaseAssetsExist = async (repo: string, tag: string, files: string[]) =>  {
-  try {
-    const release = await octokit.request('GET /repos/{owner}/{repo}/releases/tags/{tag}', {
-      owner: 'twilio',
-      repo: repo,
-      tag: tag,
-      headers: { 'X-GitHub-Api-Version': '2022-11-28' }
-    });
-
-    const assetNames = release.data.assets.map((x) => x.name);
-
-    for (const file of files) {
-      if (!assetNames.includes(file)) {
-        bail(`Release asset ${asset} does not exist in ${repo} for tag ${tag}`);
-      }
-    }
-  } catch (e) {
-    bail(`Cannot get assets for gh-release with tag ${tag} in ${repo}: ${e}`);
-  }
-};
-
-const detectTwilsockVersion = async () => {
-  let gitDescribeCmd = `git describe --tags --match "release-twilsock-ios*" --abbrev=0 HEAD`;
-
-  if (!rcVersionPublish) {
-    gitDescribeCmd += ` --exclude "*-rc[0-9]*"`; // exclude rc tags
-  }
-
-  const latestTwilsockTag = (await execAsync(gitDescribeCmd, { cwd: monorepoDir })).stdout.trim();
-
-  console.debug(`Detected latest twilsock tag: ${latestTwilsockTag}`);
-
-  const diff = (await execAsync(`git diff --name-only ${latestTwilsockTag} HEAD`, { cwd: monorepoDir })).stdout
-    .trim()
-    .split("\n")
-    .filter((x) =>
-        x.startsWith("sdk/ios/Common/CommonLib")
-            || x.startsWith("sdk/ios/Common/External/StateMachine")
-            || x.startsWith("sdk/ios/Common/TwilsockLib"))
-
-  if (diff.length > 0) {
-    bail(`Twilsock from the tag ${latestTwilsockTag} is not up to date with the latest commit.\n` +
-        `Release latest twilsock first.\nChanges:\n${diff.join("\n")}`);
-  }
-
-  const twilsockVersion = parseTag(latestTwilsockTag).version;
-  console.debug(`Detected twilsock version: ${twilsockVersion}`);
-
-  // Check if the version binaries actually available in github releases.
-  const twilsockRepo = productToRepo("twilsock-ios", twilsockVersion.includes('-rc'))
-
-  await ensureReleaseAssetsExist(twilsockRepo, `v${twilsockVersion}`, [
-    `twilio-twilsock-ios-${twilsockVersion}.zip`,
-    `twilio-commonLib-ios-${twilsockVersion}.zip`,
-    `twilio-stateMachine-ios-${twilsockVersion}.zip`
-  ]);
-
-  return twilsockVersion;
-}
-
-//-------------------------------------------------------------------------------------------------
-// Create Package.swift for Sync
-// Package all necessary libraries, get their hashes and create package URLs.
-//-------------------------------------------------------------------------------------------------
-const packageSync = async () => {
-  const syncPackage = "twilio-sync-ios-" + releaseVersion + ".zip";
-  const PACKAGE_CHECKSUM = await packageSingle("sync", syncPackage);
-  const PRODUCT = "Sync";
-  const TWILSOCK_VERSION = await detectTwilsockVersion();
-  const TWILSOCK_PACKAGE_REPO = twilsockRepo(TWILSOCK_VERSION.includes('-rc'));
-
-  const syncAsset = await uploadAssetToRelease(syncPackage);
-  const PACKAGE_URL = makeDownloadUrl(syncPackage, syncAsset.data.url);
-
-  const template = await fs.promises.readFile(path.resolve(__dirname, "template-Package.swift"), 'UTF-8');
-  const packageSwift = mustache.render(template,
-    { PRODUCT, TWILSOCK_PACKAGE_REPO, TWILSOCK_VERSION, PACKAGE_URL, PACKAGE_CHECKSUM,
-    sdk_ios: true
-  });
-
-  await fs.promises.writeFile("Package.swift", packageSwift);
-};
-
-//-------------------------------------------------------------------------------------------------
-// Create Package.swift for Conversations
-// Package all necessary libraries, get their hashes and create package URLs.
-//-------------------------------------------------------------------------------------------------
-const packageConvo = async () => {
-  const convoPackage = "twilio-conversations-ios-" + releaseVersion + ".zip";
-  const PACKAGE_CHECKSUM = await packageSingle("convo", convoPackage);
-  const PRODUCT = "Conversations";
-  const TWILSOCK_VERSION = await detectTwilsockVersion();
-  const TWILSOCK_PACKAGE_REPO = twilsockRepo(TWILSOCK_VERSION.includes('-rc'));
-
-  const convoAsset = await uploadAssetToRelease(convoPackage);
-  const PACKAGE_URL = makeDownloadUrl(convoPackage, convoAsset.data.url);
-
-  const template = await fs.promises.readFile(path.resolve(__dirname, "template-Package.swift"), 'UTF-8');
-  const packageSwift = mustache.render(template,
-    { PRODUCT, TWILSOCK_PACKAGE_REPO, TWILSOCK_VERSION, PACKAGE_URL, PACKAGE_CHECKSUM,
-    sdk_ios: true
-  });
-
-  await fs.promises.writeFile("Package.swift", packageSwift);
-};
-
-//-------------------------------------------------------------------------------------------------
 // Prepare zip file to attach to the release for kotlin native relases.
 // - put xcframework in zip file in specific folder
 // - generate and place documentation in package and for gh-pages publishing
@@ -632,8 +405,8 @@ const packageSingleKotlin = async (PACKAGE_NAME: string, PACKAGE_FILE: string): 
   fs.mkdirSync(PACKAGE_DIR, { recursive: true });
 
   const xcFrameworkMap = {
-    "sync-kotlin": `${monorepoDir}/root-projects/ios/TwilioSync/output/xcframeworks/TwilioSync.xcframework`,
-    "sync-lib-kotlin": `${monorepoDir}/sdk/android/sync-android-kt/build/XCFrameworks/release/TwilioSyncLib.xcframework`
+    "sync-kotlin": `${monorepoDir}/ios/TwilioSync/output/xcframeworks/TwilioSync.xcframework`,
+    "sync-lib-kotlin": `${monorepoDir}/sdk/sync/sync-android-kt/build/XCFrameworks/release/TwilioSyncLib.xcframework`
   };
   const xcFramework = xcFrameworkMap[PACKAGE_NAME];
   console.debug(`xcFramework: ${xcFramework}`);
@@ -651,7 +424,7 @@ const packageSingleKotlin = async (PACKAGE_NAME: string, PACKAGE_FILE: string): 
     console.debug(`Generating documentation for ${PACKAGE_NAME}`);
 
     const { project, hostingBasePath } = packagesWithDocumentation[PACKAGE_NAME]
-    const docArchivePath = `${monorepoDir}/root-projects/ios/${project}/DerivedData/Build/Products/Release-iphoneos`
+    const docArchivePath = `${monorepoDir}/ios/${project}/DerivedData/Build/Products/Release-iphoneos`
     const docArchiveName = `${project}.doccarchive`
 
     // Generate documentation
@@ -674,8 +447,8 @@ const packageSingleKotlin = async (PACKAGE_NAME: string, PACKAGE_FILE: string): 
 
   // Copy license notices
   const noticesFiles = {
-    "sync-kotlin": "ios-native-sync.NOTICES.txt",
-    "sync-lib-kotlin": "ios-native-sync.NOTICES.txt",
+    "sync-kotlin": "ios-sync.NOTICES.txt",
+    "sync-lib-kotlin": "ios-sync.NOTICES.txt",
   }
 
   fs.cpSync(`${monorepoDir}/sbom/generated/${noticesFiles[PACKAGE_NAME]}`, `${PACKAGE_DIR}/NOTICE.txt`);
@@ -722,13 +495,7 @@ const packageSyncKotlin = async () => {
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 
-if (product == "twilsock-ios") {
-  await packageTwilsock();
-} else if (product == "sync-ios") {
-  await packageSync();
-} else if (product == "convo-ios") {
-  await packageConvo();
-} else if (product == "sync-kotlin-ios") {
+if (product == "sync-ios") {
   await packageSyncKotlin();
 } else {
   bail(`Have no idea how to distribute product ${product}`);
@@ -789,7 +556,7 @@ const publishDocs = async() => {
 
   if (updateLatest) {
     const redirectPathsMap = {
-        "sync-kotlin-ios": `releases/${releaseVersion}/docs/documentation/twiliosync`,
+        "sync-ios": `releases/${releaseVersion}/docs/documentation/twiliosync`,
     }
     const redirectPath = redirectPathsMap[product] ?? `releases/${releaseVersion}/docs`;
     const redirectUrl = rcVersionPublish ? redirectPath : `${publishRepo}/${redirectPath}`;
