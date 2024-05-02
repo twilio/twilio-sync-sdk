@@ -1,0 +1,27 @@
+{
+  "variables": {
+    "platform": "android",
+    "product": "sync"
+  },
+  "major_minor_versions": "sdk/{platform}/{product}/",
+  "versions": "sdk/{platform}/{product}/releases/",
+  "artifacts": {
+    "sdk/build/docs/dokka/": "sdk/{platform}/{product}/releases/{version}/docs/"
+  },
+  "pin": {
+    "sdk/{platform}/{product}/v{major}.{minor}/docs": "sdk/{platform}/{product}/releases/{version}/docs/sync-android-kt",
+    "sdk/{platform}/{product}/v{major}.{minor}/docs/index.html": "sdk/{platform}/{product}/releases/{version}/docs/sync-android-kt",
+    "sdk/{platform}/{product}/v{major}.{minor}/docs/kotlin": "sdk/{platform}/{product}/releases/{version}/docs/sync-android-kt",
+    "sdk/{platform}/{product}/v{major}.{minor}/docs/kotlin/index.html": "sdk/{platform}/{product}/releases/{version}/docs/sync-android-kt",
+    "sdk/{platform}/{product}/v{major}.{minor}/docs/java": "sdk/{platform}/{product}/releases/{version}/docs/sync-android-java",
+    "sdk/{platform}/{product}/v{major}.{minor}/docs/java/index.html": "sdk/{platform}/{product}/releases/{version}/docs/sync-android-java"
+  },
+  "latest": {
+    "sdk/{platform}/{product}/latest/docs": "sdk/{platform}/{product}/releases/{version}/docs/sync-android-kt",
+    "sdk/{platform}/{product}/latest/docs/index.html": "sdk/{platform}/{product}/releases/{version}/docs/sync-android-kt",
+    "sdk/{platform}/{product}/latest/docs/kotlin": "sdk/{platform}/{product}/releases/{version}/docs/sync-android-kt",
+    "sdk/{platform}/{product}/latest/docs/kotlin/index.html": "sdk/{platform}/{product}/releases/{version}/docs/sync-android-kt",
+    "sdk/{platform}/{product}/latest/docs/java": "sdk/{platform}/{product}/releases/{version}/docs/sync-android-java",
+    "sdk/{platform}/{product}/latest/docs/java/index.html": "sdk/{platform}/{product}/releases/{version}/docs/sync-android-java"
+  }
+}

@@ -48,6 +48,8 @@ import kotlin.time.Duration.Companion.seconds
 val testCoroutineContext = newSerialCoroutineContext()
 val testCoroutineScope = CoroutineScope(testCoroutineContext + SupervisorJob())
 
+val testLogger = TwilioLogger.getLogger("TestLogger")
+
 fun runTest(timeout: Duration = 60.seconds, block: suspend CoroutineScope.() -> Unit) =
     runBlocking(testCoroutineContext) {
         withTimeout(timeout, block)
@@ -57,7 +59,10 @@ suspend fun requestToken(
     identity: String = "sdkCommonTest",
     ttl: Duration = 1.hours,
 ): String = HttpClient().use { client ->
-    client.get("$kTokenGeneratorServiceUrl&identity=$identity&ttl=${ttl.inWholeSeconds}").body()
+    testLogger.d { "Requesting token for identity $identity" }
+    val token = client.get("$kTokenGeneratorServiceUrl&identity=$identity&ttl=${ttl.inWholeSeconds}").body<String>()
+    testLogger.d { "Token for identity $identity received" }
+    return@use token
 }
 
 /**
