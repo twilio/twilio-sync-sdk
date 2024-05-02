@@ -48,8 +48,8 @@ const validateGitContext = async () => {
 //-------------------------------------------------------------------------------------------------
 const generateInternetShortcut = async (filename, artifact) => {
   const repoByArtifact = {
-    "sync-kotlin": rcVersionPublish ? "twilio-sync-ios-internal" : "twilio-sync-ios",
-    "sync-lib-kotlin": rcVersionPublish ? "twilio-sync-ios-internal" : "twilio-sync-ios",
+    "sync": rcVersionPublish ? "twilio-sync-ios-internal" : "twilio-sync-ios",
+    "sync-lib": rcVersionPublish ? "twilio-sync-ios-internal" : "twilio-sync-ios",
   };
   const repo = repoByArtifact[artifact];
   await fs.promises.writeFile(filename, `[InternetShortcut]\nURL=https://github.com/twilio/${repo}/releases/tag/v${releaseVersion}`);
@@ -393,26 +393,26 @@ const makeDownloadUrl = (packageArchive: string, apiUrl: string): string =>
     : `https://github.com/twilio/${publishRepo}/releases/download/v${releaseVersion}/${packageArchive}`;
 
 //-------------------------------------------------------------------------------------------------
-// Prepare zip file to attach to the release for kotlin native relases.
+// Prepare zip file to attach to the release.
 // - put xcframework in zip file in specific folder
 // - generate and place documentation in package and for gh-pages publishing
 // - return checksum
 //-------------------------------------------------------------------------------------------------
-const packageSingleKotlin = async (PACKAGE_NAME: string, PACKAGE_FILE: string): string => {
-  console.debug(`packageSingleKotlin: ${PACKAGE_NAME}`);
+const packageSingle = async (PACKAGE_NAME: string, PACKAGE_FILE: string): string => {
+  console.debug(`packageSingle: ${PACKAGE_NAME}`);
 
   const PACKAGE_DIR = `${packagesDir}/${PACKAGE_NAME}`;
   fs.mkdirSync(PACKAGE_DIR, { recursive: true });
 
   const xcFrameworkMap = {
-    "sync-kotlin": `${monorepoDir}/ios/TwilioSync/output/xcframeworks/TwilioSync.xcframework`,
-    "sync-lib-kotlin": `${monorepoDir}/sdk/sync/sync-android-kt/build/XCFrameworks/release/TwilioSyncLib.xcframework`
+    "sync": `${monorepoDir}/ios/TwilioSync/output/xcframeworks/TwilioSync.xcframework`,
+    "sync-lib": `${monorepoDir}/sdk/sync/sync-android-kt/build/XCFrameworks/release/TwilioSyncLib.xcframework`
   };
   const xcFramework = xcFrameworkMap[PACKAGE_NAME];
   console.debug(`xcFramework: ${xcFramework}`);
 
   const packagesWithDocumentation = {
-      "sync-kotlin": {
+      "sync": {
         "project": "TwilioSync",
         "hostingBasePath": rcVersionPublish ? `releases/${releaseVersion}/docs` : `twilio-sync-ios/releases/${releaseVersion}/docs`,
       }
@@ -447,8 +447,8 @@ const packageSingleKotlin = async (PACKAGE_NAME: string, PACKAGE_FILE: string): 
 
   // Copy license notices
   const noticesFiles = {
-    "sync-kotlin": "ios-sync.NOTICES.txt",
-    "sync-lib-kotlin": "ios-sync.NOTICES.txt",
+    "sync": "ios-sync.NOTICES.txt",
+    "sync-lib": "ios-sync.NOTICES.txt",
   }
 
   fs.cpSync(`${monorepoDir}/sbom/generated/${noticesFiles[PACKAGE_NAME]}`, `${PACKAGE_DIR}/NOTICE.txt`);
@@ -464,14 +464,14 @@ const packageSingleKotlin = async (PACKAGE_NAME: string, PACKAGE_FILE: string): 
 };
 
 //-------------------------------------------------------------------------------------------------
-// Create Package.swift for Kotlin Native Sync
+// Create Package.swift for Sync
 // Package all necessary libraries, get their hashes and create package URLs.
 //-------------------------------------------------------------------------------------------------
-const packageSyncKotlin = async () => {
+const packageSync = async () => {
   const syncPackage = "twilio-sync-" + releaseVersion + ".zip";
   const syncLibPackage = "twilio-sync-lib-" + releaseVersion + ".zip";
-  const SDK_CHECKSUM = await packageSingleKotlin("sync-kotlin", syncPackage);
-  const LIB_CHECKSUM = await packageSingleKotlin("sync-lib-kotlin", syncLibPackage);
+  const SDK_CHECKSUM = await packageSingle("sync", syncPackage);
+  const LIB_CHECKSUM = await packageSingle("sync-lib", syncLibPackage);
   const PRODUCT = "Sync";
 
   const syncAsset = await uploadAssetToRelease(syncPackage);
@@ -481,10 +481,7 @@ const packageSyncKotlin = async () => {
   const LIB_URL = makeDownloadUrl(syncLibPackage, syncLibAsset.data.url);
 
   const template = await fs.promises.readFile(path.resolve(__dirname, "template-Package.swift"), 'UTF-8');
-  const packageSwift = mustache.render(template,
-    { PRODUCT, SDK_URL, SDK_CHECKSUM, LIB_URL, LIB_CHECKSUM,
-    sdk_kotlin_ios: true
-  });
+  const packageSwift = mustache.render(template, { PRODUCT, SDK_URL, SDK_CHECKSUM, LIB_URL, LIB_CHECKSUM });
 
   await fs.promises.writeFile("Package.swift", packageSwift);
 };
@@ -496,7 +493,7 @@ const packageSyncKotlin = async () => {
 //-------------------------------------------------------------------------------------------------
 
 if (product == "sync-ios") {
-  await packageSyncKotlin();
+  await packageSync();
 } else {
   bail(`Have no idea how to distribute product ${product}`);
 }
