@@ -36,6 +36,8 @@ commit_preprocessors = [
 ]
 
 commit_parsers = [
+  { message = '^fix\(internal\)', skip = true },
+
   { message = '^.+\!:', group = "💔 Breaking changes" },
   { body = "BREAKING CHANGE", group = "💔 Breaking changes" },
   { message = "^feat", group = "✨ Features" },
@@ -47,13 +49,6 @@ commit_parsers = [
   { message = "^remove", group = "❌ Removed" },
   { message = "^security", group = "🔐 Security" },
   { body = ".*security", group = "🔐 Security" },
-
-  { message = '^fix\(internal\)', skip = true },
-  { message = "^refactor", skip = true },
-  { message = "^style", skip = true },
-  { message = "^test", skip = true },
-  { message = "^chore|ci", skip = true },
-  { message = "^revert", skip = true },
 ]
 
 # protect breaking changes from being skipped due to matching a skipping commit_parser.
