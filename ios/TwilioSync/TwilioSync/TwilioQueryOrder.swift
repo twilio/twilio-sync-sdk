@@ -4,7 +4,8 @@
 //
 //  Created by Dmitry Kalita on 12.03.2024.
 //
-//  Copyright © Twilio, Inc. All rights reserved.
+// Copyright © Twilio, Inc. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 //
 
 import Foundation

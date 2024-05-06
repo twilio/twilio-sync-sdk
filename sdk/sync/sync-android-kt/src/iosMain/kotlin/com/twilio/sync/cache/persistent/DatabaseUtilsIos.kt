@@ -1,7 +1,8 @@
 //
 //  Twilio Sync Client
 //
-//  Copyright © Twilio, Inc. All rights reserved.
+// Copyright © Twilio, Inc. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 //
 @file:OptIn(ExperimentalForeignApi::class)
 
