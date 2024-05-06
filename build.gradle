@@ -119,6 +119,8 @@ println "need to publish shared-internal: $needPublishSharedInternal"
 def needPublishSharedPublic = needPublishSharedPublic(sharedPublicVersion)
 println "need to publish shared-public: $needPublishSharedPublic"
 
+def gitHash = findProperty("gitHash") ?: "HEAD"
+def gitTag = findProperty("gitTag") ?: ""
 def (isSyncReleaseCandidate, syncVersion) = generatePublishVersionNames(gitHash, gitTag)
 
 println "publishing isSyncReleaseCandidate?: $isSyncReleaseCandidate"
