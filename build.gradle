@@ -156,7 +156,7 @@ if (needPublishTwilsock) {
 
                     name = 'Twilio twilsock client'
                     description = 'An internal library which is used by by Twilio mobile SDK'
-                    url = 'https://www.twilio.com/docs/conversations'
+                    url = 'https://github.com/twilio/twilio-sync-sdk'
                 }
             }
         }
@@ -190,7 +190,7 @@ if (needPublishSharedInternal) {
 
                     name = 'Twilio Shared Internal Library'
                     description = 'An internal library which is used by Twilio mobile SDK'
-                    url = 'https://www.twilio.com/docs/conversations'
+                    url = 'https://github.com/twilio/twilio-sync-sdk'
                 }
             }
         }
@@ -224,7 +224,7 @@ if (needPublishSharedPublic) {
 
                     name = 'Twilio Shared Public Library'
                     description = 'An public utility library which is used by Twilio mobile SDK'
-                    url = 'https://www.twilio.com/docs/conversations'
+                    url = 'https://github.com/twilio/twilio-sync-sdk'
                 }
             }
         }
@@ -261,7 +261,7 @@ if (isSyncReleaseCandidate) {
 
                     name = 'Sync SDK for Android'
                     description = 'An Android library for synchronization mobile apps with a single source of state in the cloud.'
-                    url = 'https://www.twilio.com/docs/sync'
+                    url = 'https://github.com/twilio/twilio-sync-sdk'
                 }
             }
             syncJavaRelease(MavenPublication) {
@@ -283,7 +283,7 @@ if (isSyncReleaseCandidate) {
 
                     name = 'Sync Android SDK for Java'
                     description = 'An Android library for synchronization mobile apps with a single source of state in the cloud.'
-                    url = 'https://www.twilio.com/docs/sync'
+                    url = 'https://github.com/twilio/twilio-sync-sdk'
                 }
             }
             syncSharedRelease(MavenPublication) {
@@ -302,7 +302,7 @@ if (isSyncReleaseCandidate) {
 
                     name = 'Twilio Sync Shared Library'
                     description = 'An public utility library which is used by Twilio mobile SDK'
-                    url = 'https://www.twilio.com/docs/sync'
+                    url = 'https://github.com/twilio/twilio-sync-sdk'
                 }
             }
         }
