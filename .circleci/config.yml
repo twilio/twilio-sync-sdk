@@ -142,7 +142,6 @@ aliases:
         tags:
           only: 
             - /^release-sync-ios-\d+\.\d+\.\d+-rc\d+$/
-            - /^release-sync-ios-\d+\.\d+\.\d+-beta\d+$/
         branches:
           ignore: /.*/
   - release-ios-tag-filter: &release-ios-tag-filter
@@ -150,6 +149,7 @@ aliases:
         tags:
           only:
             - /^release-sync-ios-\d+\.\d+\.\d+$/
+            - /^release-sync-ios-\d+\.\d+\.\d+-beta\d+$/
         branches:
           ignore: /.*/
 
