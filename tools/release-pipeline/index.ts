@@ -115,6 +115,7 @@ console.debug(`Publishing an RC: ${rcVersionPublish}`);
 const releaseVersion = parseTag(releaseTag).version;
 const product = parseTag(releaseTag).product;
 const prefix = `release-${product}-`;
+console.debug(`releaseVersion ${releaseVersion}`);
 
 const publishRepo = productToRepo(product, rcVersionPublish);
 console.debug(`Publishing to repo ${publishRepo}`);
@@ -196,7 +197,11 @@ if (!currentCommitTags.includes(releaseTag)) {
 if (!rcVersionPublish) {
   // Check the rc tag actually exist and there is single rc tag on the current commit.
 
-  const sameVersionRcTags = currentCommitTags.filter((x) => x.startsWith(`${releaseTag}-rc`));
+  const sameVersion = semver.parse(releaseVersion);
+  const sameVersionPrefix = `release-${product}-${sameVersion.major}.${sameVersion.minor}.${sameVersion.patch}`;
+  console.debug(`sameVersionPrefix ${sameVersionPrefix}`);
+  
+  const sameVersionRcTags = currentCommitTags.filter((x) => x.startsWith(`${sameVersionPrefix}-rc`));
 
   if (sameVersionRcTags.length == 0) {
     bail(`Tag ${releaseTag} is not an RC, but there are no RC tags on the current commit`);
