@@ -132,8 +132,6 @@ const docsDir = `${localDir}/docs`;
 const packagesDir = `${localDir}/Package`;
 // Local directory for downloaded rc artifacts
 const downloadsDir = `${localDir}/Downloads`;
-// Directory with pre-built xcframeworks
-const xcFrameworkDir = `${monorepoDir}/ios/Local/Products`;
 
 fs.rmSync(localDir, { recursive: true, force: true });
 fs.mkdirSync(localDir, { recursive: true });
@@ -178,11 +176,19 @@ const extractRcArtifacts = async () => {
 
     await execAsync(`unzip -q -o ${file} -d ${extractDir}`);
 
+    const xcFrameworkMap = {
+      "TwilioSync.xcframework": `${monorepoDir}/ios/TwilioSync/output/xcframeworks/TwilioSync.xcframework`,
+      "TwilioSyncLib.xcframework": `${monorepoDir}/sdk/sync/sync-android-kt/build/XCFrameworks/release/TwilioSyncLib.xcframework`
+    };
+
     fs.readdirSync(extractDir)
       .filter((x) => x.endsWith(".xcframework"))
       .forEach((xcframework) => {
-        fs.rmSync(`${xcFrameworkDir}/${xcframework}`, { recursive: true, force: true });
-        fs.cpSync(`${extractDir}/${xcframework}`, `${xcFrameworkDir}/${xcframework}`, { recursive: true })
+        const xcFrameworkDir = xcFrameworkMap[xcframework];
+        console.debug(`xcFrameworkDir: ${xcFrameworkDir}`);
+
+        fs.rmSync(`${xcFrameworkDir}`, { recursive: true, force: true });
+        fs.cpSync(`${extractDir}/${xcframework}`, `${xcFrameworkDir}`, { recursive: true })
       });
   }
 }
