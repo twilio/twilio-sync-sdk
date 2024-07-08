@@ -310,7 +310,9 @@ commands:
           command: brew install git-cliff
       - run:
           name: Publish iOS SDK to << parameters.upload-type >>
-          command: cd ./tools/release-pipeline && yarn && yarn release "$CIRCLE_TAG"
+          command: |
+            export USE_PREBUILD_SYNC_LIB=1
+            cd ./tools/release-pipeline && yarn && yarn release "$CIRCLE_TAG"
 
   #============================================================================
   # Commands: Android
