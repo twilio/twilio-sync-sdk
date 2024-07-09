@@ -111,6 +111,8 @@ Here's an example of how to use the Sync SDK for Android:
 
 ### iOS
 
+[Documentation](https://twilio.github.io/twilio-sync-ios/releases/3.0.0-beta1/docs/documentation/twiliosync)
+
 iOS SDK based on the code base from this repo is in beta state now.
 If you experience any issues - please report them to https://github.com/twilio/twilio-sync-sdk/issues
 
