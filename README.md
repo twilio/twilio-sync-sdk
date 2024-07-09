@@ -111,9 +111,59 @@ Here's an example of how to use the Sync SDK for Android:
 
 ### iOS
 
-iOS SDK based on the code base from this repo is still in testing and is not published yet.
-We'll update this section after publishing the SDK.
-For now please use the currently [latest available](https://github.com/twilio/twilio-sync-ios) iOS SDK.
+iOS SDK based on the code base from this repo is in beta state now.
+If you experience any issues - please report them to https://github.com/twilio/twilio-sync-sdk/issues
+
+#### Swift Package Manager
+
+To install the SDK using Swift Package Manager, follow these steps:
+
+1. Open your project in Xcode.
+2. Select File > Swift Packages > Add Package Dependency... .
+3. Enter https://github.com/twilio/twilio-sync-ios into the search field in the Choose Package Repository: dialog, then click Next .
+4. Make your versioning choice and click Next .
+5. Add the package to one of your targets and click Finish .
+
+#### Example Usage
+
+Here's an example of how to use the Sync SDK for iOS:
+
+```swift
+        import TwilioSync
+
+        // Create a sync client
+        let client = try await TwilioSyncClient.create { try await requestToken() }
+
+        // Create a new map
+        let map = try await client.maps.create()
+
+        // Listen for item-added events flow
+        let onItemAddedListener = Task {
+            for await item in map.events.onItemAdded {
+                print("Item added: \(item.key)")
+            }
+        }
+
+        // Wait until subscription established
+        _ = await map.events.onSubscriptionStateChanged.first { $0 == .established }
+        
+        // Add 10 items to the map
+        for index in 0..<10 {
+            _ = try await map.setItem(itemKey: "key\(index)", itemData: ["data": "value\(index)"])
+        }
+
+        // Read all items from the map
+        for try await item in map {
+            print("Key: \(item.key), Value:  \(item.data)")
+        }
+
+        // stop receiving events
+        onItemAddedListener.cancel()
+
+        // Remove the map
+        try await map.removeMap()
+    }
+```
 
 ## Build SDK
 
