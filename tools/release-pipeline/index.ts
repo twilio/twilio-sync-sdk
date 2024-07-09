@@ -566,8 +566,7 @@ const publishDocs = async() => {
     const redirectPathsMap = {
         "sync-ios": `releases/${releaseVersion}/docs/documentation/twiliosync`,
     }
-    const redirectPath = redirectPathsMap[product] ?? `releases/${releaseVersion}/docs`;
-    const redirectUrl = rcVersionPublish ? redirectPath : `${publishRepo}/${redirectPath}`;
+    const redirectUrl = redirectPathsMap[product] ?? `releases/${releaseVersion}/docs`;
     const template = await fs.promises.readFile(path.resolve(__dirname, "template-docs-index.html"), 'UTF-8');
     const indexHtml = mustache.render(template, { REDIRECT_URL: redirectUrl });
     await fs.promises.writeFile("index.html", indexHtml);
