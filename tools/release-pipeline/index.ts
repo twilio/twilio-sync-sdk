@@ -115,6 +115,7 @@ console.debug(`Publishing an RC: ${rcVersionPublish}`);
 const releaseVersion = parseTag(releaseTag).version;
 const product = parseTag(releaseTag).product;
 const prefix = `release-${product}-`;
+console.debug(`releaseVersion ${releaseVersion}`);
 
 const publishRepo = productToRepo(product, rcVersionPublish);
 console.debug(`Publishing to repo ${publishRepo}`);
@@ -131,8 +132,6 @@ const docsDir = `${localDir}/docs`;
 const packagesDir = `${localDir}/Package`;
 // Local directory for downloaded rc artifacts
 const downloadsDir = `${localDir}/Downloads`;
-// Directory with pre-built xcframeworks
-const xcFrameworkDir = `${monorepoDir}/ios/Local/Products`;
 
 fs.rmSync(localDir, { recursive: true, force: true });
 fs.mkdirSync(localDir, { recursive: true });
@@ -177,11 +176,19 @@ const extractRcArtifacts = async () => {
 
     await execAsync(`unzip -q -o ${file} -d ${extractDir}`);
 
+    const xcFrameworkMap = {
+      "TwilioSync.xcframework": `${monorepoDir}/ios/TwilioSync/output/xcframeworks/TwilioSync.xcframework`,
+      "TwilioSyncLib.xcframework": `${monorepoDir}/sdk/sync/sync-android-kt/build/XCFrameworks/release/TwilioSyncLib.xcframework`
+    };
+
     fs.readdirSync(extractDir)
       .filter((x) => x.endsWith(".xcframework"))
       .forEach((xcframework) => {
-        fs.rmSync(`${xcFrameworkDir}/${xcframework}`, { recursive: true, force: true });
-        fs.cpSync(`${extractDir}/${xcframework}`, `${xcFrameworkDir}/${xcframework}`, { recursive: true })
+        const xcFrameworkDir = xcFrameworkMap[xcframework];
+        console.debug(`xcFrameworkDir: ${xcFrameworkDir}`);
+
+        fs.rmSync(`${xcFrameworkDir}`, { recursive: true, force: true });
+        fs.cpSync(`${extractDir}/${xcframework}`, `${xcFrameworkDir}`, { recursive: true })
       });
   }
 }
@@ -196,7 +203,11 @@ if (!currentCommitTags.includes(releaseTag)) {
 if (!rcVersionPublish) {
   // Check the rc tag actually exist and there is single rc tag on the current commit.
 
-  const sameVersionRcTags = currentCommitTags.filter((x) => x.startsWith(`${releaseTag}-rc`));
+  const sameVersion = semver.parse(releaseVersion);
+  const sameVersionPrefix = `release-${product}-${sameVersion.major}.${sameVersion.minor}.${sameVersion.patch}`;
+  console.debug(`sameVersionPrefix ${sameVersionPrefix}`);
+  
+  const sameVersionRcTags = currentCommitTags.filter((x) => x.startsWith(`${sameVersionPrefix}-rc`));
 
   if (sameVersionRcTags.length == 0) {
     bail(`Tag ${releaseTag} is not an RC, but there are no RC tags on the current commit`);
@@ -555,8 +566,7 @@ const publishDocs = async() => {
     const redirectPathsMap = {
         "sync-ios": `releases/${releaseVersion}/docs/documentation/twiliosync`,
     }
-    const redirectPath = redirectPathsMap[product] ?? `releases/${releaseVersion}/docs`;
-    const redirectUrl = rcVersionPublish ? redirectPath : `${publishRepo}/${redirectPath}`;
+    const redirectUrl = redirectPathsMap[product] ?? `releases/${releaseVersion}/docs`;
     const template = await fs.promises.readFile(path.resolve(__dirname, "template-docs-index.html"), 'UTF-8');
     const indexHtml = mustache.render(template, { REDIRECT_URL: redirectUrl });
     await fs.promises.writeFile("index.html", indexHtml);

@@ -168,11 +168,6 @@ executors:
       - image: cimg/gcp:2024.03
     resource_class: small
     working_directory: *workspace
-  macos-kotlin-ios-executor-x86:
-    macos:
-      xcode: "15.1.0"
-    resource_class: macos.x86.medium.gen2
-    working_directory: *workspace
   macos-kotlin-ios-executor-m1:
     macos:
       xcode: "15.1.0"
@@ -315,7 +310,9 @@ commands:
           command: brew install git-cliff
       - run:
           name: Publish iOS SDK to << parameters.upload-type >>
-          command: cd ./tools/release-pipeline && yarn && yarn release "$CIRCLE_TAG"
+          command: |
+            export USE_PREBUILD_SYNC_LIB=1
+            cd ./tools/release-pipeline && yarn && yarn release "$CIRCLE_TAG"
 
   #============================================================================
   # Commands: Android
@@ -688,7 +685,7 @@ jobs:
             ./BuildScripts/run-tests-kotlin-ios.rb sdk/twilsock/build/bin/iosSimulatorArm64/debugTest/test.kexe
 
   build-testables-twilsock-kotlin-ios:
-    executor: macos-kotlin-ios-executor-x86
+    executor: macos-kotlin-ios-executor-m1
     description: "Build"
     steps:
       - checkout
@@ -824,7 +821,7 @@ jobs:
           input-file: aar/*
 
   build-sync-sdk-swift-ios:
-    executor: macos-kotlin-ios-executor-x86
+    executor: macos-kotlin-ios-executor-m1
     description: "Build"
     steps:
       - checkout
@@ -917,7 +914,7 @@ jobs:
           path: *test_results_folder
 
   build-testables-sync-kotlin-ios:
-    executor: macos-kotlin-ios-executor-x86
+    executor: macos-kotlin-ios-executor-m1
     description: "Build"
     steps:
       - checkout
@@ -1019,7 +1016,7 @@ jobs:
   #================================================================
 
   distribute-sdk-ios:
-    executor: macos-kotlin-ios-executor-x86 # doc generation requires macOS executor
+    executor: macos-kotlin-ios-executor-m1 # doc generation requires macOS executor
     parameters:
       <<: *upload-type-parameter
     steps:

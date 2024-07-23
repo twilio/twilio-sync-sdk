@@ -456,7 +456,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ../..\n./gradlew sync-android-kt:assembleTwilioSyncLibReleaseXCFramework\n";
+			shellScript = "if [ -z $USE_PREBUILD_SYNC_LIB ]; then\ncd ../..\n./gradlew sync-android-kt:assembleTwilioSyncLibReleaseXCFramework\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
