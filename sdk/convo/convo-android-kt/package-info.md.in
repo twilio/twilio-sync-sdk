@@ -1,0 +1,7 @@
+# Module Conversations Android SDK
+
+This package provides the classes necessary to create a Twilio Conversations client application.
+
+**Min SDK**: $ANDROID_MIN_SDK_VERSION
+
+TODO Conversations description and functionality documentation
