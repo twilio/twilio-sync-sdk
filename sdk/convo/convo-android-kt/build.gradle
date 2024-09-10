@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id 'org.jetbrains.kotlin.multiplatform'
+    id 'org.jetbrains.kotlin.plugin.serialization'
     id 'com.android.library'
     id "org.jetbrains.dokka"
     id "co.touchlab.skie" version "$skieVersion"
@@ -49,6 +50,9 @@ kotlin {
 
                 implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
                 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+                implementation "io.ktor:ktor-client-core:$ktorVersion"
+                implementation "io.ktor:ktor-serialization-kotlinx-json:$ktorVersion"
+                implementation "io.ktor:ktor-client-content-negotiation:$ktorVersion"
             }
         }
         commonTest {
@@ -61,6 +65,10 @@ kotlin {
         androidMain {
             dependencies {
                 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+                implementation "io.ktor:ktor-client-core:$ktorVersion"
+                implementation "io.ktor:ktor-client-android:$ktorVersion"
+                implementation "io.ktor:ktor-serialization-kotlinx-json:$ktorVersion"
+                implementation "io.ktor:ktor-client-content-negotiation:$ktorVersion"
             }
         }
         androidUnitTest {
@@ -80,6 +88,8 @@ kotlin {
         }
         iosMain {
             dependencies {
+                implementation "io.ktor:ktor-client-ios:$ktorVersion"
+
             }
         }
     }
