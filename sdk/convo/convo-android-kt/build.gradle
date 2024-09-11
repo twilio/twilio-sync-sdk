@@ -95,7 +95,7 @@ kotlin {
     }
 }
 
-def (fullVersionName, shortVersionName) = generateSyncVersionNames(gitHash, gitTag) //TODO add genearateCONVOVersionNames
+def (fullVersionName, shortVersionName) = generateConvoVersionNames(gitHash, gitTag)
 println "convo-android-kt fullVersionName: $fullVersionName"
 println "convo-android-kt shortVersionName: $shortVersionName"
 
