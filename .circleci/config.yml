@@ -26,6 +26,8 @@ aliases:
     sdk/shared/shared-internal/build/libs
   - &android_sync_sdk_output
     sdk/sync/sync-android-kt/build/outputs
+  - &android_convo_sdk_output
+    sdk/convo/convo-android-kt/build/outputs
   - &android_sync_java_sdk_output
     sdk/sync/sync-android-java/build/outputs
   - &android_sync_shared_sdk_output
@@ -977,6 +979,37 @@ jobs:
             - *android_sync_java_sdk_sources_jar
             - *android_sync_shared_sources_jar
 
+  build-convo-sdk-android:
+    executor: linux-android-executor
+    description: "Build"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: convo-android-kt:assembleRelease convo-android-kt:assembleAndroidTest
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: apiCheck
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: convo-android-kt:testReleaseUnitTest
+      - store_test_results:
+          path: sdk/convo/convo-android-kt/build/test-results/testReleaseUnitTest
+      - clean_build_outputs:
+          dir: sdk/convo/convo-android-kt/build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - sdk/convo/convo-android-kt/build/*
+      - store_artifacts:
+          path: *android_convo_sdk_output
+      - print_sha256:
+          source-dir: *android_convo_sdk_output
+          input-file: aar/*
+
   publish-sdk-android:
     executor: linux-android-executor
     description: "Publish"
@@ -1088,6 +1121,11 @@ workflows:
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies
+      - build-convo-sdk-android:
+          <<: *any-branch-or-android-rc-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-dependencies
       - build-sync-sdk-swift-ios:
           <<: *any-branch-or-ios-rc-tag-filter
           context:
@@ -1141,6 +1179,11 @@ workflows:
             - test-sync-sdk-kotlin-ios
             - build-sync-docs-android
             - build-shared-public-android
+      - wait-tests-passed:
+          <<: *any-branch-or-rc-tag-filter
+          name: wait-tests-convo
+          requires:
+            - build-convo-sdk-android
       - publish-sdk-android:
           <<: *android-rc-tag-filter
           context: rtd-ci-build-publish-snapshot

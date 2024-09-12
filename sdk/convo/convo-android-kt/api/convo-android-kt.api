@@ -1,0 +1,59 @@
+public final class com/twilio/conversations/MediaCategory : java/lang/Enum {
+	public static final field BODY Lcom/twilio/conversations/MediaCategory;
+	public static final field Companion Lcom/twilio/conversations/MediaCategory$Companion;
+	public static final field HISTORY Lcom/twilio/conversations/MediaCategory;
+	public static final field MEDIA Lcom/twilio/conversations/MediaCategory;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lcom/twilio/conversations/MediaCategory;
+	public static fun values ()[Lcom/twilio/conversations/MediaCategory;
+}
+
+public final class com/twilio/conversations/MediaCategory$Companion {
+	public final fun fromString (Ljava/lang/String;)Lcom/twilio/conversations/MediaCategory;
+}
+
+public abstract interface class com/twilio/conversations/MediaUploadListener {
+	public abstract fun onCompleted (Ljava/lang/String;)V
+	public abstract fun onFailed (Lcom/twilio/util/ErrorInfo;)V
+	public abstract fun onProgress (J)V
+	public abstract fun onStarted ()V
+}
+
+public final class com/twilio/conversations/MediaUploadListener$DefaultImpls {
+	public static fun onCompleted (Lcom/twilio/conversations/MediaUploadListener;Ljava/lang/String;)V
+	public static fun onFailed (Lcom/twilio/conversations/MediaUploadListener;Lcom/twilio/util/ErrorInfo;)V
+	public static fun onProgress (Lcom/twilio/conversations/MediaUploadListener;J)V
+	public static fun onStarted (Lcom/twilio/conversations/MediaUploadListener;)V
+}
+
+public final class com/twilio/conversations/MediaUploadListenerBuilder {
+	public fun <init> ()V
+	public final fun build ()Lcom/twilio/conversations/MediaUploadListener;
+	public final fun onCompleted (Lkotlin/jvm/functions/Function1;)V
+	public final fun onFailed (Lkotlin/jvm/functions/Function1;)V
+	public final fun onProgress (Lkotlin/jvm/functions/Function1;)V
+	public final fun onStarted (Lkotlin/jvm/functions/Function0;)V
+}
+
+public final class com/twilio/conversations/MediaUploadListenerKt {
+	public static final fun MediaUploadListener (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lcom/twilio/conversations/MediaUploadListener;
+	public static synthetic fun MediaUploadListener$default (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/twilio/conversations/MediaUploadListener;
+}
+
+public final class com/twilio/conversations/client/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public static final field VERSION_NAME Ljava/lang/String;
+	public fun <init> ()V
+}
+
+public final class com/twilio/conversations/media/MediaUploadItem {
+	public final fun getCategory ()Lcom/twilio/conversations/MediaCategory;
+	public final fun getContentType ()Ljava/lang/String;
+	public final fun getFilename ()Ljava/lang/String;
+	public final fun getInput ()Lio/ktor/utils/io/core/Input;
+	public final fun getListener ()Lcom/twilio/conversations/MediaUploadListener;
+}
+
