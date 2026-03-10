@@ -35,13 +35,30 @@ internal actual class ConnectivityMonitorImpl actual constructor(private val cor
         }
     }
 
+    override val defaultNetworkId: String?
+        get() = try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                connectivityManager?.activeNetwork?.toString()
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            logger.w("Cannot get defaultNetworkId", e)
+            null
+        }
+
     override var onChanged: () -> Unit = {}
+    override var onDefaultNetworkChanged: (networkId: String?) -> Unit = {}
 
     private val connectionStatusCallback by lazy { ConnectionStatusCallback() }
+    private val defaultNetworkCallback by lazy { DefaultNetworkCallback() }
 
     override fun start() {
         try {
             connectivityManager?.registerNetworkCallback(NetworkRequest.Builder().build(), connectionStatusCallback)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                connectivityManager?.registerDefaultNetworkCallback(defaultNetworkCallback)
+            }
         } catch (e: Exception) {
             logger.w("Cannot registerNetworkCallback (probably app doesn't have ACCESS_NETWORK_STATE " +
                     "permission? Considering network as always available)", e)
@@ -52,6 +69,9 @@ internal actual class ConnectivityMonitorImpl actual constructor(private val cor
     override fun stop() {
         try {
             connectivityManager?.unregisterNetworkCallback(connectionStatusCallback)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                connectivityManager?.unregisterNetworkCallback(defaultNetworkCallback)
+            }
         } catch (e: Exception) {
             logger.w("Cannot unregisterNetworkCallback (probably app doesn't have ACCESS_NETWORK_STATE " +
                     "permission?", e)
@@ -95,6 +115,18 @@ internal actual class ConnectivityMonitorImpl actual constructor(private val cor
                 activeNetworks.add(network)
             }
             isNetworkAvailable = activeNetworks.isNotEmpty()
+        }
+    }
+
+    private inner class DefaultNetworkCallback : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            logger.d { "Default network changed to: $network" }
+            coroutineScope.launch { onDefaultNetworkChanged(network.toString()) }
+        }
+
+        override fun onLost(network: Network) {
+            logger.d { "Default network lost: $network" }
+            coroutineScope.launch { onDefaultNetworkChanged(null) }
         }
     }
 }

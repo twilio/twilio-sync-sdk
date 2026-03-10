@@ -86,7 +86,9 @@ class TestContinuationTokenStorage : ContinuationTokenStorage {
 
 class TestConnectivityMonitor : ConnectivityMonitor {
     override val isNetworkAvailable = true
+    override val defaultNetworkId: String? = null
     override var onChanged: () -> Unit = {}
+    override var onDefaultNetworkChanged: (networkId: String?) -> Unit = {}
     override fun start() = Unit
     override fun stop() = Unit
 }
