@@ -1298,6 +1298,11 @@ workflows:
           context: rtd-ci-build-publish-snapshot
           requires:
             - prepare-dependencies
+      - build-sync-docs-android:
+          <<: *snapshot-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-dependencies
       - publish-snapshot-sdk-android:
           <<: *snapshot-android-tag-filter
           context: rtd-ci-build-publish-snapshot
@@ -1306,3 +1311,4 @@ workflows:
             - build-shared-internal-android
             - build-shared-public-android
             - build-sync-sdk-android
+            - build-sync-docs-android
