@@ -172,8 +172,8 @@ executors:
     working_directory: *workspace
   macos-kotlin-ios-executor-m1:
     macos:
-      xcode: "15.4.0"
-    resource_class: macos.m2.medium
+      xcode: "16.4.0"
+    resource_class: m4pro.medium
     working_directory: *workspace
     # IOS_SIMULATOR_DEVICE_ID is auto-detected by run-tests-kotlin-ios.rb
 
