@@ -28,11 +28,41 @@ end
 
 TEST_BINARY = ARGV[0]
 MAX_RETRIES = ARGV[1] ? ARGV[1].to_i : 2
-IOS_SIMULATOR_DEVICE_ID = ENV['IOS_SIMULATOR_DEVICE_ID'] || (raise "IOS_SIMULATOR_DEVICE_ID env var is not set")
+
+# Auto-detect an iPhone simulator if IOS_SIMULATOR_DEVICE_ID is not set
+def detect_simulator_device_id
+    output = `xcrun simctl list devices available -j`
+    require 'json'
+    devices = JSON.parse(output)["devices"]
+    
+    # Find an available iPhone simulator (prefer iPhone 15 Pro or any iPhone)
+    devices.each do |runtime, device_list|
+        next unless runtime.include?("iOS")
+        device_list.each do |device|
+            if device["name"].include?("iPhone 15 Pro")
+                return device["udid"]
+            end
+        end
+    end
+    
+    # Fallback to any iPhone
+    devices.each do |runtime, device_list|
+        next unless runtime.include?("iOS")
+        device_list.each do |device|
+            if device["name"].include?("iPhone")
+                return device["udid"]
+            end
+        end
+    end
+    
+    raise "No iPhone simulator found"
+end
+
+IOS_SIMULATOR_DEVICE_ID = ENV['IOS_SIMULATOR_DEVICE_ID'] || detect_simulator_device_id
 
 puts "TEST_BINARY: #{TEST_BINARY}"
 puts "MAX_RETRIES: #{MAX_RETRIES}"
-puts "IOS_SIMULATOR_DEVICE_ID: #{ENV['IOS_SIMULATOR_DEVICE_ID']}"
+puts "IOS_SIMULATOR_DEVICE_ID: #{IOS_SIMULATOR_DEVICE_ID}"
 
 exec_command "Booting simulator:", "xcrun simctl boot #{IOS_SIMULATOR_DEVICE_ID}", fail_on_error: false
 
