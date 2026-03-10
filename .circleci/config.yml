@@ -369,8 +369,8 @@ commands:
       - run:
           name: "Generate project settings: << parameters.gradle-project-dir >>"
           command: |
-            echo "sonatype.username=$SONATYPE_USERNAME" >> gradle.properties
-            echo "sonatype.password=$SONATYPE_PASSWORD" >> gradle.properties
+            echo "sonatype.username=$MAVEN_CENTRAL_TOKEN_USERNAME" >> gradle.properties
+            echo "sonatype.password=$MAVEN_CENTRAL_TOKEN_PASSWORD" >> gradle.properties
 
             echo "signing.keyId=$SONATYPE_SIGNING_KEY_ID" >> gradle.properties
             echo "signing.password=$SONATYPE_SIGNING_PASSWORD" >> gradle.properties
