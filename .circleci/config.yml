@@ -172,15 +172,10 @@ executors:
     working_directory: *workspace
   macos-kotlin-ios-executor-m1:
     macos:
-      xcode: "15.1.0"
-    resource_class: macos.m1.medium.gen1
+      xcode: "15.4.0"
+    resource_class: macos.m2.medium
     working_directory: *workspace
-    environment:
-      # when bumping xcode version - update the IOS_SIMULATOR_DEVICE_ID
-      # See: https://circleci.com/docs/using-macos/
-      # (on m1 executor deviceId is different than specified in the doc above (the doc is for x86_64). 
-      # Run `xcrun simctl list` on a circleci node to get full device ids list)
-      IOS_SIMULATOR_DEVICE_ID: A2CD73C7-D03C-47CA-858B-94C0D2A9475A
+    # IOS_SIMULATOR_DEVICE_ID is auto-detected by run-tests-kotlin-ios.rb
 
   #============================================================================
   # Commands: All
