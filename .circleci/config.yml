@@ -154,6 +154,13 @@ aliases:
             - /^release-sync-ios-\d+\.\d+\.\d+-beta\d+$/
         branches:
           ignore: /.*/
+  - snapshot-android-tag-filter: &snapshot-android-tag-filter
+      filters:
+        tags:
+          only:
+            - /^snapshot-sync-android-\d+\.\d+\.\d+$/
+        branches:
+          ignore: /.*/
 
 #============================================================================
 # Executors
@@ -1021,6 +1028,18 @@ jobs:
           gradle-project-dir: *android_sync_root_project_dir
           input-file: gradle-output.log
 
+  publish-snapshot-sdk-android:
+    executor: linux-android-executor
+    description: "Publish Snapshot"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: publishToSonatype -Pdisable-metadata-subtasks
+
   promote-to-release-sdk-android:
     executor: linux-android-executor
     description: "Promote to release"
@@ -1246,3 +1265,44 @@ workflows:
             - rtd-ci-build-publish-snapshot
             - rtd-sdk-slack-secrets
 
+  #=========================================================================
+  # Workflows: Publish Snapshot
+  #=========================================================================
+
+  publish-snapshot-android:
+    jobs:
+      - prepare-dependencies:
+          <<: *snapshot-android-tag-filter
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+            - rtd-android-chat-demo-app-release
+      - build-twilsock-android:
+          <<: *snapshot-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-dependencies
+      - build-shared-internal-android:
+          <<: *snapshot-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-dependencies
+      - build-shared-public-android:
+          <<: *snapshot-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-dependencies
+      - build-sync-sdk-android:
+          <<: *snapshot-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-dependencies
+      - publish-snapshot-sdk-android:
+          <<: *snapshot-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - build-twilsock-android
+            - build-shared-internal-android
+            - build-shared-public-android
+            - build-sync-sdk-android
