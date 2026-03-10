@@ -22,11 +22,7 @@ $BUILDSCRIPTS_DIR/run-android-tests-in-gcloud.sh \
     -"$RENAME_SUFFIX" \
     "" \
     $SHARDS_COUNT \
-    model=Nexus5X,version=24 \
-    model=Nexus5X,version=25 \
-    model=Nexus5X,version=26 \
-    model=HWMHA,version=24 \
-    model=cactus,version=27 \
+    model=blueline,version=28 \
     model=redfin,version=30 \
     model=oriole,version=31 \
     model=oriole,version=32 \
