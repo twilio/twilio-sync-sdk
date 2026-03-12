@@ -34,6 +34,9 @@ if (project.hasProperty('disable-metadata-subtasks')) {
     apply from: "./disable-metadata-subtasks.gradle"
 }
 
+// Determine if this is a snapshot build for nexusPublishing configuration
+def gitTagForNexus = findProperty("gitTag") ?: ""
+def isSnapshotForNexus = (gitTagForNexus =~ /^snapshot-sync-android-\d+\.\d+\.\d+$/).find()
 
 nexusPublishing {
     repositories {
@@ -44,6 +47,10 @@ nexusPublishing {
             username = project.getProperty('sonatype.username')
             password = project.getProperty('sonatype.password')
             packageGroup = "com.twilio"
+
+            // useStaging = false for snapshots (publish directly to snapshot repo)
+            // useStaging = true for releases (publish to staging repo first)
+            useStaging = !isSnapshotForNexus
         }
     }
 }
@@ -248,7 +255,7 @@ if (needPublishSharedPublic) {
     tasks['generateMetadataFileForSharedPublicReleasePublication'].mustRunAfter(':shared-public:reZipReleaseAar')
 }
 
-if (isSyncReleaseCandidate) {
+if (isSyncReleaseCandidate || isSnapshotBuild) {
     // this line is parsed on circleci. don't touch it!
     // see: $MONOREPO/BuildScripts/push-sonatype-git-tag.sh
     println "Publishing sync v$syncVersion"
