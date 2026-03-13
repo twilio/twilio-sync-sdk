@@ -123,13 +123,13 @@ task packageDocs {
 def gitHash = findProperty("gitHash") ?: "HEAD"
 def gitTag = findProperty("gitTag") ?: ""
 
-// For snapshot builds, append -SNAPSHOT to all component versions
+// For snapshot builds, only append -SNAPSHOT to twilsock version
+// shared-internal and shared-public use their released versions
 def isSnapshotBuild = (gitTag =~ /^snapshot-sync-android-\d+\.\d+\.\d+$/).find()
 if (isSnapshotBuild) {
     twilsockVersion = twilsockVersion + "-SNAPSHOT"
-    sharedInternalVersion = sharedInternalVersion + "-SNAPSHOT"
-    sharedPublicVersion = sharedPublicVersion + "-SNAPSHOT"
-    println "Snapshot build detected - all versions suffixed with -SNAPSHOT"
+    // Don't snapshot shared-internal/shared-public - use released versions
+    println "Snapshot build detected - twilsock version suffixed with -SNAPSHOT"
 }
 
 def needPublishTwilsock = needPublishTwilsock(twilsockVersion)
