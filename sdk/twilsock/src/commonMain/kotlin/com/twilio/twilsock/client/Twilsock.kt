@@ -138,7 +138,7 @@ private sealed class TwilsockEvent {
     data class OnSendRequest(val request: TwilsockRequest) : TwilsockEvent()
     object OnTransportConnected : TwilsockEvent()
     object OnInitMessageReceived : TwilsockEvent()
-    data class OnTooManyRequests(val waitTime: Duration) : TwilsockEvent()
+    data class OnTooManyRequests(val waitTime: Duration, val errorInfo: ErrorInfo) : TwilsockEvent()
     object OnNetworkBecameReachable : TwilsockEvent()
     object OnNetworkBecameUnreachable : TwilsockEvent()
     data class OnDefaultNetworkChanged(val networkId: String?) : TwilsockEvent()
@@ -294,8 +294,7 @@ internal class TwilsockImpl(
             }
             on<OnInitMessageReceived> { transitionTo(Connected) }
             on<OnTooManyRequests> { event ->
-                val errorInfo = ErrorInfo(TooManyRequests)
-                transitionTo(WaitAndReconnect(event.waitTime), NotifyObservers { onNonFatalError(errorInfo) })
+                transitionTo(WaitAndReconnect(event.waitTime), NotifyObservers { onNonFatalError(event.errorInfo) })
             }
             defaultOnNetworkBecameUnreachable()
             defaultOnNonFatalError()
@@ -326,8 +325,7 @@ internal class TwilsockImpl(
                 dontTransition()
             }
             on<OnTooManyRequests> { event ->
-                val errorInfo = ErrorInfo(TooManyRequests)
-                transitionTo(Throttling(event.waitTime), NotifyObservers { onNonFatalError(errorInfo) })
+                transitionTo(Throttling(event.waitTime), NotifyObservers { onNonFatalError(event.errorInfo) })
             }
             on<OnDefaultNetworkChanged> { event ->
                 val newId = event.networkId
@@ -896,7 +894,7 @@ internal class TwilsockImpl(
                         backoffPolicy.reconnectMaxMilliseconds,
                     )
 
-                    stateMachine.transition(OnTooManyRequests(waitTime.milliseconds))
+                    stateMachine.transition(OnTooManyRequests(waitTime.milliseconds, errorInfo))
                 }
 
                 else -> stateMachine.transition(OnNonFatalError(errorInfo))
