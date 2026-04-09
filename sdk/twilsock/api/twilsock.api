@@ -91,6 +91,8 @@ public abstract interface class com/twilio/twilsock/client/Twilsock {
 	public abstract fun getAccountDescriptor ()Lcom/twilio/util/AccountDescriptor;
 	public abstract fun handleMessageReceived ([B)V
 	public abstract fun isConnected ()Z
+	public abstract fun onAppBackgrounded ()V
+	public abstract fun onAppForegrounded ()V
 	public abstract fun populateInitRegistrations (Ljava/util/Set;)V
 	public abstract fun sendRequest (Lcom/twilio/twilsock/util/HttpRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun sendRequest-dWUq8MI (Ljava/lang/String;J[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;

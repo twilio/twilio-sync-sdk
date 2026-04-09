@@ -98,6 +98,10 @@ interface Twilsock {
     fun handleMessageReceived(data: ByteArray)
 
     fun addObserver(block: TwilsockObserver.() -> Unit): Unsubscriber
+
+    fun onAppForegrounded()
+
+    fun onAppBackgrounded()
 }
 
 data class AuthData(
@@ -394,6 +398,10 @@ internal class TwilsockImpl(
                 failedReconnectionAttempts = 0
                 transitionTo(Connecting)
             }
+            on<OnAppBackgrounded> {
+                timer.cancel()
+                dontTransition()
+            }
             // Fatal/NonFatalError are ignored:
             // 1. Websocket is disconnected in this state. So no errors can happen.
             // 2. shutdownWebSocket() can lead to onTransportDisconnected() callback which
@@ -465,14 +473,14 @@ internal class TwilsockImpl(
         connectivityMonitor.onDefaultNetworkChanged = this::onDefaultNetworkChanged
     }
 
-    fun onAppForegrounded() {
+    override fun onAppForegrounded() {
         logger.d { "onAppForegrounded" }
         coroutineScope.launch {
             stateMachine.transition(OnAppForegrounded)
         }
     }
 
-    fun onAppBackgrounded() {
+    override fun onAppBackgrounded() {
         logger.d { "onAppBackgrounded" }
         coroutineScope.launch {
             stateMachine.transition(OnAppBackgrounded)

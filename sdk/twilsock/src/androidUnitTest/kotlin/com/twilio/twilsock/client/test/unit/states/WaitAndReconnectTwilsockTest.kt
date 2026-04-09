@@ -132,6 +132,17 @@ class WaitAndReconnectTwilsockTest : BaseTwilsockTest() {
     }
 
     @Test
+    fun appBackgrounded() = runTest {
+        // Verify we're in WaitAndReconnect state
+        assertIs<WaitAndReconnect>(twilsock.state)
+        
+        twilsock.onAppBackgrounded()
+        
+        // Should stay in WaitAndReconnect but timer is cancelled (pause reconnection)
+        assertIs<WaitAndReconnect>(twilsock.state)
+    }
+
+    @Test
     fun defaultNetworkChanged() = runTest {
         // Verify we're in backoff state
         assertTrue(twilsock.failedReconnectionAttempts > 0)
