@@ -34,13 +34,23 @@ if (project.hasProperty('disable-metadata-subtasks')) {
     apply from: "./disable-metadata-subtasks.gradle"
 }
 
+// Determine if this is a snapshot build for nexusPublishing configuration
+def gitTagForNexus = findProperty("gitTag") ?: ""
+def isSnapshotForNexus = (gitTagForNexus =~ /^snapshot-sync-android-\d+\.\d+\.\d+$/).find()
 
 nexusPublishing {
     repositories {
         sonatype {
+            nexusUrl = uri("https://ossrh-staging-api.central.sonatype.com/service/local/")
+            snapshotRepositoryUrl = uri("https://central.sonatype.com/repository/maven-snapshots/")
+
             username = project.getProperty('sonatype.username')
             password = project.getProperty('sonatype.password')
             packageGroup = "com.twilio"
+
+            // useStaging = false for snapshots (publish directly to snapshot repo)
+            // useStaging = true for releases (publish to staging repo first)
+            useStaging = !isSnapshotForNexus
         }
     }
 }
@@ -110,6 +120,18 @@ task packageDocs {
     dependsOn 'packageDokka'
 }
 
+def gitHash = findProperty("gitHash") ?: "HEAD"
+def gitTag = findProperty("gitTag") ?: ""
+
+// For snapshot builds, only append -SNAPSHOT to twilsock version
+// shared-internal and shared-public use their released versions
+def isSnapshotBuild = (gitTag =~ /^snapshot-sync-android-\d+\.\d+\.\d+$/).find()
+if (isSnapshotBuild) {
+    twilsockVersion = twilsockVersion + "-SNAPSHOT"
+    // Don't snapshot shared-internal/shared-public - use released versions
+    println "Snapshot build detected - twilsock version suffixed with -SNAPSHOT"
+}
+
 def needPublishTwilsock = needPublishTwilsock(twilsockVersion)
 println "needPublishTwilsock: $needPublishTwilsock"
 
@@ -119,8 +141,6 @@ println "need to publish shared-internal: $needPublishSharedInternal"
 def needPublishSharedPublic = needPublishSharedPublic(sharedPublicVersion)
 println "need to publish shared-public: $needPublishSharedPublic"
 
-def gitHash = findProperty("gitHash") ?: "HEAD"
-def gitTag = findProperty("gitTag") ?: ""
 def (isSyncReleaseCandidate, syncVersion) = generatePublishVersionNames(gitHash, gitTag)
 
 println "publishing isSyncReleaseCandidate?: $isSyncReleaseCandidate"
@@ -235,7 +255,7 @@ if (needPublishSharedPublic) {
     tasks['generateMetadataFileForSharedPublicReleasePublication'].mustRunAfter(':shared-public:reZipReleaseAar')
 }
 
-if (isSyncReleaseCandidate) {
+if (isSyncReleaseCandidate || isSnapshotBuild) {
     // this line is parsed on circleci. don't touch it!
     // see: $MONOREPO/BuildScripts/push-sonatype-git-tag.sh
     println "Publishing sync v$syncVersion"
@@ -318,13 +338,19 @@ if (isSyncReleaseCandidate) {
 }
 
 tasks['publishToSonatype'].with {
-    dependsOn(validateIfSingleRcTagOnCommit)
-    mustRunAfter(validateIfSingleRcTagOnCommit)
+    dependsOn(validatePublishTag)
+    mustRunAfter(validatePublishTag)
 }
 
 tasks['releaseSonatypeStagingRepository'].dependsOn(checkReleaseVersionMatchesRC)
 
 } // gradle.projectsEvaluated
+
+task validatePublishTag {
+    doLast {
+        findPublishTag() // throws exception if no valid tag found
+    }
+}
 
 task validateIfSingleRcTagOnCommit {
     doLast {
@@ -340,6 +366,29 @@ task checkReleaseVersionMatchesRC {
         }
         println "RC tag matches release tag: $gitTag"
     }
+}
+
+def findPublishTag() {
+    def isRcTag = { tag ->
+        (tag =~ /^release-sync-android-\d+\.\d+\.\d+-rc\d+$/).find()
+    }
+    def isSnapshotTag = { tag ->
+        (tag =~ /^snapshot-sync-android-\d+\.\d+\.\d+$/).find()
+    }
+
+    def tags = getGitTagList(gitHash)
+            .findAll { isRcTag(it) || isSnapshotTag(it) }
+
+    if (tags.size > 1) {
+        throw new GradleException("Attempt to build with multiple publish tags on same commit")
+    }
+
+    if (tags.size == 0) {
+        throw new GradleException("Cannot find RC or snapshot tag")
+    }
+
+    println "Found publish tag: ${tags[0]}"
+    return tags[0]
 }
 
 def findRCTag() {

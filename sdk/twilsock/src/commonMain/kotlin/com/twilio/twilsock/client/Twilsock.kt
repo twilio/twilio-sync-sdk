@@ -15,6 +15,9 @@ import com.twilio.twilsock.client.TwilsockEvent.OnDisconnect
 import com.twilio.twilsock.client.TwilsockEvent.OnFatalError
 import com.twilio.twilsock.client.TwilsockEvent.OnInitMessageReceived
 import com.twilio.twilsock.client.TwilsockEvent.OnMessageReceived
+import com.twilio.twilsock.client.TwilsockEvent.OnDefaultNetworkChanged
+import com.twilio.twilsock.client.TwilsockEvent.OnAppForegrounded
+import com.twilio.twilsock.client.TwilsockEvent.OnAppBackgrounded
 import com.twilio.twilsock.client.TwilsockEvent.OnNetworkBecameReachable
 import com.twilio.twilsock.client.TwilsockEvent.OnNetworkBecameUnreachable
 import com.twilio.twilsock.client.TwilsockEvent.OnNonFatalError
@@ -95,6 +98,10 @@ interface Twilsock {
     fun handleMessageReceived(data: ByteArray)
 
     fun addObserver(block: TwilsockObserver.() -> Unit): Unsubscriber
+
+    fun onAppForegrounded()
+
+    fun onAppBackgrounded()
 }
 
 data class AuthData(
@@ -135,9 +142,12 @@ private sealed class TwilsockEvent {
     data class OnSendRequest(val request: TwilsockRequest) : TwilsockEvent()
     object OnTransportConnected : TwilsockEvent()
     object OnInitMessageReceived : TwilsockEvent()
-    data class OnTooManyRequests(val waitTime: Duration) : TwilsockEvent()
+    data class OnTooManyRequests(val waitTime: Duration, val errorInfo: ErrorInfo) : TwilsockEvent()
     object OnNetworkBecameReachable : TwilsockEvent()
     object OnNetworkBecameUnreachable : TwilsockEvent()
+    data class OnDefaultNetworkChanged(val networkId: String?) : TwilsockEvent()
+    object OnAppForegrounded : TwilsockEvent()
+    object OnAppBackgrounded : TwilsockEvent()
     object OnTimeout : TwilsockEvent()
     data class OnNonFatalError(val errorInfo: ErrorInfo) : TwilsockEvent()
     data class OnFatalError(val errorInfo: ErrorInfo) : TwilsockEvent()
@@ -198,6 +208,9 @@ internal class TwilsockImpl(
     private val observers = mutableSetOf<TwilsockObserver>()
 
     private var websocket: TwilsockTransport? = null
+
+    private var connectedNetworkId: String? = null
+    private val defaultNetworkId: String? get() = connectivityMonitor.defaultNetworkId
 
     private val isNetworkAvailable get() = connectivityMonitor.isNetworkAvailable
 
@@ -285,8 +298,7 @@ internal class TwilsockImpl(
             }
             on<OnInitMessageReceived> { transitionTo(Connected) }
             on<OnTooManyRequests> { event ->
-                val errorInfo = ErrorInfo(TooManyRequests)
-                transitionTo(WaitAndReconnect(event.waitTime), NotifyObservers { onNonFatalError(errorInfo) })
+                transitionTo(WaitAndReconnect(event.waitTime), NotifyObservers { onNonFatalError(event.errorInfo) })
             }
             defaultOnNetworkBecameUnreachable()
             defaultOnNonFatalError()
@@ -296,6 +308,8 @@ internal class TwilsockImpl(
         state<Connected> {
             onEnter {
                 failedReconnectionAttempts = 0
+                connectedNetworkId = defaultNetworkId
+                logger.i { "Connected on network $connectedNetworkId" }
                 startWatchdogTimer()
                 sendAllPendingRequests()
                 notifyObservers { onConnected() }
@@ -315,8 +329,17 @@ internal class TwilsockImpl(
                 dontTransition()
             }
             on<OnTooManyRequests> { event ->
-                val errorInfo = ErrorInfo(TooManyRequests)
-                transitionTo(Throttling(event.waitTime), NotifyObservers { onNonFatalError(errorInfo) })
+                transitionTo(Throttling(event.waitTime), NotifyObservers { onNonFatalError(event.errorInfo) })
+            }
+            on<OnDefaultNetworkChanged> { event ->
+                val newId = event.networkId
+                if (newId != null && newId != connectedNetworkId && isNetworkAvailable) {
+                    logger.w { "Default network changed: $connectedNetworkId -> $newId, forcing reconnect" }
+                    val errorInfo = ErrorInfo(NetworkBecameUnreachable, message = "Default network changed")
+                    transitionTo(WaitAndReconnect(waitTime = 0.seconds), NotifyObservers { onNonFatalError(errorInfo) })
+                } else {
+                    dontTransition()
+                }
             }
             defaultOnNetworkBecameUnreachable()
             defaultOnNonFatalError()
@@ -345,7 +368,10 @@ internal class TwilsockImpl(
                 timer.cancel()
             }
             on<OnTimeout> { transitionTo(Connecting) }
-            on<OnConnect> { transitionTo(Connecting) }
+            on<OnConnect> {
+                failedReconnectionAttempts = 0
+                transitionTo(Connecting)
+            }
             defaultOnDisconnect()
             on<OnUpdateToken> { event ->
                 token = event.token
@@ -361,6 +387,18 @@ internal class TwilsockImpl(
                 transitionTo(Connecting)
             }
             on<OnNetworkBecameUnreachable> {
+                timer.cancel()
+                dontTransition()
+            }
+            on<OnDefaultNetworkChanged> {
+                failedReconnectionAttempts = 0
+                transitionTo(Connecting)
+            }
+            on<OnAppForegrounded> {
+                failedReconnectionAttempts = 0
+                transitionTo(Connecting)
+            }
+            on<OnAppBackgrounded> {
                 timer.cancel()
                 dontTransition()
             }
@@ -432,6 +470,26 @@ internal class TwilsockImpl(
 
     init {
         connectivityMonitor.onChanged = this::onConnectivityChanged
+        connectivityMonitor.onDefaultNetworkChanged = this::onDefaultNetworkChanged
+    }
+
+    override fun onAppForegrounded() {
+        logger.d { "onAppForegrounded" }
+        coroutineScope.launch {
+            stateMachine.transition(OnAppForegrounded)
+        }
+    }
+
+    override fun onAppBackgrounded() {
+        logger.d { "onAppBackgrounded" }
+        coroutineScope.launch {
+            stateMachine.transition(OnAppBackgrounded)
+        }
+    }
+
+    private fun onDefaultNetworkChanged(networkId: String?) {
+        logger.d { "onDefaultNetworkChanged: $networkId" }
+        stateMachine.transition(OnDefaultNetworkChanged(networkId))
     }
 
     private fun failAllPendingRequests(errorInfo: ErrorInfo) {
@@ -844,7 +902,7 @@ internal class TwilsockImpl(
                         backoffPolicy.reconnectMaxMilliseconds,
                     )
 
-                    stateMachine.transition(OnTooManyRequests(waitTime.milliseconds))
+                    stateMachine.transition(OnTooManyRequests(waitTime.milliseconds, errorInfo))
                 }
 
                 else -> stateMachine.transition(OnNonFatalError(errorInfo))

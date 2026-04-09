@@ -18,6 +18,13 @@ ext.generateVersionNames = { gitHash, gitTag ->
     def isSyncReleaseCandidate = false
     def syncVersion = "SNAPSHOT"
 
+    // Check for snapshot tag first: snapshot-sync-android-X.Y.Z
+    def syncSnapshotTag = (gitTag =~ /^snapshot-sync-android-(\d+\.\d+\.\d+)$/)
+    if (syncSnapshotTag.find()) {
+        syncVersion = syncSnapshotTag.group(1) + "-SNAPSHOT"
+    }
+
+    // Check for release candidate tag: release-sync-android-X.Y.Z-rcN
     def syncReleaseTag = (gitTag =~ /^release-sync-android-((\d+\.\d+\.\d+)-rc(\d+))$/)
     if (syncReleaseTag.find()) {
         isSyncReleaseCandidate = true

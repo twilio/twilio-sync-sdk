@@ -51,8 +51,12 @@ class WaitAndReconnectTwilsockTest : BaseTwilsockTest() {
 
     @Test
     fun connect() {
+        // Before fix: failedReconnectionAttempts was NOT reset on explicit connect()
+        // After fix: it should be reset to 0 for immediate reconnection
+        assertTrue(twilsock.failedReconnectionAttempts > 0) // Verify we're in a backoff state
         twilsock.connect()
         assertIs<Connecting>(twilsock.state)
+        assertEquals(0, twilsock.failedReconnectionAttempts)
     }
 
     @Test
@@ -113,5 +117,43 @@ class WaitAndReconnectTwilsockTest : BaseTwilsockTest() {
         assertTrue { result.isFailure }
         assertEquals(Timeout, result.twilioException.errorInfo.reason)
         assertEquals(0, twilsock.pendingRequests.size)
+    }
+
+    @Test
+    fun appForegrounded() = runTest {
+        // Verify we're in backoff state
+        assertTrue(twilsock.failedReconnectionAttempts > 0)
+        
+        twilsock.onAppForegrounded()
+        wait { twilsock.state is Connecting }
+        
+        assertIs<Connecting>(twilsock.state)
+        assertEquals(0, twilsock.failedReconnectionAttempts)
+    }
+
+    @Test
+    fun appBackgrounded() = runTest {
+        // Verify we're in WaitAndReconnect state
+        assertIs<WaitAndReconnect>(twilsock.state)
+        
+        twilsock.onAppBackgrounded()
+        
+        // Should stay in WaitAndReconnect but timer is cancelled (pause reconnection)
+        assertIs<WaitAndReconnect>(twilsock.state)
+    }
+
+    @Test
+    fun defaultNetworkChanged() = runTest {
+        // Verify we're in backoff state
+        assertTrue(twilsock.failedReconnectionAttempts > 0)
+        
+        // Simulate network change callback
+        every { connectivityMonitor.defaultNetworkId } returns "newNetwork123"
+        onDefaultNetworkChanged("newNetwork123")
+        
+        wait { twilsock.state is Connecting }
+        
+        assertIs<Connecting>(twilsock.state)
+        assertEquals(0, twilsock.failedReconnectionAttempts)
     }
 }

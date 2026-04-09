@@ -154,6 +154,13 @@ aliases:
             - /^release-sync-ios-\d+\.\d+\.\d+-beta\d+$/
         branches:
           ignore: /.*/
+  - snapshot-android-tag-filter: &snapshot-android-tag-filter
+      filters:
+        tags:
+          only:
+            - /^snapshot-sync-android-\d+\.\d+\.\d+$/
+        branches:
+          ignore: /.*/
 
 #============================================================================
 # Executors
@@ -172,15 +179,10 @@ executors:
     working_directory: *workspace
   macos-kotlin-ios-executor-m1:
     macos:
-      xcode: "15.1.0"
-    resource_class: macos.m1.medium.gen1
+      xcode: "16.4.0"
+    resource_class: m4pro.medium
     working_directory: *workspace
-    environment:
-      # when bumping xcode version - update the IOS_SIMULATOR_DEVICE_ID
-      # See: https://circleci.com/docs/using-macos/
-      # (on m1 executor deviceId is different than specified in the doc above (the doc is for x86_64). 
-      # Run `xcrun simctl list` on a circleci node to get full device ids list)
-      IOS_SIMULATOR_DEVICE_ID: A2CD73C7-D03C-47CA-858B-94C0D2A9475A
+    # IOS_SIMULATOR_DEVICE_ID is auto-detected by run-tests-kotlin-ios.rb
 
   #============================================================================
   # Commands: All
@@ -374,8 +376,8 @@ commands:
       - run:
           name: "Generate project settings: << parameters.gradle-project-dir >>"
           command: |
-            echo "sonatype.username=$SONATYPE_USERNAME" >> gradle.properties
-            echo "sonatype.password=$SONATYPE_PASSWORD" >> gradle.properties
+            echo "sonatype.username=$MAVEN_CENTRAL_TOKEN_USERNAME" >> gradle.properties
+            echo "sonatype.password=$MAVEN_CENTRAL_TOKEN_PASSWORD" >> gradle.properties
 
             echo "signing.keyId=$SONATYPE_SIGNING_KEY_ID" >> gradle.properties
             echo "signing.password=$SONATYPE_SIGNING_PASSWORD" >> gradle.properties
@@ -1026,6 +1028,18 @@ jobs:
           gradle-project-dir: *android_sync_root_project_dir
           input-file: gradle-output.log
 
+  publish-snapshot-sdk-android:
+    executor: linux-android-executor
+    description: "Publish Snapshot"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: *workspace
+      - restore_gradle_cache
+      - run_gradle_target:
+          gradle-project-dir: *android_sync_root_project_dir
+          gradle-target: publishToSonatype -Pdisable-metadata-subtasks
+
   promote-to-release-sdk-android:
     executor: linux-android-executor
     description: "Promote to release"
@@ -1251,3 +1265,50 @@ workflows:
             - rtd-ci-build-publish-snapshot
             - rtd-sdk-slack-secrets
 
+  #=========================================================================
+  # Workflows: Publish Snapshot
+  #=========================================================================
+
+  publish-snapshot-android:
+    jobs:
+      - prepare-dependencies:
+          <<: *snapshot-android-tag-filter
+          context:
+            - rtd-ci-tokens
+            - rtd-ci-test-instance-config
+            - rtd-ci-build-publish-snapshot
+            - rtd-android-chat-demo-app-release
+      - build-twilsock-android:
+          <<: *snapshot-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-dependencies
+      - build-shared-internal-android:
+          <<: *snapshot-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-dependencies
+      - build-shared-public-android:
+          <<: *snapshot-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-dependencies
+      - build-sync-sdk-android:
+          <<: *snapshot-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-dependencies
+      - build-sync-docs-android:
+          <<: *snapshot-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - prepare-dependencies
+      - publish-snapshot-sdk-android:
+          <<: *snapshot-android-tag-filter
+          context: rtd-ci-build-publish-snapshot
+          requires:
+            - build-twilsock-android
+            - build-shared-internal-android
+            - build-shared-public-android
+            - build-sync-sdk-android
+            - build-sync-docs-android
