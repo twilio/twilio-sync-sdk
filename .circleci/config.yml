@@ -285,9 +285,6 @@ commands:
   install_ios_certificates:
     description: "Install certificates"
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "SHA256:phNm6Lf1PJvwJmDzzP2atd84yiDL/jvh+lquogInhrc" # Access to certs in the https://github.com/twilio/rtd-build-settings
       - run: # recommendation from CircleCI to get rid of certificates installations problems
           name: Set fastlane version to 2.210.1
           command: |
