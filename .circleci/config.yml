@@ -175,6 +175,8 @@ executors:
       xcode: "16.4.0"
     resource_class: m4pro.medium
     working_directory: *workspace
+    environment:
+      JAVA_HOME: /Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home
     # IOS_SIMULATOR_DEVICE_ID is auto-detected by run-tests-kotlin-ios.rb
 
   #============================================================================
