@@ -1,6 +1,7 @@
 set -x
 
 [ -z "$CIRCLECI" ] && echo "Nothing to do on non-circleci node" && exit 0
+[ -z "$MATCH_FILE" ] && echo "MATCH_FILE env var is undefined. Add proper circleci context" && exit 1
 
 pushd `dirname $0`
 
@@ -19,19 +20,6 @@ security set-keychain-settings -t 3600 -l -u
 
 echo "Install certificates and profiles"
 
-# Validate required environment variables
-[ -z "$MATCH_GIT_URL" ] && echo "MATCH_GIT_URL env var is undefined. Add to rtd-ci-tokens circleci context" && exit 1
-[ -z "$MATCH_GIT_BRANCH" ] && echo "MATCH_GIT_BRANCH env var is undefined. Add to rtd-ci-tokens circleci context" && exit 1
-[ -z "$MATCH_USERNAME" ] && echo "MATCH_USERNAME env var is undefined. Add to rtd-ci-tokens circleci context" && exit 1
-
-# Create Matchfile from environment variables (stored in CircleCI context)
-cat > Matchfile << EOF
-git_url("${MATCH_GIT_URL}")
-git_branch("${MATCH_GIT_BRANCH}")
-storage_mode("git")
-type("development")
-app_identifier(["com.twilio.rtd.*"])
-username("${MATCH_USERNAME}")
-EOF
-
-fastlane match development --readonly --keychain_name $KEYCHAIN_NAME --platform ios
+PLATFORM=ios
+echo "$MATCH_FILE" | base64 --decode > Matchfile
+fastlane match development --readonly --keychain_name $KEYCHAIN_NAME --platform $PLATFORM
