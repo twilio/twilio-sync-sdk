@@ -301,10 +301,10 @@ commands:
           fingerprints:
             - "SHA256:eqClQVpNhawrgA7rkup9dJjwYSeD+UkSKI+sNHubI/o"
       - run: # recommendation from CircleCI to get rid of certificates installations problems
-          name: Set fastlane version to 2.210.1
+          name: Set fastlane version to 2.229.1
           command: |
             gem uninstall fastlane --all --executables
-            gem install fastlane --version 2.210.1 --no-document
+            gem install fastlane --version 2.229.1 --no-document
       - run:
           name: Install certificates
           command: ./BuildScripts/install-ios-certificates.sh
