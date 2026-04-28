@@ -23,4 +23,4 @@ echo "Install certificates and profiles"
 PLATFORM=ios
 echo "$MATCH_FILE_NEW" | base64 --decode > Matchfile
 
-fastlane match development --readonly --keychain_name $KEYCHAIN_NAME --platform $PLATFORM --git_branch update-certificates
+fastlane match development --readonly --keychain_name $KEYCHAIN_NAME --platform $PLATFORM
