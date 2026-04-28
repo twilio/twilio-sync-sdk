@@ -1,7 +1,7 @@
 set -x
 
 [ -z "$CIRCLECI" ] && echo "Nothing to do on non-circleci node" && exit 0
-[ -z "$MATCH_FILE" ] && echo "MATCH_FILE env var is undefined. Add proper circleci context" && exit 1
+[ -z "$MATCH_FILE_NEW" ] && echo "MATCH_FILE_NEW env var is undefined. Add proper circleci context" && exit 1
 
 pushd `dirname $0`
 
@@ -21,6 +21,6 @@ security set-keychain-settings -t 3600 -l -u
 echo "Install certificates and profiles"
 
 PLATFORM=ios
-echo "$MATCH_FILE" | base64 --decode > Matchfile
+echo "$MATCH_FILE_NEW" | base64 --decode > Matchfile
 
 fastlane match development --readonly --keychain_name $KEYCHAIN_NAME --platform $PLATFORM --git_branch update-certificates

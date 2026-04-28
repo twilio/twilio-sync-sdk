@@ -299,7 +299,7 @@ commands:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:9b0+Hya3SlfAqtJiGGb4NRwFlyKK/5HY+j3ySkoT9Pk"
+            - "SHA256:eqClQVpNhawrgA7rkup9dJjwYSeD+UkSKI+sNHubI/o"
       - run: # recommendation from CircleCI to get rid of certificates installations problems
           name: Set fastlane version to 2.210.1
           command: |
