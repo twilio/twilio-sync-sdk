@@ -8,7 +8,8 @@ function fetchFromSonatype() {
   local SONATYPE_RELEASE_VERSION=$4
 
   if [[ ("${SONATYPE_RELEASE_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$) || ("${SONATYPE_RELEASE_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+$) ]]; then
-    REMOTE_REPOSITORY="sonatype-twilio::::https://oss.sonatype.org/content/repositories/$SONATYPE_REPO_ID"
+    # Sonatype Central Portal staging repository URL
+    REMOTE_REPOSITORY="sonatype-twilio::::https://central.sonatype.com/api/v1/publisher/deployments/download/$SONATYPE_REPO_ID"
     ARTIFACT="com.twilio:${SONATYPE_ARTIFACT_ID}:${SONATYPE_RELEASE_VERSION}:jar:dokka"
     ARTIFACT_FILENAME="$SONATYPE_ARTIFACT_ID-$SONATYPE_RELEASE_VERSION-dokka.jar"
   else
