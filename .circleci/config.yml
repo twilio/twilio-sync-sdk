@@ -459,7 +459,7 @@ commands:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:S2ePnorqFC8o6n1TqIbzRLAA/rokvvahy2HH6HclUIc" # key with write access to push the tag
+            - "SHA256:eqClQVpNhawrgA7rkup9dJjwYSeD+UkSKI+sNHubI/o" # key with write access to push the tag
       - run:
           name: "Push sonatype git tag"
           command: |
