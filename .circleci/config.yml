@@ -1264,9 +1264,8 @@ workflows:
           requires:
             - prepare-release-tool
             - prepare-dependencies
-      - approve-release-android:
+      - approve-after-maven-central-publish:
           <<: *release-android-tag-filter
-          name: "⚠️ Approve AFTER publishing to Maven Central (see print-release-instructions logs)"
           type: approval
           requires:
             - notify-slack-release-android
@@ -1275,7 +1274,7 @@ workflows:
           <<: *release-android-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
-            - approve-release-android
+            - approve-after-maven-central-publish
 
   promote-to-release-ios:
     jobs:
