@@ -573,6 +573,31 @@ jobs:
           gradle-target: dependencies
       - save_gradle_cache
 
+  print-release-instructions:
+    executor: small-linux-generic-executor
+    description: "Print manual publishing instructions"
+    steps:
+      - run:
+          name: "📋 Manual Publishing Instructions"
+          command: |
+            cat << 'EOF'
+            ============================================================
+            ⚠️  IMPORTANT: Manual Publishing Required
+            ============================================================
+            
+            Before approving the workflow, complete these steps:
+            
+            1. Go to https://central.sonatype.com/publishing/deployments
+            2. Find the latest VALIDATED deployment for this release
+            3. Click "Publish" button
+            4. Wait 15-30 minutes for Maven Central sync
+            5. Verify publication:
+               curl https://repo.maven.apache.org/maven2/com/twilio/sync-android-kt/maven-metadata.xml
+            6. Then approve the workflow to run CDN pin
+            
+            ============================================================
+            EOF
+
   test-sdk-android:
     executor: small-linux-generic-executor
     description: "Test"
@@ -1234,21 +1259,23 @@ workflows:
             - prepare-release-tool
             - prepare-dependencies
           mentions: "@msgsdk-team"
+      - print-release-instructions:
+          <<: *release-android-tag-filter
+          requires:
+            - prepare-release-tool
+            - prepare-dependencies
       - approve-release-android:
           <<: *release-android-tag-filter
+          name: "⚠️ Approve AFTER publishing to Maven Central (see print-release-instructions logs)"
           type: approval
           requires:
             - notify-slack-release-android
+            - print-release-instructions
       - pin-sdk-android:
           <<: *release-android-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
             - approve-release-android
-      - promote-to-release-sdk-android:
-          <<: *release-android-tag-filter
-          context: rtd-ci-build-publish-snapshot
-          requires:
-            - pin-sdk-android
 
   promote-to-release-ios:
     jobs:
