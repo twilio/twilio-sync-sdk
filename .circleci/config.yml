@@ -580,7 +580,7 @@ jobs:
       - run:
           name: "📋 Manual Publishing Instructions"
           command: |
-            cat << 'EOF'
+            cat \<< 'EOF'
             ============================================================
             ⚠️  IMPORTANT: Manual Publishing Required
             ============================================================
