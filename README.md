@@ -1,6 +1,6 @@
 # Twilio Sync SDK
 
-[![CircleCI](https://circleci.com/gh/twilio/twilio-sync-sdk.svg?style=shield&&circle-token=CCIPRJ_GaffVsFYDvP4hPPWrNjFLz_7d742d3cd4851925d74198732fdf7c41ecacb2b1)](https://app.circleci.com/pipelines/github/twilio/twilio-sync-sdk)
+[![CircleCI](https://circleci.com/gh/twilio/twilio-sync-sdk.svg?style=shield)](https://app.circleci.com/pipelines/github/twilio/twilio-sync-sdk)
 
 Latest available SDK version: 
 
