@@ -42,13 +42,16 @@ open class BaseTwilsockTest {
     lateinit var twilsockObserver: TwilsockObserver
 
     var onConnectivityChanged = {}
+    var onDefaultNetworkChanged: (String?) -> Unit = {}
 
     @BeforeTest
     open fun setUp() {
         setupTestLogging()
         MockKAnnotations.init(this@BaseTwilsockTest, relaxUnitFun = true)
         every { connectivityMonitor.isNetworkAvailable } returns true
+        every { connectivityMonitor.defaultNetworkId } returns "defaultNetwork"
         every { connectivityMonitor.onChanged = any() } propertyType onConnectivityChanged::class answers { onConnectivityChanged = value }
+        every { connectivityMonitor.onDefaultNetworkChanged = any() } propertyType onDefaultNetworkChanged::class answers { onDefaultNetworkChanged = value }
         every { twilsockTransportFactory(any(), any(), any(), any()) } returns twilsockTransport
         clearTwilsockObserverMock()
 
