@@ -204,6 +204,18 @@ commands:
             rm -rf << parameters.dir >>/tmp
             ./BuildScripts/clean-build-outputs.sh << parameters.dir >>
 
+  setup_java_17:
+    description: "Install and setup Java 17 for Gradle compatibility"
+    steps:
+      - run:
+          name: "Install Java 17"
+          command: |
+            brew install --cask temurin@17
+            echo 'export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home' >> ~/.bashrc
+            echo 'export PATH="$JAVA_HOME/bin:$PATH"' >> ~/.bashrc
+            source ~/.bashrc
+            java -version
+
   # This step is still used in one place - in Android release.
   prepare_release_tool:
     description: "Prepare AWS settings"
@@ -294,12 +306,12 @@ commands:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:phNm6Lf1PJvwJmDzzP2atd84yiDL/jvh+lquogInhrc" # Access to certs in the https://github.com/twilio/rtd-build-settings
+            - "SHA256:eqClQVpNhawrgA7rkup9dJjwYSeD+UkSKI+sNHubI/o"
       - run: # recommendation from CircleCI to get rid of certificates installations problems
-          name: Set fastlane version to 2.210.1
+          name: Set fastlane version to 2.229.1
           command: |
             gem uninstall fastlane --all --executables
-            gem install fastlane --version 2.210.1 --no-document
+            gem install fastlane --version 2.229.1 --no-document
       - run:
           name: Install certificates
           command: ./BuildScripts/install-ios-certificates.sh
@@ -454,7 +466,7 @@ commands:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:S2ePnorqFC8o6n1TqIbzRLAA/rokvvahy2HH6HclUIc" # key with write access to push the tag
+            - "SHA256:eqClQVpNhawrgA7rkup9dJjwYSeD+UkSKI+sNHubI/o" # key with write access to push the tag
       - run:
           name: "Push sonatype git tag"
           command: |
@@ -567,6 +579,31 @@ jobs:
           gradle-project-dir: *android_sync_root_project_dir
           gradle-target: dependencies
       - save_gradle_cache
+
+  print-release-instructions:
+    executor: small-linux-generic-executor
+    description: "Print manual publishing instructions"
+    steps:
+      - run:
+          name: "📋 Manual Publishing Instructions"
+          command: |
+            cat \<< 'EOF'
+            ============================================================
+            ⚠️  IMPORTANT: Manual Publishing Required
+            ============================================================
+            
+            Before approving the workflow, complete these steps:
+            
+            1. Go to https://central.sonatype.com/publishing/deployments
+            2. Find the latest VALIDATED deployment for this release
+            3. Click "Publish" button
+            4. Wait 15-30 minutes for Maven Central sync
+            5. Verify publication:
+               curl https://repo.maven.apache.org/maven2/com/twilio/sync-android-kt/maven-metadata.xml
+            6. Then approve the workflow to run CDN pin
+            
+            ============================================================
+            EOF
 
   test-sdk-android:
     executor: small-linux-generic-executor
@@ -696,6 +733,7 @@ jobs:
       - attach_workspace:
           at: *workspace
       - restore_cache_kmm_ios
+      - setup_java_17
       - download_and_setup_android_sdk:
           gradle-project-dir: *android_sync_root_project_dir
       - run_gradle_target:
@@ -834,6 +872,7 @@ jobs:
       - install_ios_certificates
       - gem_install_xcodeproj
       - restore_cache_kmm_ios
+      - setup_java_17
       - download_and_setup_android_sdk:
           gradle-project-dir: *android_sync_root_project_dir
       - run_gradle_target:
@@ -925,6 +964,7 @@ jobs:
       - attach_workspace:
           at: *workspace
       - restore_cache_kmm_ios
+      - setup_java_17
       - download_and_setup_android_sdk:
           gradle-project-dir: *android_sync_root_project_dir
       - run_gradle_target:
@@ -1238,21 +1278,22 @@ workflows:
             - prepare-release-tool
             - prepare-dependencies
           mentions: "@msgsdk-team"
-      - approve-release-android:
+      - print-release-instructions:
+          <<: *release-android-tag-filter
+          requires:
+            - prepare-release-tool
+            - prepare-dependencies
+      - approve-after-maven-central-publish:
           <<: *release-android-tag-filter
           type: approval
           requires:
             - notify-slack-release-android
+            - print-release-instructions
       - pin-sdk-android:
           <<: *release-android-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
-            - approve-release-android
-      - promote-to-release-sdk-android:
-          <<: *release-android-tag-filter
-          context: rtd-ci-build-publish-snapshot
-          requires:
-            - pin-sdk-android
+            - approve-after-maven-central-publish
 
   promote-to-release-ios:
     jobs:

@@ -4,7 +4,7 @@ set -e
 set -x
 
 MONOREPO_DIR=`git rev-parse --show-toplevel`
-IOS_PROVISION_PROFILE="a6ad9352-2b60-48ca-9cb2-76cc2d5e0002"
+IOS_PROVISION_PROFILE="d06bced2-78cb-4469-9e9f-351d5e9d9f5d"
 FOLDER_WITH_TEST_OUTPUT="DerivedData"
 
 cd "$MONOREPO_DIR/ios/TwilioSync"

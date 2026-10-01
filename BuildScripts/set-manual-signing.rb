@@ -28,6 +28,7 @@ begin
     test_host.build_configurations.each do |config|
         puts "Updating signing for #{config}"
         config.build_settings["CODE_SIGN_STYLE"] = "Manual"
+        config.build_settings["DEVELOPMENT_TEAM"] = "VPZ4UMT2G9"
         config.build_settings["PROVISIONING_PROFILE_SPECIFIER"] = ARGV[1]
     end
 ensure

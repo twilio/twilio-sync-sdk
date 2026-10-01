@@ -1,0 +1,29 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: twilio-sync-sdk
+  title: twilio-sync-sdk
+  namespace: default
+  description: "Twilio Sync SDK for Android and iOS"
+  annotations:
+    jira/project-key: FLEXSDK
+    pagerduty.com/service-id: PLW9MMV
+    twilio.com/email: team_flex-sdk@twilio.com
+    twilio.com/ldap-group: team_flex-sdk
+    twilio.com/service-tier: "5"
+    twilio.com/slack-channel-name: flex-sdk-alerts
+    twilio.com/in-scope-sox: "false"
+    twilio.com/in-scope-hipaa: "false"
+    twilio.com/in-scope-pci: "false"
+    twilio.com/slack-id: C036ZT4M7QR
+  labels: {}
+  tags: []
+  links:
+    - url: "https://github.com/twilio/twilio-sync-sdk"
+      title: "Application Repository"
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/sup-org-2806
+  system: conversations-sdk
