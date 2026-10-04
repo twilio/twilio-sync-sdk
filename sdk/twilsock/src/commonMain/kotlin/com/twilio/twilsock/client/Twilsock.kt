@@ -99,8 +99,16 @@ interface Twilsock {
 
     fun addObserver(block: TwilsockObserver.() -> Unit): Unsubscriber
 
+    /**
+     * Call when the app is back in the foreground. Resumes reconnection: if Twilsock is waiting to
+     * reconnect, it reconnects immediately with the backoff reset.
+     */
     fun onAppForegrounded()
 
+    /**
+     * Call when the app goes to the background. Pauses timed reconnect attempts until
+     * [onAppForegrounded] or [connect] is called, so every call must be paired with a foreground call.
+     */
     fun onAppBackgrounded()
 }
 
@@ -210,6 +218,7 @@ internal class TwilsockImpl(
     private var websocket: TwilsockTransport? = null
 
     private var connectedNetworkId: String? = null
+    private var isBackgrounded = false
     private val defaultNetworkId: String? get() = connectivityMonitor.defaultNetworkId
 
     private val isNetworkAvailable get() = connectivityMonitor.isNetworkAvailable
@@ -358,7 +367,8 @@ internal class TwilsockImpl(
                 )
 
                 shutdownWebSocket()
-                if (isNetworkAvailable) {
+                // No timed reconnects while backgrounded; onAppForegrounded() or connect() resumes.
+                if (isNetworkAvailable && !isBackgrounded) {
                     timer.schedule(finalWaitTime) { onTimeout() }
                 }
                 failedReconnectionAttempts++
@@ -476,6 +486,7 @@ internal class TwilsockImpl(
     override fun onAppForegrounded() {
         logger.d { "onAppForegrounded" }
         coroutineScope.launch {
+            isBackgrounded = false
             stateMachine.transition(OnAppForegrounded)
         }
     }
@@ -483,6 +494,7 @@ internal class TwilsockImpl(
     override fun onAppBackgrounded() {
         logger.d { "onAppBackgrounded" }
         coroutineScope.launch {
+            isBackgrounded = true
             stateMachine.transition(OnAppBackgrounded)
         }
     }
