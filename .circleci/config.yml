@@ -381,8 +381,8 @@ commands:
       - run:
           name: "Generate project settings: << parameters.gradle-project-dir >>"
           command: |
-            echo "sonatype.username=$SONATYPE_USERNAME" >> gradle.properties
-            echo "sonatype.password=$SONATYPE_PASSWORD" >> gradle.properties
+            echo "sonatype.username=$MAVEN_CENTRAL_TOKEN_USERNAME" >> gradle.properties
+            echo "sonatype.password=$MAVEN_CENTRAL_TOKEN_PASSWORD" >> gradle.properties
 
             echo "signing.keyId=$SONATYPE_SIGNING_KEY_ID" >> gradle.properties
             echo "signing.password=$SONATYPE_SIGNING_PASSWORD" >> gradle.properties
@@ -459,7 +459,7 @@ commands:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:S2ePnorqFC8o6n1TqIbzRLAA/rokvvahy2HH6HclUIc" # key with write access to push the tag
+            - "SHA256:eqClQVpNhawrgA7rkup9dJjwYSeD+UkSKI+sNHubI/o" # key with write access to push the tag
       - run:
           name: "Push sonatype git tag"
           command: |
@@ -572,6 +572,31 @@ jobs:
           gradle-project-dir: *android_sync_root_project_dir
           gradle-target: dependencies
       - save_gradle_cache
+
+  print-release-instructions:
+    executor: small-linux-generic-executor
+    description: "Print manual publishing instructions"
+    steps:
+      - run:
+          name: "📋 Manual Publishing Instructions"
+          command: |
+            cat \<< 'EOF'
+            ============================================================
+            ⚠️  IMPORTANT: Manual Publishing Required
+            ============================================================
+            
+            Before approving the workflow, complete these steps:
+            
+            1. Go to https://central.sonatype.com/publishing/deployments
+            2. Find the latest VALIDATED deployment for this release
+            3. Click "Publish" button
+            4. Wait 15-30 minutes for Maven Central sync
+            5. Verify publication:
+               curl https://repo.maven.apache.org/maven2/com/twilio/sync-android-kt/maven-metadata.xml
+            6. Then approve the workflow to run CDN pin
+            
+            ============================================================
+            EOF
 
   test-sdk-android:
     executor: small-linux-generic-executor
@@ -1234,21 +1259,22 @@ workflows:
             - prepare-release-tool
             - prepare-dependencies
           mentions: "@msgsdk-team"
-      - approve-release-android:
+      - print-release-instructions:
+          <<: *release-android-tag-filter
+          requires:
+            - prepare-release-tool
+            - prepare-dependencies
+      - approve-after-maven-central-publish:
           <<: *release-android-tag-filter
           type: approval
           requires:
             - notify-slack-release-android
+            - print-release-instructions
       - pin-sdk-android:
           <<: *release-android-tag-filter
           context: rtd-ci-build-publish-snapshot
           requires:
-            - approve-release-android
-      - promote-to-release-sdk-android:
-          <<: *release-android-tag-filter
-          context: rtd-ci-build-publish-snapshot
-          requires:
-            - pin-sdk-android
+            - approve-after-maven-central-publish
 
   promote-to-release-ios:
     jobs:
