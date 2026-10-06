@@ -35,6 +35,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 
 @ExcludeFromInstrumentedTests
 class InitializingTwilsockTest : BaseTwilsockTest() {
@@ -149,6 +150,19 @@ class InitializingTwilsockTest : BaseTwilsockTest() {
         val errorInfo = twilsockObserver.captureNonFatalError()
 
         assertEquals(TooManyRequests, errorInfo.reason)
+        assertIs<WaitAndReconnect>(twilsock.state)
+    }
+
+    @Test
+    fun tooManyRequestsBacksOff() = runTest {
+        // after 10 failed attempts backoff is ~45s, much longer than backoff_policy (1-2s)
+        twilsock.failedReconnectionAttempts = 10
+
+        val reply = fakeTooManyRequestsReply(sentInitMessage.requestId)
+        twilsock.onMessageReceived(reply.encodeToByteArray())
+        twilsockObserver.captureNonFatalError()
+
+        delay(3.seconds)
         assertIs<WaitAndReconnect>(twilsock.state)
     }
 
