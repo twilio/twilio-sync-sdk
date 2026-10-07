@@ -358,7 +358,8 @@ internal class TwilsockImpl(
         state<WaitAndReconnect> {
             val timer = Timer(coroutineScope)
             onEnter {
-                val finalWaitTime = waitTime ?: calcDefaultWaitTime()
+                // Server's backoff_policy is a lower bound, keep backing off on repeated 429s.
+                val finalWaitTime = maxOf(waitTime ?: Duration.ZERO, calcDefaultWaitTime())
                 logger.d { "failedReconnectionAttempts: $failedReconnectionAttempts; finalWaitTime: $finalWaitTime" }
 
                 failAllSentRequests(
