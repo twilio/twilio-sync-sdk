@@ -120,12 +120,12 @@ internal actual class ConnectivityMonitorImpl actual constructor(private val cor
 
     private inner class DefaultNetworkCallback : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
-            logger.d { "Default network changed to: $network" }
+            logger.i { "Default network changed to: $network" }
             coroutineScope.launch { onDefaultNetworkChanged(network.toString()) }
         }
 
         override fun onLost(network: Network) {
-            logger.d { "Default network lost: $network" }
+            logger.i { "Default network lost: $network" }
             coroutineScope.launch { onDefaultNetworkChanged(null) }
         }
     }
