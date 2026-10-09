@@ -47,6 +47,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.jsonPrimitive
 
 @ExcludeFromInstrumentedTests
@@ -88,6 +89,23 @@ class ConnectedTwilsockTest : BaseTwilsockTest() {
 
         // due to async processing the state could ether be WaitAndReconnect or already switched to the Connecting
         assertTrue { twilsock.state is WaitAndReconnect || twilsock.state is Connecting }
+    }
+
+    @Test
+    fun transportDisconnectedWhileBackgrounded() = runTest {
+        twilsock.onAppBackgrounded()
+        delay(0.5.seconds)
+
+        twilsock.onTransportDisconnected(ErrorInfo(TransportDisconnected))
+        twilsockObserver.captureNonFatalError()
+
+        // Without background the first reconnect is immediate, so no timer must be running now
+        delay(2.seconds)
+        assertIs<WaitAndReconnect>(twilsock.state)
+
+        twilsock.onAppForegrounded()
+        wait { twilsock.state is Connecting }
+        assertEquals(0, twilsock.failedReconnectionAttempts)
     }
 
     @Test
