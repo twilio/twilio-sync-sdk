@@ -17,7 +17,11 @@ class ConnectivityMonitor : TwilsockConnectivityMonitor {
     var isNetworkAvailable: Bool = true
     
     var onChanged: () -> Void = {}
-    
+
+    var defaultNetworkId: String? = nil
+
+    var onDefaultNetworkChanged: (String?) -> Void = { _ in }
+
     private let monitor = NWPathMonitor()
     
     private let logger = KotlinLogger("ConnectivityMonitor")

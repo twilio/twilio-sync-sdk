@@ -10,7 +10,9 @@ import kotlinx.coroutines.CoroutineScope
 
 interface ConnectivityMonitor {
     val isNetworkAvailable: Boolean
+    val defaultNetworkId: String?
     var onChanged: () -> Unit
+    var onDefaultNetworkChanged: (networkId: String?) -> Unit
 
     fun start()
     fun stop()
